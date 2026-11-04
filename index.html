@@ -438,6 +438,9 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .online .err { color: #ff8a93; font-size: .9rem; }
 .linkish { background: none; border: none; padding: 0; color: var(--gold); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .bd-tabs button { flex: 1 1 30%; font-size: .9rem; padding: 8px 6px; }
+.bd-sub { display: flex; flex-direction: column; gap: 8px; }
+.bd-levels button { padding: 8px 4px; font-size: .92rem; }
+.bd-song { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--bg-3); background: var(--bg-2); color: var(--ink); font: 700 1rem var(--body); }
 .bd-me { color: var(--muted); text-align: center; min-height: 1.4em; }
 .bd-me b { color: var(--gold); }
 .bd-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
@@ -603,6 +606,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
     <div class="topbar"><button class="quit" id="board-back" type="button">‹ Les jeux</button></div>
     <h2 class="sub-h">Classements</h2>
     <div class="seg seg-wrap bd-tabs" id="bd-tabs"></div>
+    <div class="bd-sub" id="bd-sub"></div>
     <div class="bd-me" id="bd-me"></div>
     <ol class="bd-list" id="bd-list"></ol>
     <p class="menu-foot" id="bd-foot"></p>
@@ -664,14 +668,25 @@ if (bests.tourTotal == null && bests.tourEuros && bests.tourEuros.value != null)
    Sans configuration, sans réseau ou si Firebase refuse, tout reste local et le jeu continue normalement.
    ========================================================= */
 const ONLINE = Object.assign({ db: "https://fete-d-arbas-l-appli-default-rtdb.europe-west1.firebasedatabase.app", key: "AIzaSyBFWLYNl1tRQpPGsJPsZQALEhL-LyQm4g4" }, store.get("arbas-online-cfg") || {});   // adresse de la base et clé d'API Web, fournies par Hugo (remplaçables pour les tests)
-const BOARDS = [
-  { id: "petanque", name: "Pétanque", fmt: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) },
-  { id: "tapas", name: "Tapas", fmt: (v) => v + "/100" },
-  { id: "tour", name: "Tour de ville", fmt: (v) => v + " €" },
+// Un classement par jeu et par niveau (et par morceau pour les 1000 guêpes) ; Marathon et Parcours complet à part.
+// Clé en base : « tapas-C », « banda-montero-L », « marathon »… (les mêmes que dans les règles Firebase)
+const LEVEL_KEYS = { "Facile": "F", "Confirmé": "C", "Expert": "E", "Légende": "L" };
+const LEVEL_NAMES = { F: "Facile", C: "Confirmé", E: "Expert", L: "Légende" };
+const slug = (t) => String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const BOARD_GAMES = [
+  { id: "petanque", name: "Pétanque", levels: ["F", "C", "E"], fmt: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) },
+  { id: "tapas", name: "Tapas", levels: ["F", "C", "E"], fmt: (v) => v + "/100" },
+  { id: "tour", name: "Tour de ville", levels: ["F", "C", "E"], fmt: (v) => v + " €" },
   { id: "marathon", name: "Marathon", fmt: (v) => v + " €" },
-  { id: "banda", name: "1000 guêpes", fmt: (v) => v + "/100" },
+  { id: "banda", name: "1000 guêpes", levels: ["F", "C", "E", "L"], songs: true, fmt: (v) => v + "/100" },
   { id: "parcours", name: "Parcours complet", fmt: (v) => v + "/100" }
 ];
+function boardKey(game, level, song) {
+  const g = BOARD_GAMES.find(x => x.id === game); if (!g) return null;
+  if (!g.levels) return g.id;
+  if (!g.levels.includes(level)) return null;
+  return g.songs ? `${g.id}-${slug(song)}-${level}` : `${g.id}-${level}`;
+}
 const Online = (() => {
   const st = Object.assign({ name: "", sent: {}, pending: {}, uid: "", refresh: "" }, store.get("arbas-online") || {});
   let token = "", tokenExp = 0;
@@ -1186,7 +1201,7 @@ function petanque(stage, hud, done) {
       const win = pts.me >= target;
       if (win) Sfx.cheer(); else Sfx.aww();
       // Score : l'écart de points en fin de match (positif en cas de victoire)
-      done(pts.me - pts.ai, `${win ? "Victoire" : "Défaite"} ${pts.me} à ${pts.ai} contre l'ordinateur (niveau ${L.name}, partie en ${target}).`);
+      done(pts.me - pts.ai, `${win ? "Victoire" : "Défaite"} ${pts.me} à ${pts.ai} contre l'ordinateur (niveau ${L.name}, partie en ${target}).`, undefined, null, null, { level: L.name });
     }
 
     /* Lancers */
@@ -1604,7 +1619,7 @@ function tapas(stage, hud, done) {
     const pct = 100 * correctSum / itemSum;
     // Bruitage de fin : déception sous 50 %, son « moyen » de 50 à 75 %, acclamation de 75 à 99 %, son de victoire à 100 %
     if (pct < 50) Sfx.aww(); else if (pct < 75) Sfx.moyen(); else if (pct < 100) Sfx.cheer(); else Sfx.parfait();
-    done(Math.round(pct), `${correctSum} tapas justes sur ${itemSum}. Niveau ${L.name}.`, tapasQuip(L.name, pct));
+    done(Math.round(pct), `${correctSum} tapas justes sur ${itemSum}. Niveau ${L.name}.`, tapasQuip(L.name, pct), null, null, { level: L.name });
   }
   Music.play("audio/tapas.mp3", 1.3); Sfx.preload(["audio/acclame.mp3", "audio/decu.mp3", "audio/moyen.mp3", "audio/parfait.mp3"]);
   later(nextRound, 300);
@@ -1778,7 +1793,7 @@ function tourDeVille(stage, hud, done) {
       setTimeout(() => { if (beaten && total > 0) Sfx.cheer(); else Sfx.aww(); }, 350);
       let d = `Vous avez tenu ${fmtTime(frame)} avant le troisième accrochage. ${raw} € ramassés`;
       d += glasses ? `, ${glasses} verre${glasses > 1 ? "s" : ""} bu${glasses > 1 ? "s" : ""}, multiplicateur final ${fmtMult(mult())}.` : ", sans boire une goutte.";
-      timer = setTimeout(() => done(null, d, null, { key: "tourMarathon", label: "Quête en Marathon", value: total, unit: "€", note: `tenu ${fmtTime(frame)}`, always: true }), 1200);
+      timer = setTimeout(() => done(null, d, null, { key: "tourMarathon", label: "Quête en Marathon", value: total, unit: "€", note: `tenu ${fmtTime(frame)}`, always: true }, null, { level: "Marathon" }), 1200);
       return;
     }
     setTimeout(() => { if (crashed) Sfx.aww(); else Sfx.cheer(); }, crashed ? 350 : 0);
@@ -1792,7 +1807,7 @@ function tourDeVille(stage, hud, done) {
       return;
     }
     if (hits) detail += ` ${hits} accrochage${hits > 1 ? "s" : ""}.`;
-    timer = setTimeout(() => done(total, detail), 1200);
+    timer = setTimeout(() => done(total, detail, undefined, null, null, { level: L.name }), 1200);
   }
 
   function drawHouse(h) {
@@ -2060,7 +2075,7 @@ function banda(stage, hud, done) {
       let d = `${hits} notes justes sur ${total}`;
       if (strays) d += `, ${strays} couac${strays > 1 ? "s" : ""}`;
       d += `. Meilleure série : ${maxCombo} note${maxCombo > 1 ? "s" : ""}. ${GUEPES.name}, niveau ${L.name}.`;
-      timer = setTimeout(() => done(Math.round(p), d, null, null, { key: "banda:" + GUEPES.name, label: GUEPES.name }), 900);
+      timer = setTimeout(() => done(Math.round(p), d, null, null, { key: "banda:" + GUEPES.name, label: GUEPES.name }, { level: L.name, song: GUEPES.name }), 900);
     }
 
     function drawNote(n, x, y, r) {
@@ -3144,10 +3159,10 @@ function startGame() {
   $("play-title").textContent = g.name;
   $("hud").textContent = "";
   show("play");
-  cleanup = g.run($("stage"), $("hud"), (score, detail, quip, stat, variant) => endGame(g, score, detail, quip, stat, variant));
+  cleanup = g.run($("stage"), $("hud"), (score, detail, quip, stat, variant, meta) => endGame(g, score, detail, quip, stat, variant, meta));
 }
 function stopGame() { if (cleanup) { cleanup(); cleanup = null; } $("stage").replaceChildren(); }
-function endGame(g, score, detail, quip, stat, variant) {
+function endGame(g, score, detail, quip, stat, variant, meta) {
   stopGame();
   const noScore = score === null;                 // partie sans score (ex. tour de ville arrêté)
   if (!noScore && !g.unit) score = clamp(score, 0, 100);     // les jeux notés sur 100 ; les autres gardent leur propre mesure
@@ -3205,7 +3220,8 @@ function endGame(g, score, detail, quip, stat, variant) {
     first = mk("Rejouer", "primary", () => { session.results = []; startGame(); });
     mk("Menu", "ghost", renderMenu);
   }
-  onlineBox($("res-online"), boardFor(g, stat));
+  const ob = boardFor(g, meta); if (ob && score != null && !noScore) noteBest(ob, score); if (ob === "marathon" && stat) noteBest(ob, stat.value);
+  onlineBox($("res-online"), ob);
   show("result");
   first.focus({ preventScroll: true });
 }
@@ -3227,6 +3243,7 @@ function showFinal() {
   const rec = $("fin-record");
   rec.className = "record" + (isNew ? " new" : "");
   rec.textContent = isNew ? (prev == null ? "Première moyenne enregistrée." : `Nouveau record de parcours ! (ancien : ${prev})`) : `Meilleure moyenne : ${prev}/100`;
+  noteBest("parcours", avg);
   onlineBox($("fin-online"), "parcours");
   show("final");
 }
@@ -3235,14 +3252,16 @@ function startParcours() { session = { mode: "parcours", queue: GAMES.map(g => g
 /* ---------- Classements en ligne : encart après une partie, page des classements ---------- */
 const escH = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const ordinal = (n) => n === 1 ? "1<sup>er</sup>" : n + "<sup>e</sup>";
-// Meilleurs scores gardés sur ce téléphone, classement par classement
-function localBest(board) {
-  const m = { petanque: bests.petanqueEcart, tapas: bests.tapas, tour: bests.tourTotal, marathon: bests.tourMarathon && bests.tourMarathon.value, banda: bests.banda, parcours: bests.parcours };
-  return m[board] == null ? null : Number(m[board]);
-}
-function boardFor(g, stat) {
-  if (g.id === "tour") return stat && stat.key === "tourMarathon" ? "marathon" : "tour";
-  return BOARDS.some(b => b.id === g.id) ? g.id : null;
+// Meilleurs scores par classement en ligne, gardés sur ce téléphone (le Marathon et le Parcours reprennent les anciens records)
+const boardBests = store.get("arbas-board-bests") || {};
+if (boardBests.marathon == null && bests.tourMarathon) boardBests.marathon = bests.tourMarathon.value;
+if (boardBests.parcours == null && bests.parcours != null) boardBests.parcours = bests.parcours;
+function noteBest(board, score) { if (board && Number.isFinite(score) && (boardBests[board] == null || score > boardBests[board])) { boardBests[board] = score; store.set("arbas-board-bests", boardBests); } }
+const localBest = (board) => boardBests[board] == null ? null : Number(boardBests[board]);
+function boardFor(g, meta) {
+  if (!meta || !meta.level) return null;
+  if (g.id === "tour" && meta.level === "Marathon") return "marathon";
+  return boardKey(g.id, LEVEL_KEYS[meta.level], meta.song);
 }
 function onlineBox(el, board) {
   const best = board ? localBest(board) : null;
@@ -3270,13 +3289,28 @@ function onlineBox(el, board) {
     } catch (e) { el.innerHTML = `<p>Classement indisponible pour le moment.</p>`; }
   });
 }
-let boardCur = "petanque", boardReq = 0;
-async function renderBoards(id) {
-  if (id) boardCur = id;
+let boardSel = { game: "petanque", level: "C", song: null }, boardReq = 0;
+function boardFromKey(key) {
+  const [game, ...rest] = String(key).split("-"), g = BOARD_GAMES.find(x => x.id === game); if (!g) return null;
+  if (!g.levels) return { game };
+  const level = rest.pop(); return { game, level, song: g.songs ? (GUEPES_LIST.find(s => slug(s.name) === rest.join("-")) || {}).name : null };
+}
+async function renderBoards(key) {
+  if (key) { const s = boardFromKey(key); if (s) boardSel = { ...boardSel, ...s }; }
+  const g = BOARD_GAMES.find(x => x.id === boardSel.game);
+  if (g.levels && !g.levels.includes(boardSel.level)) boardSel.level = g.levels.includes("C") ? "C" : g.levels[0];
+  if (g.songs && !GUEPES_LIST.some(s => s.name === boardSel.song)) boardSel.song = GUEPES_LIST[0].name;
+  const boardCur = boardKey(g.id, boardSel.level, boardSel.song);
   show("board");
   const tabs = $("bd-tabs");
-  tabs.innerHTML = BOARDS.map(b => `<button type="button" data-v="${b.id}" class="${b.id === boardCur ? "on" : ""}">${b.name}</button>`).join("");
-  tabs.querySelectorAll("button").forEach(b => b.addEventListener("click", () => renderBoards(b.dataset.v)));
+  tabs.innerHTML = BOARD_GAMES.map(b => `<button type="button" data-v="${b.id}" class="${b.id === g.id ? "on" : ""}">${b.name}</button>`).join("");
+  tabs.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { boardSel.game = b.dataset.v; renderBoards(); }));
+  const sub = $("bd-sub");
+  sub.innerHTML = (g.songs ? `<select class="bd-song" aria-label="Morceau">${GUEPES_LIST.map(s => `<option ${s.name === boardSel.song ? "selected" : ""}>${escH(s.name)}</option>`).join("")}</select>` : "")
+    + (g.levels ? `<div class="seg bd-levels">${g.levels.map(l => `<button type="button" data-v="${l}" class="${l === boardSel.level ? "on" : ""}">${LEVEL_NAMES[l]}</button>`).join("")}</div>` : "");
+  sub.hidden = !g.levels;
+  sub.querySelectorAll(".bd-levels button").forEach(b => b.addEventListener("click", () => { boardSel.level = b.dataset.v; renderBoards(); }));
+  const sel = sub.querySelector("select"); if (sel) sel.addEventListener("change", () => { boardSel.song = sel.value; renderBoards(); });
   const me = $("bd-me");
   const meLine = () => {
     me.innerHTML = Online.name() ? `Ton pseudo : <b>${escH(Online.name())}</b> · <button class="linkish" type="button">changer</button>` : "Ton pseudo te sera demandé après ta première partie.";
@@ -3288,7 +3322,7 @@ async function renderBoards(id) {
     });
   };
   meLine();
-  const list = $("bd-list"), foot = $("bd-foot"), b = BOARDS.find(x => x.id === boardCur), req = ++boardReq;
+  const list = $("bd-list"), foot = $("bd-foot"), b = g, req = ++boardReq;
   list.innerHTML = `<li><span class="nm">Chargement…</span></li>`; foot.textContent = "";
   await Online.flush();
   try {
@@ -3305,7 +3339,7 @@ async function renderBoards(id) {
 $("btn-boards").addEventListener("click", () => renderBoards());
 $("board-back").addEventListener("click", renderMenu);
 // Au lancement et au retour du réseau : on envoie les records restés en attente
-for (const b of BOARDS) { const v = localBest(b.id); if (v != null) Online.offer(b.id, v); }
+for (const [b, v] of Object.entries(boardBests)) if (v != null) Online.offer(b, v);
 Online.flush(); addEventListener("online", () => Online.flush());
 
 $("btn-parcours").addEventListener("click", startParcours);
