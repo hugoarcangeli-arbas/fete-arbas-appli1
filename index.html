@@ -428,6 +428,27 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 /* Pendant la partie, l'écran est rempli : les cartes au milieu de l'espace libre, les boutons en bas */
 .pm.pm-play { min-height: calc(100vh - 82px); min-height: calc(100svh - 82px); }
 .pm.pm-play .pm-table { flex: 1 1 auto; }
+/* Classements en ligne */
+.online { display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; background: var(--bg-2); border: 1px solid var(--bg-3); border-radius: 14px; padding: 12px 14px; width: 100%; box-sizing: border-box; }
+.online p { margin: 0; }
+.online b { color: var(--gold); }
+.online .row { display: flex; gap: 8px; width: 100%; }
+.online .row .mo-input { flex: 1; min-width: 0; }
+.online .btn { flex: 0 0 auto; }
+.online .err { color: #ff8a93; font-size: .9rem; }
+.linkish { background: none; border: none; padding: 0; color: var(--gold); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.bd-tabs button { flex: 1 1 30%; font-size: .9rem; padding: 8px 6px; }
+.bd-me { color: var(--muted); text-align: center; min-height: 1.4em; }
+.bd-me b { color: var(--gold); }
+.bd-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.bd-list li { display: flex; align-items: center; gap: 12px; background: var(--bg-2); border: 1px solid var(--bg-3); border-radius: 12px; padding: 9px 12px; }
+.bd-list li.me { border-color: var(--gold); background: #15605f; }
+.bd-list .rk { font-family: var(--num); font-weight: 900; color: var(--gold); min-width: 1.8em; text-align: center; }
+.bd-list .nm { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.bd-list .sc { font-family: var(--num); font-weight: 900; white-space: nowrap; }
+.bd-list li:nth-child(1) .rk::before { content: "🥇"; } .bd-list li:nth-child(2) .rk::before { content: "🥈"; } .bd-list li:nth-child(3) .rk::before { content: "🥉"; }
+.bd-list li:nth-child(-n+3) .rk { font-size: 0; } .bd-list li:nth-child(-n+3) .rk::before { font-size: 1.3rem; }
+#btn-boards { align-self: stretch; }
 .pc-soon { opacity: .55; cursor: not-allowed; }
 .pc-img { display: block; align-self: center; max-width: 100%; max-height: 38vh; width: auto; height: auto; border-radius: 10px; background: #fff; }
 .pc-text.pc-long { font-size: 1.2rem; }
@@ -515,6 +536,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
     </button>
     <div class="cards" id="cards"></div>
     <p class="menu-foot" id="parcours-best" hidden></p>
+    <button class="btn ghost" id="btn-boards" type="button" hidden>🏆 Classements en ligne</button>
   </section>
 
   <section class="screen" id="drinks" hidden>
@@ -573,7 +595,17 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
     <p class="quip" id="res-quip" hidden></p>
     <p class="detail" id="res-detail"></p>
     <p class="record" id="res-record"></p>
+    <div class="online" id="res-online" hidden></div>
     <div class="btn-row" id="res-buttons"></div>
+  </section>
+
+  <section class="screen" id="board" hidden>
+    <div class="topbar"><button class="quit" id="board-back" type="button">‹ Les jeux</button></div>
+    <h2 class="sub-h">Classements</h2>
+    <div class="seg seg-wrap bd-tabs" id="bd-tabs"></div>
+    <div class="bd-me" id="bd-me"></div>
+    <ol class="bd-list" id="bd-list"></ol>
+    <p class="menu-foot" id="bd-foot"></p>
   </section>
 
   <section class="screen final" id="final" hidden>
@@ -583,6 +615,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
     <div class="scorebox"><b id="fin-score">0</b><span>/100 de moyenne</span></div>
     <p class="rank" id="fin-rank"></p>
     <p class="record" id="fin-record"></p>
+    <div class="online" id="fin-online" hidden></div>
     <div class="btn-row">
       <button class="btn primary" id="fin-again" type="button">Recommencer le parcours</button>
       <button class="btn ghost" id="fin-menu" type="button">Menu</button>
@@ -624,6 +657,81 @@ const store = {
 };
 const bests = store.get("arbas-bests") || {};
 if (bests.tourTotal == null && bests.tourEuros && bests.tourEuros.value != null) bests.tourTotal = bests.tourEuros.value;   // ancien record de quête
+
+/* =========================================================
+   Classements en ligne (Firebase Realtime Database, par son interface web)
+   Chaque téléphone reçoit une identité anonyme ; il n'envoie que son meilleur score par classement.
+   Sans configuration, sans réseau ou si Firebase refuse, tout reste local et le jeu continue normalement.
+   ========================================================= */
+const ONLINE = Object.assign({ db: "https://fete-d-arbas-l-appli-default-rtdb.europe-west1.firebasedatabase.app", key: "AIzaSyBFWLYNl1tRQpPGsJPsZQALEhL-LyQm4g4" }, store.get("arbas-online-cfg") || {});   // adresse de la base et clé d'API Web, fournies par Hugo (remplaçables pour les tests)
+const BOARDS = [
+  { id: "petanque", name: "Pétanque", fmt: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) },
+  { id: "tapas", name: "Tapas", fmt: (v) => v + "/100" },
+  { id: "tour", name: "Tour de ville", fmt: (v) => v + " €" },
+  { id: "marathon", name: "Marathon", fmt: (v) => v + " €" },
+  { id: "banda", name: "1000 guêpes", fmt: (v) => v + "/100" },
+  { id: "parcours", name: "Parcours complet", fmt: (v) => v + "/100" }
+];
+const Online = (() => {
+  const st = Object.assign({ name: "", sent: {}, pending: {}, uid: "", refresh: "" }, store.get("arbas-online") || {});
+  let token = "", tokenExp = 0;
+  const save = () => store.set("arbas-online", st);
+  const enabled = () => !!(ONLINE.db && ONLINE.key);
+  const base = () => ONLINE.db.replace(/\/+$/, "");
+  async function json(url, opt) {
+    const r = await fetch(url, opt); const d = await r.json().catch(() => null);
+    if (!r.ok) { const e = new Error((d && (d.error && (d.error.message || d.error))) || r.status); e.status = r.status; throw e; }
+    return d;
+  }
+  // Identité anonyme : créée une fois, puis renouvelée avec son jeton de rafraîchissement
+  async function auth() {
+    if (token && Date.now() < tokenExp - 60000) return token;
+    let d;
+    if (st.refresh) {
+      try {
+        d = await json(`https://securetoken.googleapis.com/v1/token?key=${ONLINE.key}`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(st.refresh) });
+        token = d.id_token; st.refresh = d.refresh_token; st.uid = d.user_id; tokenExp = Date.now() + Number(d.expires_in) * 1000; save(); return token;
+      } catch (e) { if (e.status && e.status < 500) { st.refresh = ""; } else throw e; }
+    }
+    d = await json(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${ONLINE.key}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ returnSecureToken: true }) });
+    token = d.idToken; st.refresh = d.refreshToken; st.uid = d.localId; tokenExp = Date.now() + Number(d.expiresIn) * 1000; save(); return token;
+  }
+  const cleanName = (n) => String(n || "").replace(/\s+/g, " ").trim();
+  const validName = (n) => { n = cleanName(n); return n.length >= 2 && n.length <= 16 ? n : null; };
+  // Garde de côté le meilleur score à envoyer, puis tente l'envoi
+  function offer(board, score) {
+    if (score == null || !Number.isFinite(score)) return;
+    const best = Math.max(score, st.sent[board] ?? -Infinity, st.pending[board] ?? -Infinity);
+    if (st.sent[board] == null || best > st.sent[board]) { st.pending[board] = best; save(); }
+  }
+  let flushing = null;
+  function flush() {
+    if (flushing) return flushing;
+    flushing = (async () => {
+      if (!enabled() || !st.name || !Object.keys(st.pending).length) return true;
+      if (navigator.onLine === false) return false;
+      const t = await auth();
+      for (const [board, s] of Object.entries(st.pending)) {
+        await json(`${base()}/scores/${board}/${st.uid}.json?auth=${t}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ n: st.name, s, t: { ".sv": "timestamp" } }) });
+        st.sent[board] = s; delete st.pending[board]; save();
+      }
+      return true;
+    })().catch(() => false).finally(() => { flushing = null; });
+    return flushing;
+  }
+  // Nouveau pseudo : il est appliqué aussi aux scores déjà envoyés
+  function setName(n) {
+    const v = validName(n); if (!v) return false;
+    st.name = v; for (const [b, s] of Object.entries(st.sent)) if (st.pending[b] == null) st.pending[b] = s;
+    save(); return true;
+  }
+  async function top(board) {
+    const d = await json(`${base()}/scores/${board}.json`);
+    return Object.entries(d || {}).map(([id, e]) => ({ id, n: String(e.n || "?"), s: Number(e.s), t: Number(e.t) || 0 }))
+      .filter(e => Number.isFinite(e.s)).sort((a, b) => b.s - a.s || a.t - b.t);
+  }
+  return { enabled, offer, flush, setName, top, validName, name: () => st.name, uid: () => st.uid, pending: () => ({ ...st.pending }) };
+})();
 
 /* ---------- Musique : boucles avec fondu enchaîné, coupables par le bouton Son ---------- */
 const Music = (() => {
@@ -2989,7 +3097,7 @@ const RANKS = [
 ];
 const rankOf = (s) => RANKS.find(([m]) => s >= m)[1];
 
-const screens = ["home", "menu", "drinks", "soon", "intro", "play", "result", "final"];
+const screens = ["home", "menu", "drinks", "soon", "intro", "play", "result", "final", "board"];
 const MENU_MUSIC = "audio/accueil.mp3";
 function menuMusic() {
   // Accueil et écran des règles : musique d'accueil. En jeu : la musique du jeu. Résultats : silence (sons de fin).
@@ -3020,6 +3128,7 @@ function renderMenu() {
   $("parcours-best").textContent = bests.parcours != null
     ? `Meilleure moyenne au parcours complet : ${bests.parcours}/100 (${rankOf(bests.parcours)}).`
     : "Les records sont gardés sur cet appareil.";
+  $("btn-boards").hidden = !Online.enabled();
   show("menu");
 }
 function openIntro() {
@@ -3096,6 +3205,7 @@ function endGame(g, score, detail, quip, stat, variant) {
     first = mk("Rejouer", "primary", () => { session.results = []; startGame(); });
     mk("Menu", "ghost", renderMenu);
   }
+  onlineBox($("res-online"), boardFor(g, stat));
   show("result");
   first.focus({ preventScroll: true });
 }
@@ -3117,9 +3227,86 @@ function showFinal() {
   const rec = $("fin-record");
   rec.className = "record" + (isNew ? " new" : "");
   rec.textContent = isNew ? (prev == null ? "Première moyenne enregistrée." : `Nouveau record de parcours ! (ancien : ${prev})`) : `Meilleure moyenne : ${prev}/100`;
+  onlineBox($("fin-online"), "parcours");
   show("final");
 }
 function startParcours() { session = { mode: "parcours", queue: GAMES.map(g => g.id), results: [], retried: {} }; openIntro(); }
+
+/* ---------- Classements en ligne : encart après une partie, page des classements ---------- */
+const escH = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const ordinal = (n) => n === 1 ? "1<sup>er</sup>" : n + "<sup>e</sup>";
+// Meilleurs scores gardés sur ce téléphone, classement par classement
+function localBest(board) {
+  const m = { petanque: bests.petanqueEcart, tapas: bests.tapas, tour: bests.tourTotal, marathon: bests.tourMarathon && bests.tourMarathon.value, banda: bests.banda, parcours: bests.parcours };
+  return m[board] == null ? null : Number(m[board]);
+}
+function boardFor(g, stat) {
+  if (g.id === "tour") return stat && stat.key === "tourMarathon" ? "marathon" : "tour";
+  return BOARDS.some(b => b.id === g.id) ? g.id : null;
+}
+function onlineBox(el, board) {
+  const best = board ? localBest(board) : null;
+  if (!Online.enabled() || best == null) { el.hidden = true; el.replaceChildren(); return; }
+  Online.offer(board, best);
+  el.hidden = false;
+  if (!Online.name()) {
+    el.innerHTML = `<p>Entre dans le <b>classement en ligne</b> : choisis un pseudo.</p>
+      <div class="row"><input class="mo-input" type="text" maxlength="16" autocomplete="nickname" autocapitalize="words" placeholder="Ton pseudo" aria-label="Ton pseudo"><button class="btn primary" type="button">OK</button></div>
+      <p class="err" hidden>Entre 2 et 16 caractères.</p>`;
+    const inp = el.querySelector("input"), go = () => { if (Online.setName(inp.value)) onlineBox(el, board); else el.querySelector(".err").hidden = false; };
+    el.querySelector("button").addEventListener("click", go);
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+    return;
+  }
+  el.innerHTML = `<p>Envoi au classement…</p>`;
+  Online.flush().then(async (ok) => {
+    if (!el.isConnected) return;
+    if (!ok) { el.innerHTML = `<p>Pas de connexion : ton record sera envoyé au classement dès que possible.</p>`; return; }
+    try {
+      const list = await Online.top(board), i = list.findIndex(e => e.id === Online.uid());
+      el.innerHTML = `<p>Classement en ligne : ${i >= 0 ? `<b>${ordinal(i + 1)}</b> sur ${list.length}` : `${list.length} joueur${list.length > 1 ? "s" : ""}`}</p>
+        <button class="linkish" type="button">Voir le classement</button>`;
+      el.querySelector("button").addEventListener("click", () => renderBoards(board));
+    } catch (e) { el.innerHTML = `<p>Classement indisponible pour le moment.</p>`; }
+  });
+}
+let boardCur = "petanque", boardReq = 0;
+async function renderBoards(id) {
+  if (id) boardCur = id;
+  show("board");
+  const tabs = $("bd-tabs");
+  tabs.innerHTML = BOARDS.map(b => `<button type="button" data-v="${b.id}" class="${b.id === boardCur ? "on" : ""}">${b.name}</button>`).join("");
+  tabs.querySelectorAll("button").forEach(b => b.addEventListener("click", () => renderBoards(b.dataset.v)));
+  const me = $("bd-me");
+  const meLine = () => {
+    me.innerHTML = Online.name() ? `Ton pseudo : <b>${escH(Online.name())}</b> · <button class="linkish" type="button">changer</button>` : "Ton pseudo te sera demandé après ta première partie.";
+    const ch = me.querySelector("button"); if (!ch) return;
+    ch.addEventListener("click", () => {
+      me.innerHTML = `<div class="online"><div class="row"><input class="mo-input" type="text" maxlength="16" value="${escH(Online.name())}" aria-label="Nouveau pseudo"><button class="btn primary" type="button">OK</button></div><p class="err" hidden>Entre 2 et 16 caractères.</p></div>`;
+      const inp = me.querySelector("input"), go = async () => { if (!Online.setName(inp.value)) { me.querySelector(".err").hidden = false; return; } await Online.flush(); renderBoards(); };
+      me.querySelector("button").addEventListener("click", go); inp.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); }); inp.focus();
+    });
+  };
+  meLine();
+  const list = $("bd-list"), foot = $("bd-foot"), b = BOARDS.find(x => x.id === boardCur), req = ++boardReq;
+  list.innerHTML = `<li><span class="nm">Chargement…</span></li>`; foot.textContent = "";
+  await Online.flush();
+  try {
+    const all = await Online.top(boardCur); if (req !== boardReq) return;
+    const mine = all.findIndex(e => e.id === Online.uid());
+    const row = (e, i) => `<li class="${i === mine ? "me" : ""}"><span class="rk">${i + 1}</span><span class="nm">${escH(e.n)}</span><span class="sc">${b.fmt(e.s)}</span></li>`;
+    list.innerHTML = all.length ? all.slice(0, 50).map(row).join("") + (mine >= 50 ? row(all[mine], mine) : "") : `<li><span class="nm">Personne pour l'instant. À toi de jouer !</span></li>`;
+    foot.textContent = all.length ? `${all.length} joueur${all.length > 1 ? "s" : ""} · un seul score par joueur, son meilleur.` : "";
+  } catch (e) {
+    if (req !== boardReq) return;
+    list.innerHTML = `<li><span class="nm">${navigator.onLine === false ? "Pas de connexion : les classements reviendront avec le réseau." : "Classement indisponible pour le moment."}</span></li>`;
+  }
+}
+$("btn-boards").addEventListener("click", () => renderBoards());
+$("board-back").addEventListener("click", renderMenu);
+// Au lancement et au retour du réseau : on envoie les records restés en attente
+for (const b of BOARDS) { const v = localBest(b.id); if (v != null) Online.offer(b.id, v); }
+Online.flush(); addEventListener("online", () => Online.flush());
 
 $("btn-parcours").addEventListener("click", startParcours);
 $("intro-go").addEventListener("click", startGame);
