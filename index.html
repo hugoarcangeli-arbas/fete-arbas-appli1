@@ -745,7 +745,9 @@ const Online = (() => {
     return Object.entries(d || {}).map(([id, e]) => ({ id, n: String(e.n || "?"), s: Number(e.s), t: Number(e.t) || 0 }))
       .filter(e => Number.isFinite(e.s)).sort((a, b) => b.s - a.s || a.t - b.t);
   }
-  return { enabled, offer, flush, setName, top, validName, name: () => st.name, uid: () => st.uid, pending: () => ({ ...st.pending }) };
+  // Ligne disparue en ligne (supprimée à la main dans la console, par exemple) : on oublie qu'elle avait été envoyée
+  function forget(board) { if (st.sent[board] != null) { delete st.sent[board]; save(); } }
+  return { enabled, offer, flush, setName, top, validName, forget, name: () => st.name, uid: () => st.uid, pending: () => ({ ...st.pending }) };
 })();
 
 /* ---------- Musique : boucles avec fondu enchaîné, coupables par le bouton Son ---------- */
@@ -3282,7 +3284,8 @@ function onlineBox(el, board) {
     if (!el.isConnected) return;
     if (!ok) { el.innerHTML = `<p>Pas de connexion : ton record sera envoyé au classement dès que possible.</p>`; return; }
     try {
-      const list = await Online.top(board), i = list.findIndex(e => e.id === Online.uid());
+      let list = await Online.top(board), i = list.findIndex(e => e.id === Online.uid());
+      if (i < 0 && Online.uid()) { Online.forget(board); Online.offer(board, best); if (await Online.flush()) { list = await Online.top(board); i = list.findIndex(e => e.id === Online.uid()); } }
       el.innerHTML = `<p>Classement en ligne : ${i >= 0 ? `<b>${ordinal(i + 1)}</b> sur ${list.length}` : `${list.length} joueur${list.length > 1 ? "s" : ""}`}</p>
         <button class="linkish" type="button">Voir le classement</button>`;
       el.querySelector("button").addEventListener("click", () => renderBoards(board));
@@ -3326,7 +3329,9 @@ async function renderBoards(key) {
   list.innerHTML = `<li><span class="nm">Chargement…</span></li>`; foot.textContent = "";
   await Online.flush();
   try {
-    const all = await Online.top(boardCur); if (req !== boardReq) return;
+    let all = await Online.top(boardCur); if (req !== boardReq) return;
+    const lb = localBest(boardCur);
+    if (lb != null && Online.name() && Online.uid() && !all.some(e => e.id === Online.uid())) { Online.forget(boardCur); Online.offer(boardCur, lb); if (await Online.flush()) all = await Online.top(boardCur); if (req !== boardReq) return; }
     const mine = all.findIndex(e => e.id === Online.uid());
     const row = (e, i) => `<li class="${i === mine ? "me" : ""}"><span class="rk">${i + 1}</span><span class="nm">${escH(e.n)}</span><span class="sc">${b.fmt(e.s)}</span></li>`;
     list.innerHTML = all.length ? all.slice(0, 50).map(row).join("") + (mine >= 50 ? row(all[mine], mine) : "") : `<li><span class="nm">Personne pour l'instant. À toi de jouer !</span></li>`;
