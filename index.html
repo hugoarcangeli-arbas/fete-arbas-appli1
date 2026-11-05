@@ -470,6 +470,10 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .pq-wait p { margin: 0; }
 .pq-bigcode { font-family: var(--num); font-weight: 900; font-size: 4rem; letter-spacing: .18em; color: var(--gold); line-height: 1; padding: 8px 0 4px .18em; }
 .pq-wait .btn { flex: 0 0 auto; min-width: 180px; }
+/* L'infiltré en ligne */
+.inf-order li { flex-wrap: wrap; } .inf-order li i { font-style: normal; color: var(--gold); font-weight: 700; }
+.inf-order li.now { border-color: var(--gold); background: #15605f; } .inf-order li.out { opacity: .45; text-decoration: line-through; }
+.inf-tally { color: var(--muted); }
 .pq-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 .pq-team { display: flex; flex-direction: column; gap: 6px; background: var(--bg-2); border: 1px solid var(--bg-3); border-radius: 14px; padding: 10px; }
 .pq-team ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
@@ -2512,7 +2516,7 @@ function motsLocal(stage, hud, done) {
   const ROLE = { civ: "Arbasien", under: "infiltré", white: "M. Leblanc" };
   const saved = store.get("arbas-mots") || {};
   let names = Array.isArray(saved.names) && saved.names.length >= UC.MIN ? saved.names.slice(0, UC.MAX) : [];
-  let count = names.length || 5, informed = !!saved.informed, white = !!saved.white, s = null;
+  let count = names.length || 5, informed = !!saved.informed, white = !!saved.white, s = null, sub = null;
   hud.textContent = "";
   // Le jeu se joue en parlant : la musique d'accueil s'arrête dès que les mots sont distribués
   const view = (html) => { const d = document.createElement("div"); d.className = "mo"; d.innerHTML = html; stage.replaceChildren(d); window.scrollTo(0, 0); return d; };
@@ -2525,6 +2529,8 @@ function motsLocal(stage, hud, done) {
     const fields = Array.from({ length: count }, (_, i) =>
       `<input class="mo-input" type="text" maxlength="16" autocomplete="off" autocapitalize="words" enterkeyhint="next" data-i="${i}" placeholder="Joueur ${i + 1}" value="${esc(names[i] || "")}">`).join("");
     const d = view(`
+      ${Online.enabled() ? `<div class="pq-group"><span class="pq-label">Comment jouer</span>
+        <div class="seg mo-where"><button type="button" class="on">Sur un seul téléphone</button><button type="button" class="mo-online">En ligne</button></div></div>` : ""}
       <div class="pq-group"><span class="pq-label">Nombre de joueurs</span>
         <div class="seg seg-wrap mo-count">${Array.from({ length: UC.MAX - UC.MIN + 1 }, (_, k) => k + UC.MIN).map(n => `<button type="button" data-v="${n}" class="${n === count ? "on" : ""}">${n}</button>`).join("")}</div></div>
       <div class="pq-group"><span class="pq-label">Prénoms, dans l'ordre autour de la table</span>
@@ -2549,6 +2555,7 @@ function motsLocal(stage, hud, done) {
     pick(".mo-count", (v) => { count = v; });
     pick(".mo-mode", (v) => { informed = v === 1; });
     pick(".mo-white", (v) => { white = v === 1; });
+    on(d, ".mo-online", () => { keep(); sub = motsOnline(stage, hud, () => { if (sub) sub(); sub = null; setup(); }); });
     on(d, ".mo-go", () => {
       keep();
       const list = names.slice(0, count).map((n, i) => (n || "").trim() || `Joueur ${i + 1}`);
@@ -2745,7 +2752,331 @@ function motsLocal(stage, hud, done) {
   }
 
   setup();
-  return () => {};
+  return () => { if (sub) sub(); };
+}
+
+/* =========================================================
+   L'infiltré en ligne : chacun sur son téléphone, dans la même pièce ou à distance.
+   Le téléphone du créateur fait l'arbitre : il tire rôles et mots (mêmes règles UC que la version sur un téléphone),
+   compte les votes et applique la règle d'égalité. Les autres affichent l'état public et envoient leurs actions.
+   /inf/CODE = { host, hostName, created, set: { informed, white, remote }, st, p: { identité: { n, j } }, pub: { état public }, ev: { actions } }
+   /infs/CODE/<identité> = { w: mot, r: rôle (si connu), g: numéro de partie } : lisible seulement par ce joueur (et l'arbitre)
+   ========================================================= */
+const InfNet = (() => {
+  const LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const newCode = () => Array.from({ length: 4 }, () => LETTERS[Math.floor(Math.random() * LETTERS.length)]).join("");
+  const url = (path, t) => `${Online.base()}/${path}.json?auth=${t}`;
+  const J = (method, body) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const tok = () => Online.auth();
+  async function create(set) {
+    const t = await tok();
+    for (let k = 0; k < 6; k++) {
+      const code = newCode();
+      try {
+        await Online.json(url("inf/" + code, t), J("PUT", { host: Online.uid(), hostName: Online.name(), created: { ".sv": "timestamp" }, set, p: { [Online.uid()]: { n: Online.name(), j: { ".sv": "timestamp" } } } }));
+        return code;
+      } catch (e) { if (!e.status || e.status >= 500) throw e; }
+    }
+    throw new Error("Aucun code libre");
+  }
+  async function join(code) {
+    const t = await tok(), room = await Online.json(url("inf/" + code, t));
+    if (!room || !room.host) return { error: "Aucune partie avec ce code." };
+    const me = Online.uid(), P = room.p || {};
+    if (room.st && !P[me]) return { error: "Cette partie a déjà commencé." };
+    if (!P[me] && Object.keys(P).length >= UC.MAX) return { error: `Cette partie est complète (${UC.MAX} joueurs au plus).` };
+    if (!P[me]) await Online.json(url(`inf/${code}/p/${me}`, t), J("PUT", { n: Online.name(), j: { ".sv": "timestamp" } }));
+    return { room };
+  }
+  const put = async (path, v) => Online.json(url(path, await tok()), J("PUT", v));
+  return {
+    create, join,
+    leave: async (code) => { try { await Online.json(url(`inf/${code}/p/${Online.uid()}`, await tok()), { method: "DELETE" }); } catch (e) {} },
+    remove: async (code) => { try { const t = await tok(); await Online.json(url("infs/" + code, t), { method: "DELETE" }); await Online.json(url("inf/" + code, t), { method: "DELETE" }); } catch (e) {} },
+    send: async (code, ev) => Online.json(url(`inf/${code}/ev`, await tok()), J("POST", { ...ev, by: Online.uid() })),
+    setSet: (code, set) => put(`inf/${code}/set`, set),
+    start: (code) => put(`inf/${code}/st`, true),
+    setPub: (code, pub) => put(`inf/${code}/pub`, pub),
+    setSecret: (code, uid, sec) => put(`infs/${code}/${uid}`, sec),
+    secret: async (code) => Online.json(url(`infs/${code}/${Online.uid()}`, await tok())),
+    // Même écoute en direct que la pétanque, sur la branche « inf »
+    listen(code, onRoom, onEvent) {
+      let es = null, room = null, closed = false, retry = null; const seen = new Set();
+      const setPath = (obj, path, val) => {
+        const keys = path.split("/").filter(Boolean); if (!keys.length) return val;
+        obj = obj && typeof obj === "object" ? obj : {}; let o = obj;
+        for (let i = 0; i < keys.length - 1; i++) { o[keys[i]] = o[keys[i]] && typeof o[keys[i]] === "object" ? o[keys[i]] : {}; o = o[keys[i]]; }
+        if (val === null) delete o[keys[keys.length - 1]]; else o[keys[keys.length - 1]] = val; return obj;
+      };
+      const emit = () => { onRoom(room); if (room && room.ev) for (const id of Object.keys(room.ev).sort()) if (!seen.has(id)) { seen.add(id); onEvent(room.ev[id]); } };
+      async function open() {
+        if (closed) return;
+        let t; try { t = await tok(); } catch (e) { retry = setTimeout(open, 3000); return; }
+        es = new EventSource(url("inf/" + code, t));
+        const on = (kind) => (m) => {
+          let d; try { d = JSON.parse(m.data); } catch (e) { return; } if (!d) return;
+          if (kind === "put") room = setPath(room, d.path, d.data);
+          else for (const [k, v] of Object.entries(d.data || {})) room = setPath(room, (d.path === "/" ? "" : d.path) + "/" + k, v);
+          emit();
+        };
+        es.addEventListener("put", on("put")); es.addEventListener("patch", on("patch"));
+        const reopen = () => { if (es) es.close(); es = null; if (!closed) retry = setTimeout(open, 1500); };
+        es.addEventListener("auth_revoked", reopen); es.addEventListener("cancel", reopen);
+        es.onerror = () => { if (es && es.readyState === 2) reopen(); };
+      }
+      open();
+      return () => { closed = true; clearTimeout(retry); if (es) es.close(); };
+    }
+  };
+})();
+
+// Arbitre (téléphone du créateur) : applique les actions des joueurs et publie l'état public
+function infReferee(code, ids, names, set, sendPub) {
+  const memo = store.get("arbas-mots-recents") || [];
+  const s = UC.newGame({ names, informed: set.informed, white: set.white && UC.whiteAllowed(names.length), groups: MOTS_GROUPES, recent: memo });
+  const keepN = Math.max(1, Math.floor(UC.pairTotal(MOTS_GROUPES) / 2));
+  store.set("arbas-mots-recents", [UC.pairKey(s.words.civ, s.words.under), ...memo.filter(k => k !== UC.pairKey(s.words.civ, s.words.under))].slice(0, keepN));
+  const g = Date.now();
+  const idx = (id) => ids.indexOf(id), aliveIds = () => ids.filter((id, i) => s.players[i].alive);
+  let pub = { g, phase: "reveal", ready: {}, round: 0, alive: Object.fromEntries(ids.map(id => [id, true])), comp: s.comp, msg: "" };
+  let votes = {};
+  const publish = () => sendPub(JSON.parse(JSON.stringify(pub)));
+  const secrets = ids.map((id, i) => { const p = s.players[i]; return [id, { g, w: p.word, r: set.informed || p.role === "white" ? p.role : null }]; });
+  function newRound() {
+    UC.startRound(s); votes = {};
+    pub = { ...pub, phase: "talk", round: s.round, order: s.order.map(i => ids[i]), speaker: 0, clues: {}, voted: {}, tally: null, last: null, tie: [], msg: "" };
+  }
+  function finish() {
+    pub = { ...pub, phase: "over", winner: s.winner, roles: Object.fromEntries(ids.map((id, i) => [id, s.players[i].role])), words: s.words };
+  }
+  function eliminateId(id, tally, tie) {
+    const r = UC.eliminate(s, idx(id));
+    pub = { ...pub, alive: Object.fromEntries(aliveIds().map(x => [x, true])), last: { id, role: r.role }, tally, tie };
+    if (r.role === "white") pub = { ...pub, phase: "white", whiteId: id };
+    else if (s.phase === "over") finish();
+    else pub = { ...pub, phase: "result" };
+  }
+  // Votes secrets : quand tout le monde a voté, on compte ; égalité = règle d'Hugo (voix double tirée au sort, puis revote)
+  function count() {
+    const alive = aliveIds(), base = {};
+    for (const v of Object.values(votes)) base[v] = (base[v] || 0) + 1;
+    const best = (c) => { const m = Math.max(...Object.values(c)); const top = Object.keys(c).filter(k => c[k] === m); return top.length === 1 ? top[0] : null; };
+    const tally = Object.entries(base).sort((a, b) => b[1] - a[1]).map(([id, n]) => [id, n]);
+    let out = best(base); const tie = [];
+    s.drawn = [];
+    while (!out) {
+      const i = UC.tieDraw(s);
+      if (i === null) break;
+      const who = ids[i]; tie.push(who);
+      const c = { ...base }; if (votes[who]) c[votes[who]] = (c[votes[who]] || 0) + 1;
+      out = best(c);
+    }
+    if (!out) { votes = {}; pub = { ...pub, phase: "vote", voted: {}, tally, tie, msg: "Égalité persistante : on revote." }; return; }
+    eliminateId(out, tally, tie);
+  }
+  function handle(ev) {
+    const by = ev.by, alive = !!pub.alive[by];
+    if (ev.t === "ready" && pub.phase === "reveal" && ev.g === g) {
+      pub.ready = { ...pub.ready, [by]: true };
+      if (ids.every(id => pub.ready[id])) newRound();
+    } else if (ev.t === "clue" && pub.phase === "talk" && set.remote && ev.r === pub.round && pub.order[pub.speaker] === by) {
+      const w = String(ev.w || "").replace(/\s+/g, " ").trim().slice(0, 30);
+      if (!w) return;
+      pub.clues = { ...pub.clues, [by]: w }; pub.speaker++;
+      if (pub.speaker >= pub.order.length) pub = { ...pub, phase: "vote", msg: "" };
+    } else if (ev.t === "tovote" && pub.phase === "talk" && by === Online.uid()) {
+      pub = { ...pub, phase: "vote", msg: "" };
+    } else if (ev.t === "vote" && pub.phase === "vote" && alive && ev.r === pub.round && pub.alive[ev.v] && ev.v !== by && !votes[by]) {
+      votes[by] = ev.v; pub.voted = { ...pub.voted, [by]: true };
+      if (aliveIds().every(id => votes[id])) count();
+    } else if (ev.t === "guess" && pub.phase === "white" && by === pub.whiteId) {
+      const ok = UC.whiteGuess(s, ev.w);
+      pub = { ...pub, guess: { w: String(ev.w || "").slice(0, 40), ok } };
+      if (s.phase === "over") finish(); else pub = { ...pub, phase: "result" };
+    } else if (ev.t === "next" && pub.phase === "result" && by === Online.uid()) {
+      newRound();
+    } else return;
+    publish();
+  }
+  return { secrets, start: publish, handle, g };
+}
+
+function motsOnline(stage, hud, back) {
+  const esc = escH, ROLE = { civ: "Arbasien", under: "infiltré", white: "M.\u00a0Leblanc" };
+  let code = null, isHost = false, stop = null, room = null, ref = null, secret = null, secretG = null, peek = false, myVote = null, closed = false;
+  const me = Online.uid;
+  hud.textContent = "";
+  const view = (html) => { const d = document.createElement("div"); d.className = "mo"; d.innerHTML = html; stage.replaceChildren(d); return d; };
+  const on = (root, sel, fn) => { const el = root.querySelector(sel); if (el) el.addEventListener("click", fn); return el; };
+  const nameOf = (id) => (room && room.p && room.p[id] && room.p[id].n) || "?";
+  const send = (ev) => InfNet.send(code, ev).catch(() => {});
+
+  /* ---- Entrée : créer ou rejoindre ---- */
+  function entry(msg) {
+    const d = view(`
+      <div class="pq-group"><span class="pq-label">Comment jouer</span>
+        <div class="seg mo-where"><button type="button" class="mo-local">Sur un seul téléphone</button><button type="button" class="on">En ligne</button></div></div>
+      <p class="pq-note">Chacun sur son téléphone : il voit son mot en secret, vote en secret, et le jeu fait les comptes.</p>
+      <input class="mo-input" id="inf-name" type="text" maxlength="16" autocomplete="nickname" autocapitalize="words" placeholder="Ton pseudo" aria-label="Ton pseudo" ${Online.name() ? "hidden" : ""}>
+      <button type="button" class="btn primary" id="inf-create">Créer une partie</button>
+      <p class="pq-or">ou rejoindre celle d'un ami</p>
+      <div class="pq-join"><input class="mo-input" id="inf-code" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Code de la partie"><button type="button" class="btn ghost" id="inf-join">Rejoindre</button></div>
+      <p class="mo-err" id="inf-err" ${msg ? "" : "hidden"}>${msg ? esc(msg) : ""}</p>`);
+    const err = d.querySelector("#inf-err"), codeIn = d.querySelector("#inf-code");
+    const fail = (t) => { err.textContent = t; err.hidden = false; d.querySelectorAll("button").forEach(b => { b.disabled = false; }); };
+    const ready = () => {
+      err.hidden = true;
+      if (!Online.name() && !Online.setName(d.querySelector("#inf-name").value)) { fail("Choisis d'abord un pseudo (2 à 16 caractères)."); return false; }
+      if (navigator.onLine === false) { fail("Pas de connexion : il faut du réseau pour jouer en ligne."); return false; }
+      d.querySelectorAll("button").forEach(b => { b.disabled = true; }); return true;
+    };
+    on(d, ".mo-local", back);
+    codeIn.addEventListener("input", () => { codeIn.value = codeIn.value.toUpperCase().replace(/[^A-Z]/g, ""); });
+    on(d, "#inf-create", async () => {
+      if (!ready()) return;
+      try { code = await InfNet.create({ informed: false, white: false, remote: false }); } catch (e) { return fail("Impossible de créer la partie pour le moment. Réessaie dans un instant."); }
+      isHost = true; enter();
+    });
+    const join = async () => {
+      const c = codeIn.value.trim();
+      if (!/^[A-Z]{4}$/.test(c)) return fail("Le code fait 4 lettres.");
+      if (!ready()) return;
+      let r; try { r = await InfNet.join(c); } catch (e) { return fail("Impossible de rejoindre pour le moment. Réessaie dans un instant."); }
+      if (r.error) return fail(r.error);
+      code = c; isHost = false; enter();
+    };
+    on(d, "#inf-join", join);
+    codeIn.addEventListener("keydown", (e) => { if (e.key === "Enter") join(); });
+  }
+  function enter() {
+    stop = InfNet.listen(code, (r) => { room = r; render(); }, (ev) => { if (ref) ref.handle(ev); else if (isHost && ev.t === "quit") {} });
+  }
+  function leaveAll(msg) {
+    closed = true; if (stop) stop(); stop = null;
+    if (isHost && code) InfNet.remove(code); else if (code) { if (room && room.st && room.pub) send({ t: "quit", g: room.pub.g }); InfNet.leave(code); }
+    code = null; ref = null; room = null; secret = null; secretG = null; isHost = false; closed = false; entry(msg);
+  }
+
+  /* ---- Affichage, selon l'état public ---- */
+  async function loadSecret(g) {
+    if (secretG === g) return;
+    secretG = g; secret = null;
+    for (let k = 0; k < 10 && !secret; k++) { try { const x = await InfNet.secret(code); if (x && x.g === g) secret = x; else await new Promise(r => setTimeout(r, 400)); } catch (e) { await new Promise(r => setTimeout(r, 800)); } }
+    render();
+  }
+  const gone = () => new Set(Object.values((room && room.ev) || {}).filter(e => e.t === "quit").map(e => e.by));
+  function players() { const P = (room && room.p) || {}, out = gone(); return Object.keys(P).filter(id => !out.has(id)).sort((a, b) => (P[a].j || 0) - (P[b].j || 0) || a.localeCompare(b)); }
+  function render() {
+    if (closed) return;
+    if (!room) return leaveAll(isHost ? "" : "La partie a été arrêtée par celui qui l'a créée.");
+    const P = room.p || {}, set = room.set || {}, pub = room.pub, ids = players();
+    if (!P[me()] && !room.st) return leaveAll("Tu as quitté la partie.");
+    if (room.st && !P[me()]) return leaveAll("Cette partie a déjà commencé.");
+    // Un départ pendant une partie l'arrête pour tous ; sur l'écran de fin, le joueur est simplement retiré de la suivante
+    const quitter = room.ev && pub && pub.phase !== "over" && Object.values(room.ev).find(e => e.t === "quit" && e.by !== me() && e.g === pub.g);
+    if (quitter) { const n = nameOf(quitter.by); return leaveAll(`${n} a quitté la partie : elle s'arrête.`); }
+    hud.textContent = pub && pub.round ? `Tour ${pub.round}` : "";
+    if (!room.st || !pub) return lobby(P, set, ids);
+    if (pub.g && secretG !== pub.g) loadSecret(pub.g);
+    const alive = !!(pub.alive || {})[me()];
+    const wordCard = () => !secret ? `<div class="mo-card"><span class="mo-who">Ton mot arrive…</span></div>`
+      : `<div class="mo-card ${secret.w ? "" : "white"}"><span class="mo-who">${secret.w ? "Ton mot" : "Tu n'as pas de mot"}</span><b class="mo-word">${secret.w ? motHtml(secret.w, esc) : "?"}</b>${secret.r ? `<span class="mo-role">Tu es ${secret.r === "white" ? "M.\u00a0Leblanc : écoute bien et fais semblant !" : secret.r === "under" ? "infiltré : ton mot est différent de celui des Arbasiens." : "Arbasien."}</span>` : ""}</div>`;
+    const peekBtn = `<button type="button" class="btn ghost inf-peek">${peek ? "Cacher mon mot" : "Revoir mon mot"}</button>${peek ? wordCard() : ""}`;
+    const order = (pub.order || []).map((id, k) => `<li class="${set.remote && k === pub.speaker && pub.phase === "talk" ? "now" : ""} ${(pub.alive || {})[id] ? "" : "out"}">${esc(nameOf(id))}${id === me() ? " (toi)" : ""}${pub.clues && pub.clues[id] ? ` <i>« ${esc(pub.clues[id])} »</i>` : ""}</li>`).join("");
+    let html = "";
+    if (pub.phase === "reveal") {
+      const rd = Object.keys(pub.ready || {}).length;
+      html = (pub.ready || {})[me()] ? `<h2 class="mo-h">C'est noté !</h2><p class="mo-help">En attente des autres : ${rd}/${ids.length} prêts.</p>${peekBtn}`
+        : peek ? `${wordCard()}<button type="button" class="btn primary inf-ready" ${secret ? "" : "disabled"}>C'est retenu</button>`
+        : `<h2 class="mo-h">Ton mot est arrivé</h2><p class="mo-help">Cache ton écran, puis touche le bouton pour le découvrir.</p><button type="button" class="btn primary inf-show">Voir mon mot</button><p class="pq-note">${rd}/${ids.length} joueurs prêts.</p>`;
+    } else if (pub.phase === "talk") {
+      const mine = set.remote && pub.order[pub.speaker] === me();
+      html = `<h2 class="mo-h">${set.remote ? (mine ? "À toi de donner un indice" : `${esc(nameOf(pub.order[pub.speaker]))} cherche un indice…`) : "Chacun dit un mot, dans cet ordre"}</h2>
+        <ol class="mo-order inf-order">${order}</ol>
+        ${mine ? `<div class="pq-join"><input class="mo-input" id="inf-clue" maxlength="30" placeholder="Ton indice (un mot)" autocomplete="off"><button type="button" class="btn primary" id="inf-send">Envoyer</button></div>` : ""}
+        ${!set.remote ? (isHost ? `<button type="button" class="btn primary inf-tovote">Passer au vote</button>` : `<p class="mo-help">${esc(room.hostName)} lancera le vote quand tout le monde aura parlé.</p>`) : ""}
+        ${alive ? "" : `<p class="mo-help">Tu es éliminé : tu regardes la suite.</p>`}${peekBtn}`;
+    } else if (pub.phase === "vote") {
+      const nv = Object.keys(pub.voted || {}).length, na = Object.keys(pub.alive || {}).length;
+      const done = (pub.voted || {})[me()];
+      html = `${pub.msg ? `<p class="mo-tie-msg">${esc(pub.msg)}</p>` : ""}<h2 class="mo-h">${!alive ? "Le vote est en cours" : done ? "Vote enregistré" : "Qui est l'infiltré ?"}</h2>
+        ${set.remote && pub.clues ? `<ol class="mo-order inf-order">${order}</ol>` : ""}
+        ${alive && !done ? `<p class="mo-help">Vote secret : les autres ne voient pas ton choix.</p><div class="mo-players">${Object.keys(pub.alive).filter(id => id !== me()).map(id => `<button type="button" class="mo-p inf-vote" data-id="${id}">${esc(nameOf(id))}</button>`).join("")}</div>`
+          : `<p class="mo-help">${nv}/${na} votes. Le résultat s'affichera quand tout le monde aura voté.</p>`}${peekBtn}`;
+    } else if (pub.phase === "white") {
+      const isW = pub.whiteId === me();
+      html = `${tallyHtml(pub)}<h2 class="mo-h">${esc(nameOf(pub.whiteId))} était M.\u00a0Leblanc !</h2>
+        ${isW ? `<p class="mo-help">Dernière chance : devine le mot des Arbasiens. Si tu trouves, tu gagnes seul.</p><div class="pq-join"><input class="mo-input" id="inf-guess" maxlength="40" placeholder="Le mot des Arbasiens" autocomplete="off"><button type="button" class="btn primary" id="inf-try">Valider</button></div>`
+          : `<p class="mo-help">Il tente de deviner le mot des Arbasiens…</p>`}`;
+    } else if (pub.phase === "result") {
+      const l = pub.last || {};
+      html = `${tallyHtml(pub)}${pub.guess && !pub.guess.ok ? `<p class="mo-help">M.\u00a0Leblanc a proposé « ${esc(pub.guess.w)} » : raté, il est éliminé.</p>` : ""}
+        <h2 class="mo-h">${l.id === me() ? "Tu es éliminé" : `${esc(nameOf(l.id))} est éliminé`}</h2>
+        <p class="mo-reveal ${l.role === "civ" ? "civ" : ""}">${l.role === "white" ? "C'était M.\u00a0Leblanc." : `C'était ${l.role === "civ" ? "un <b>Arbasien</b>" : "un <b>infiltré</b>"}.`}</p>
+        ${isHost ? `<button type="button" class="btn primary inf-next">Tour suivant</button>` : `<p class="mo-help">${esc(room.hostName)} lancera le tour suivant.</p>`}${peekBtn}`;
+    } else if (pub.phase === "over") {
+      const w = pub.winner, title = w === "white" ? `${esc(nameOf(Object.keys(pub.roles).find(id => pub.roles[id] === "white")))} (M.\u00a0Leblanc) a trouvé le mot et gagne seul !` : w === "civ" ? "Les Arbasiens gagnent !" : `Les infiltrés gagnent${room.set && room.set.white ? " (avec M.\u00a0Leblanc)" : ""} !`;
+      html = `${pub.last ? tallyHtml(pub) : ""}<span class="pq-label">Fin de partie</span><h2 class="mo-h mo-win">${title}</h2>
+        <div class="mo-words"><div><span>Mot des Arbasiens</span><b>${motHtml(pub.words.civ, esc)}</b></div><div><span>Mot des infiltrés</span><b>${motHtml(pub.words.under, esc)}</b></div></div>
+        <ul class="mo-roles">${Object.keys(pub.roles).map(id => `<li class="${pub.roles[id]}"><span>${esc(nameOf(id))}${id === me() ? " (toi)" : ""}</span><b>${ROLE[pub.roles[id]]}</b></li>`).join("")}</ul>
+        ${gone().size ? `<p class="mo-help">Parti${gone().size > 1 ? "s" : ""} : ${[...gone()].map(id => esc(nameOf(id))).join(", ")}.</p>` : ""}
+        ${isHost ? (ids.length >= UC.MIN ? `<button type="button" class="btn primary inf-again">Rejouer avec les ${ids.length} joueurs restants</button>` : `<p class="mo-help">Il faut au moins ${UC.MIN} joueurs pour rejouer.</p>`) : `<p class="mo-help">${esc(room.hostName)} peut relancer une partie.</p>`}
+        <button type="button" class="btn ghost inf-leave">Quitter</button>`;
+    }
+    const typed = {}; for (const id of ["inf-clue", "inf-guess"]) { const el = document.getElementById(id); if (el) typed[id] = [el.value, document.activeElement === el]; }
+    const d = view(html);
+    for (const [id, [v, f]] of Object.entries(typed)) { const el = d.querySelector("#" + id); if (el) { el.value = v; if (f) el.focus(); } }
+    on(d, ".inf-show", () => { peek = true; render(); });
+    on(d, ".inf-peek", () => { peek = !peek; render(); });
+    on(d, ".inf-ready", () => { peek = false; send({ t: "ready", g: pub.g }); });
+    on(d, ".inf-tovote", () => send({ t: "tovote" }));
+    on(d, ".inf-next", () => { peek = false; send({ t: "next" }); });
+    on(d, ".inf-again", () => { secretG = null; startGame(); });
+    on(d, ".inf-leave", () => leaveAll());
+    d.querySelectorAll(".inf-vote").forEach(b => b.addEventListener("click", () => { d.querySelectorAll(".inf-vote").forEach(x => { x.disabled = true; }); send({ t: "vote", r: pub.round, v: b.dataset.id }); }));
+    const clue = d.querySelector("#inf-clue");
+    if (clue) { const go = () => { const v = clue.value.trim(); if (v) { d.querySelector("#inf-send").disabled = true; send({ t: "clue", r: pub.round, w: v }); } }; on(d, "#inf-send", go); clue.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); }); if (!typed["inf-clue"]) clue.focus(); }
+    const guess = d.querySelector("#inf-guess");
+    if (guess) { const go = () => { const v = guess.value.trim(); if (v) { d.querySelector("#inf-try").disabled = true; send({ t: "guess", w: v }); } }; on(d, "#inf-try", go); guess.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); }); }
+  }
+  function tallyHtml(pub) {
+    const t = (pub.tally || []).map(([id, n]) => `${esc(nameOf(id))} : ${n} voix`).join(" · ");
+    const tie = (pub.tie || []).map(id => `Égalité : la voix de <b>${esc(nameOf(id))}</b> compte double.`).join("<br>");
+    return (t ? `<p class="mo-help inf-tally">${t}</p>` : "") + (tie ? `<p class="mo-tie-msg">${tie}</p>` : "");
+  }
+  function lobby(P, set, ids) {
+    const n = ids.length, c = UC.composition(Math.max(n, UC.MIN), set.white), canWhite = UC.whiteAllowed(n);
+    const d = view(`
+      <span class="pq-label">L'infiltré en ligne</span>
+      <p>${isHost ? "Donne ce code aux autres joueurs :" : "Code de la partie :"}</p>
+      <b class="pq-bigcode">${code}</b>
+      <div class="pq-team"><span class="pq-label">Joueurs (${n}/${UC.MAX})</span><ul>${ids.map(id => `<li class="${id === me() ? "me" : ""}">${esc(P[id].n)}${id === me() ? " (toi)" : ""}${id === room.host ? " ★" : ""}</li>`).join("")}</ul></div>
+      <div class="pq-group"><span class="pq-label">Où jouez-vous ?</span>
+        <div class="seg seg-col inf-set" data-k="remote"><button type="button" data-v="0" class="${set.remote ? "" : "on"}" ${isHost ? "" : "disabled"}>Même pièce <small>Les indices se disent à voix haute</small></button><button type="button" data-v="1" class="${set.remote ? "on" : ""}" ${isHost ? "" : "disabled"}>À distance <small>Chacun tape son indice, affiché chez tous</small></button></div></div>
+      <div class="pq-group"><span class="pq-label">Mode</span>
+        <div class="seg seg-col inf-set" data-k="informed"><button type="button" data-v="0" class="${set.informed ? "" : "on"}" ${isHost ? "" : "disabled"}>Rôles cachés <small>Les infiltrés ignorent qu'ils le sont</small></button><button type="button" data-v="1" class="${set.informed ? "on" : ""}" ${isHost ? "" : "disabled"}>Rôles connus <small>Chacun sait s'il est Arbasien ou infiltré</small></button></div></div>
+      <div class="pq-group"><span class="pq-label">M.\u00a0Leblanc</span>
+        <div class="seg inf-set" data-k="white"><button type="button" data-v="0" class="${set.white && canWhite ? "" : "on"}" ${isHost ? "" : "disabled"}>Sans</button><button type="button" data-v="1" class="${set.white && canWhite ? "on" : ""}" ${isHost && canWhite ? "" : "disabled"}>Avec</button></div></div>
+      <p class="pq-note">${n >= UC.MIN ? `${n} joueurs : ${c.civ} Arbasiens, ${c.under} infiltré${c.under > 1 ? "s" : ""}${c.white ? " et M.\u00a0Leblanc" : ""}.` : `Il faut au moins ${UC.MIN} joueurs.`}${canWhite ? "" : " M.\u00a0Leblanc est possible à partir de 4 joueurs."}</p>
+      ${isHost ? `<button type="button" class="btn primary inf-start" ${n >= UC.MIN ? "" : "disabled"}>Distribuer les mots</button>` : `<p class="mo-help">En attente que ${esc(room.hostName)} lance la partie…</p>`}
+      <button type="button" class="btn ghost inf-leave">${isHost ? "Annuler" : "Quitter"}</button>`);
+    if (isHost) d.querySelectorAll(".inf-set").forEach(g => g.addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b || b.disabled) return; InfNet.setSet(code, { ...set, [g.dataset.k]: b.dataset.v === "1" }).catch(() => {}); }));
+    on(d, ".inf-start", () => { d.querySelector(".inf-start").disabled = true; startGame(); });
+    on(d, ".inf-leave", () => leaveAll());
+  }
+  // L'arbitre (créateur) distribue : il écrit le mot secret de chacun, puis l'état public
+  async function startGame() {
+    if (!isHost || !room) return;
+    const ids = players(), names = ids.map(id => room.p[id].n), set = { ...room.set, white: !!(room.set && room.set.white) && UC.whiteAllowed(ids.length) };
+    ref = infReferee(code, ids, names, set, (pub) => InfNet.setPub(code, pub).catch(() => {}));
+    try {
+      if (!room.st) await InfNet.start(code);
+      await Promise.all(ref.secrets.map(([id, sec]) => InfNet.setSecret(code, id, sec)));
+      ref.start();
+    } catch (e) { leaveAll("Impossible de lancer la partie pour le moment."); }
+  }
+  entry();
+  return () => { closed = true; if (stop) stop(); if (code) { if (isHost) InfNet.remove(code); else { if (room && room.st && room.pub) InfNet.send(code, { t: "quit", g: room.pub.g }).catch(() => {}); InfNet.leave(code); } } };
 }
 
 /* =========================================================
