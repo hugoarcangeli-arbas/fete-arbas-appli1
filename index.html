@@ -451,7 +451,16 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .bd-list .sc { font-family: var(--num); font-weight: 900; white-space: nowrap; }
 .bd-list li:nth-child(1) .rk::before { content: "🥇"; } .bd-list li:nth-child(2) .rk::before { content: "🥈"; } .bd-list li:nth-child(3) .rk::before { content: "🥉"; }
 .bd-list li:nth-child(-n+3) .rk { font-size: 0; } .bd-list li:nth-child(-n+3) .rk::before { font-size: 1.3rem; }
-#btn-boards { align-self: stretch; }
+/* Accès aux classements : carte pleine, liseré doré, même famille que les cartes de jeux */
+.board-cta { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; width: 100%; box-sizing: border-box; text-align: left;
+  padding: 14px 16px; border-radius: 16px; border: 2px solid var(--gold); background: var(--bg-2); color: var(--ink);
+  box-shadow: 0 4px 0 rgba(0,0,0,.22); cursor: pointer; font: inherit; }
+.board-cta:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.22); }
+.board-cta .bc-ic { font-size: 1.9rem; line-height: 1; }
+.board-cta .bc-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.board-cta b { font-weight: 800; font-size: 1.2rem; color: var(--gold); }
+.board-cta small { color: var(--muted); font-size: .95rem; }
+.board-cta .bc-go { font-size: 1.8rem; font-weight: 800; color: var(--gold); line-height: 1; }
 .pc-soon { opacity: .55; cursor: not-allowed; }
 .pc-img { display: block; align-self: center; max-width: 100%; max-height: 38vh; width: auto; height: auto; border-radius: 10px; background: #fff; }
 .pc-text.pc-long { font-size: 1.2rem; }
@@ -537,9 +546,13 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <span class="big">Parcours complet</span>
       <span class="small">Toutes les épreuves à la suite. Note finale : la moyenne.</span>
     </button>
+    <button class="board-cta" id="btn-boards" type="button" hidden>
+      <span class="bc-ic" aria-hidden="true">🏆</span>
+      <span class="bc-txt"><b>Classements en ligne</b><small>Les meilleurs scores de tous les joueurs</small></span>
+      <span class="bc-go" aria-hidden="true">›</span>
+    </button>
     <div class="cards" id="cards"></div>
     <p class="menu-foot" id="parcours-best" hidden></p>
-    <button class="btn ghost" id="btn-boards" type="button" hidden>🏆 Classements en ligne</button>
   </section>
 
   <section class="screen" id="drinks" hidden>
