@@ -1,4 +1,4 @@
-const VERSION = "23a0599858";
+const VERSION = "c82a4f6937";
 const CACHE = "fete-arbas-" + VERSION;
 const CORE = ["./", "icons/apple-touch-icon.png", "icons/favicon-32.png", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-192.png", "icons/maskable-512.png", "manifest.webmanifest"];    // indispensables : la page, le manifeste, les icônes
 const MEDIA = ["audio/acclame.mp3", "audio/accueil.mp3", "audio/bombe-boum.mp3", "audio/bombe-tictac.mp3", "audio/brebis.mp3", "audio/clac1.wav", "audio/clac2.wav", "audio/decu.mp3", "audio/guepes1.mp3", "audio/guepes2.mp3", "audio/guepes3.mp3", "audio/guepes4.mp3", "audio/guepes5.mp3", "audio/moyen.mp3", "audio/parfait.mp3", "audio/petanque.mp3", "audio/tapas.mp3", "audio/tour.mp3", "images/allemagne.webp", "images/churchill.webp", "images/dos-carte.webp", "images/neptune.webp", "images/neville.webp", "images/rolling-stones.webp"];  // sons et images : un fichier qui échoue n'empêche pas les autres

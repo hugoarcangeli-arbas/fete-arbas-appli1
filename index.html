@@ -470,6 +470,14 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .pq-wait p { margin: 0; }
 .pq-bigcode { font-family: var(--num); font-weight: 900; font-size: 4rem; letter-spacing: .18em; color: var(--gold); line-height: 1; padding: 8px 0 4px .18em; }
 .pq-wait .btn { flex: 0 0 auto; min-width: 180px; }
+.pq-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.pq-team { display: flex; flex-direction: column; gap: 6px; background: var(--bg-2); border: 1px solid var(--bg-3); border-radius: 14px; padding: 10px; }
+.pq-team ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.pq-team li { font-weight: 700; overflow-wrap: anywhere; }
+.pq-team li.me { color: var(--gold); }
+.pq-team li.free { color: var(--muted); font-weight: 500; font-style: italic; }
+.pq-team .btn { min-width: 0; width: 100%; padding: 8px 6px; font-size: .9rem; }
+#pq-size { margin-bottom: 2px; }
 .pc-soon { opacity: .55; cursor: not-allowed; }
 .pc-img { display: block; align-self: center; max-width: 100%; max-height: 38vh; width: auto; height: auto; border-radius: 10px; background: #fff; }
 .pc-text.pc-long { font-size: 1.2rem; }
@@ -1040,7 +1048,7 @@ function petanque(stage, hud, done) {
     { name: "Confirmé", desc: "Assez précis", point: 17, tir: 8, tirProb: 0.45 },
     { name: "Expert", desc: "Très peu d'erreurs", point: 7, tir: 4, tirProb: 0.75 }
   ];
-  let target = 7, level = 1, stopGame = null, vsOnline = false, net = null;
+  let target = 7, level = 1, stopGame = null, vsOnline = false, net = null, size = 1;
 
   /* ---- Écran de réglages ---- */
   const setup = document.createElement("div");
@@ -1055,6 +1063,7 @@ function petanque(stage, hud, done) {
     <button type="button" class="btn primary" id="pq-go">Lancer la partie</button>
     <div class="pq-online" id="pq-online" hidden>
       <input class="mo-input" id="pq-name" type="text" maxlength="16" autocomplete="nickname" autocapitalize="words" placeholder="Ton pseudo" aria-label="Ton pseudo" ${Online.name() ? "hidden" : ""}>
+      <div class="seg" id="pq-size"><button type="button" data-v="1" class="on">1 contre 1</button><button type="button" data-v="2">2 contre 2</button></div>
       <button type="button" class="btn primary" id="pq-create">Créer une partie</button>
       <p class="pq-or">ou rejoindre celle d'un ami</p>
       <div class="pq-join"><input class="mo-input" id="pq-code" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Code de la partie"><button type="button" class="btn ghost" id="pq-join">Rejoindre</button></div>
@@ -1076,9 +1085,10 @@ function petanque(stage, hud, done) {
   });
   setup.querySelector("#pq-go").addEventListener("click", () => { stopGame = play(); });
 
-  /* ---- En ligne : créer ou rejoindre une partie ---- */
+  /* ---- En ligne : créer ou rejoindre une partie, puis salle d'attente ---- */
   const errEl = setup.querySelector("#pq-err"), codeIn = setup.querySelector("#pq-code"), nameIn = setup.querySelector("#pq-name");
   const fail = (t) => { errEl.textContent = t; errEl.hidden = false; setup.querySelectorAll("#pq-online button").forEach(b => { b.disabled = false; }); };
+  pick("#pq-size", v => { size = v; });
   codeIn.addEventListener("input", () => { codeIn.value = codeIn.value.toUpperCase().replace(/[^A-Z]/g, ""); });
   function ready() {
     errEl.hidden = true;
@@ -1087,25 +1097,52 @@ function petanque(stage, hud, done) {
     setup.querySelectorAll("#pq-online button").forEach(b => { b.disabled = true; });
     return true;
   }
-  // Écoute de la salle : les événements arrivés avant le début de la partie sont gardés pour elle
-  function listenRoom(code, isHost) {
-    const n = { code, host: isHost, oppName: "", handler: null, onRoom: null, buffer: [] };
-    n.stop = PQNet.listen(code, (room) => { n.room = room; if (n.onRoom) n.onRoom(room); }, (id, ev) => { if (n.handler) n.handler(ev); else n.buffer.push(ev); });
-    return n;
+  const backToSetup = (msg) => { if (net) { net.stop(); net = null; } stage.replaceChildren(setup); setup.querySelectorAll("#pq-online button").forEach(b => { b.disabled = false; }); if (msg) fail(msg); };
+  // Écoute de la salle : avant le début, on affiche la salle d'attente ; l'événement « start » lance la partie pour tout le monde
+  function enterRoom(code, isHost) {
+    const n = { code, host: isHost, me: Online.uid(), handler: null, onRoom: null, buffer: [], players: null, size: 1, target: 7 };
+    net = n;
+    const wait = document.createElement("div"); wait.className = "pq-wait";
+    stage.replaceChildren(wait);
+    let starting = false;
+    const preEvent = (ev) => {
+      if (ev.t === "start" && !n.players) {
+        n.players = ev.p || {};
+        stopGame = play(n);
+      } else n.buffer.push(ev);
+    };
+    n.handler = preEvent;
+    n.onRoom = (room) => {
+      if (n.players) return;
+      if (!room) return backToSetup(isHost ? "" : "La partie a été annulée par celui qui l'a créée.");
+      n.size = Number(room.size) === 2 ? 2 : 1; n.target = Number(room.target) === 13 ? 13 : 7; target = n.target;
+      const P = room.p || {}, team = (tm) => Object.entries(P).filter(([, x]) => x.tm === tm);
+      if (!isHost && !P[n.me]) return backToSetup("Tu as quitté la partie.");
+      const full = team("A").length === n.size && team("B").length === n.size;
+      const col = (tm, label) => `<div class="pq-team"><span class="pq-label">${label}</span>
+        <ul>${team(tm).map(([id, x]) => `<li class="${id === n.me ? "me" : ""}">${escH(x.n)}${id === n.me ? " (toi)" : ""}${id === room.host ? " ★" : ""}</li>`).join("")}${Array.from({ length: n.size - team(tm).length }, () => `<li class="free">place libre</li>`).join("")}</ul>
+        ${n.size === 2 && P[n.me] && P[n.me].tm !== tm && team(tm).length < n.size ? `<button type="button" class="btn ghost pq-switch" data-tm="${tm}">Rejoindre cette équipe</button>` : ""}</div>`;
+      wait.innerHTML = `<span class="pq-label">${n.size === 2 ? "2 contre 2" : "1 contre 1"} · partie en ${n.target} points</span>
+        <p>${isHost ? "Donne ce code à tes adversaires" + (n.size === 2 ? " et à ton partenaire" : "") + " :" : "Code de la partie :"}</p>
+        <b class="pq-bigcode">${code}</b>
+        <div class="pq-teams">${col("A", n.size === 2 ? "Équipe 1" : "Toi")}${n.size === 2 ? col("B", "Équipe 2") : col("B", "Adversaire")}</div>
+        <p class="pq-note" id="pq-waitmsg">${full ? (isHost ? (n.size === 2 ? "Les équipes sont complètes." : "Ton adversaire est là !") : `En attente que ${escH(room.hostName)} lance la partie…`) : n.size === 2 ? "En attente des joueurs…" : "En attente d'un adversaire…"}</p>
+        ${isHost && n.size === 2 ? `<button type="button" class="btn primary" id="pq-start" ${full ? "" : "disabled"}>Commencer</button>` : ""}
+        <button type="button" class="btn ghost" id="pq-cancel">${isHost ? "Annuler" : "Quitter"}</button>`;
+      if (n.size === 1 && !isHost) wait.querySelector(".pq-teams").firstElementChild.querySelector(".pq-label").textContent = "Adversaire";
+      if (n.size === 1 && !isHost) wait.querySelector(".pq-teams").lastElementChild.querySelector(".pq-label").textContent = "Toi";
+      wait.querySelectorAll(".pq-switch").forEach(b => b.addEventListener("click", () => { b.disabled = true; PQNet.setTeam(code, b.dataset.tm).catch(() => {}); }));
+      wait.querySelector("#pq-cancel").addEventListener("click", () => { const c = n.code; backToSetup(); if (isHost) PQNet.remove(c); else PQNet.leave(c); });
+      const go = () => { if (starting) return; starting = true; PQNet.start(code, P).catch(() => { starting = false; }); };
+      const sb = wait.querySelector("#pq-start"); if (sb) sb.addEventListener("click", go);
+      if (isHost && n.size === 1 && full) go();                 // en 1 contre 1, on démarre dès que l'adversaire arrive
+    };
+    n.stop = PQNet.listen(code, (room) => { n.room = room; if (n.onRoom) n.onRoom(room); }, (id, ev) => n.handler(ev));
   }
   setup.querySelector("#pq-create").addEventListener("click", async () => {
     if (!ready()) return;
-    let code; try { code = await PQNet.create(target, 640); } catch (e) { return fail("Impossible de créer la partie pour le moment. Réessaie dans un instant."); }
-    net = listenRoom(code, true);
-    const wait = document.createElement("div");
-    wait.className = "pq-wait";
-    wait.innerHTML = `<span class="pq-label">Partie en ${target} points</span><p>Donne ce code à ton adversaire :</p>
-      <b class="pq-bigcode">${code}</b><p class="pq-note" id="pq-waitmsg">En attente d'un adversaire…</p>
-      <button type="button" class="btn ghost" id="pq-cancel">Annuler</button>`;
-    stage.replaceChildren(wait);
-    wait.querySelector("#pq-cancel").addEventListener("click", () => { const n = net; net = null; n.stop(); PQNet.remove(n.code); stage.replaceChildren(setup); setup.querySelectorAll("#pq-online button").forEach(b => { b.disabled = false; }); });
-    net.onRoom = (room) => { if (room && room.guest && room.guestName && !stopGame) { net.oppName = room.guestName || "Adversaire"; net.onRoom = null; stopGame = play(net); } };
-    if (net.room) net.onRoom(net.room);
+    let code; try { code = await PQNet.create(target, size); } catch (e) { return fail("Impossible de créer la partie pour le moment. Réessaie dans un instant."); }
+    enterRoom(code, true);
   });
   async function joinRoom() {
     const code = codeIn.value.trim().toUpperCase();
@@ -1113,9 +1150,7 @@ function petanque(stage, hud, done) {
     if (!ready()) return;
     let r; try { r = await PQNet.join(code); } catch (e) { return fail("Impossible de rejoindre pour le moment. Réessaie dans un instant."); }
     if (r.error) return fail(r.error);
-    target = Number(r.room.target) === 13 ? 13 : 7;
-    net = listenRoom(code, false); net.oppName = r.room.hostName || "Adversaire";
-    stopGame = play(net);
+    enterRoom(code, false);
   }
   setup.querySelector("#pq-join").addEventListener("click", joinRoom);
   codeIn.addEventListener("keydown", (e) => { if (e.key === "Enter") joinRoom(); });
@@ -1140,7 +1175,15 @@ function petanque(stage, hud, done) {
     const CM = 2, R = 9, RC = 5, F = 0.96, F_COCH = 0.93;
     const origin = { x: W / 2, y: H - 62 };
     const L = online ? { name: "En ligne" } : LEVELS[level];
-    const OPP = online ? online.oppName : "L'ordinateur", OPP_SHORT = online ? online.oppName : "Ordi";
+    // En ligne : « me » et « ai » désignent mon équipe et l'équipe adverse (un ou deux joueurs chacune)
+    const P = online ? online.players : {}, ME = online ? online.me : null, SIZE = online ? online.size : 1;
+    const SIDE = online ? (P[ME] || {}).tm || "A" : "A", OTHER = SIDE === "A" ? "B" : "A";
+    const nameOf = (id) => (P[id] && P[id].n) || "?";
+    const teamIds = (tm) => Object.keys(P).filter(id => P[id].tm === tm).sort();
+    const MATES = online ? teamIds(SIDE).filter(id => id !== ME) : [], FOES = online ? teamIds(OTHER) : [];
+    const OPP = online ? FOES.map(nameOf).join(" et ") : "L'ordinateur";
+    const OPP_SHORT = !online ? "Ordi" : SIZE === 1 ? OPP : "Eux", US_SHORT = SIZE === 2 ? "Nous" : "Vous";
+    const oppDo = (sing, plur) => `${OPP} ${SIZE === 2 ? plur : sing}`;   // accord : « Léa marque », « Léa et Paul marquent »
     /* Décor : calques dessinés une seule fois (fond) ou au fil de la mène (traces) */
     const S = 2;
     const mkLayer = () => { const c = document.createElement("canvas"); c.width = W * S; c.height = H * S; const x = c.getContext("2d"); x.scale(S, S); return [c, x]; };
@@ -1219,7 +1262,7 @@ function petanque(stage, hud, done) {
     const timers = [];
     const later = (fn, ms) => timers.push(setTimeout(() => { if (!ended) fn(); }, ms));
     const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
-    const updHud = () => { hud.textContent = `Vous ${pts.me} · ${pts.ai} ${OPP_SHORT}`; };
+    const updHud = () => { hud.textContent = `${US_SHORT} ${pts.me} · ${pts.ai} ${OPP_SHORT}`; };
     function setTip(t) { tip.textContent = t; }
     function setModeEnabled(on) { modeBtns.forEach(b => { b.disabled = !on; }); }
     modeBtns.forEach(b => b.addEventListener("click", () => {
@@ -1233,31 +1276,41 @@ function petanque(stage, hud, done) {
     /* Déroulé des mènes */
     function newMene(replay) {
       if (!replay) mene++;
-      balls = []; cochDead = false; left = { me: 3, ai: 3 }; lastThrower = null; showMeasure = false; turn = null;
+      balls = []; cochDead = false; left = { me: 3 * SIZE, ai: 3 * SIZE }; lastThrower = null; showMeasure = false; turn = null;
       mctx.clearRect(0, 0, W, H);
       coch = null;
-      // En ligne, c'est l'hôte qui place le cochonnet et désigne qui a la main ; l'autre attend son message
-      if (online && !online.host) { phase = "waitMene"; banner = `Mène ${mene}${replay ? " rejouée" : ""}…`; updHud(); return pump(); }
+      if (online) {
+        // L'hôte place le cochonnet et désigne l'équipe qui a la main ; tout le monde (lui compris) applique ce message
+        for (const id of Object.keys(P)) leftP[id] = 3;
+        throwCount = 0; lastThrowerId = null;
+        phase = "waitMene"; banner = `Mène ${mene}${replay ? " rejouée" : ""}…`; updHud();
+        if (online.host) netSend({ t: "mene", n: mene, x: rand(T.x + 70, T.x + T.w - 70), y: rand(T.y + 60, T.y + 190), st: starter === "me" ? SIDE : OTHER, rp: !!replay });
+        return pump();
+      }
       coch = { x: rand(T.x + 70, T.x + T.w - 70), y: rand(T.y + 60, T.y + 190), vx: 0, vy: 0, r: RC, m: 0.6, owner: "coch", air: 0 };
-      if (online) netSend({ t: "mene", n: mene, x: coch.x, y: coch.y, st: starter === "me" ? SIDE : OTHER, rp: !!replay });
       startMene(replay);
     }
     function startMene(replay) {
       phase = "idle";
-      banner = `Mène ${mene}${replay ? " rejouée" : ""} · ${starter === "me" ? "vous avez la main" : online ? `${OPP} a la main` : "l'ordinateur a la main"}`;
+      banner = `Mène ${mene}${replay ? " rejouée" : ""} · ${starter === "me" ? "vous avez la main" : online ? oppDo("a la main", "ont la main") : "l'ordinateur a la main"}`;
       updHud();
       later(() => giveTurn(starter), 1300);
     }
     function giveTurn(who) {
       turn = who;
+      if (online && who === "me" && leftP[ME] <= 0) {        // 2 contre 2 : je n'ai plus de boule, c'est à mon partenaire
+        phase = "remote"; setModeEnabled(false); setTip("");
+        banner = `À ${MATES.map(nameOf).join(" et ")} de jouer`; return pump();
+      }
       if (who === "me") {
         phase = "aim"; aim = null; drag = null;
-        banner = pointBanner() || "À vous de jouer";
+        banner = pointBanner() || (SIZE === 2 ? "À votre équipe" : "À vous de jouer");
+        if (SIZE === 2) { const mate = MATES.filter(id => leftP[id] > 0).map(nameOf); banner += ` · il te reste ${leftP[ME]} boule${leftP[ME] > 1 ? "s" : ""}${mate.length ? ` (ou ${mate.join(", ")})` : ""}`; }
         setModeEnabled(true);
         setTip(mode === "pointer" ? "Touchez le terrain pour placer la donnée." : "Tirez vers l'arrière puis relâchez.");
       } else if (online) {
         phase = "remote"; setModeEnabled(false); setTip("");
-        banner = `${OPP} joue…`;
+        banner = SIZE === 2 ? `${OPP} jouent…` : `${OPP} joue…`;
         pump();
       } else {
         phase = "ai"; setModeEnabled(false); setTip("");
@@ -1267,7 +1320,7 @@ function petanque(stage, hud, done) {
     }
     function pointBanner() {
       const h = PQ.holder(balls, coch);
-      return h === "ai" ? `${OPP} a le point, à vous` : h === "me" ? "Vous avez le point" : "";
+      return h === "ai" ? `${oppDo("a", "ont")} le point, à vous` : h === "me" ? "Vous avez le point" : "";
     }
     function afterSettle() {
       if (cochDead) {
@@ -1290,7 +1343,7 @@ function petanque(stage, hud, done) {
       phase = "idle"; turn = null; setModeEnabled(false); setTip("");
       pts[winner] += n; starter = winner; updHud();
       const s = n > 1 ? "s" : "";
-      banner = (winner === "me" ? `Vous marquez ${n} point${s}` : `${OPP} marque ${n} point${s}`) + (fromJack ? " (boules restantes)" : "");
+      banner = (winner === "me" ? `Vous marquez ${n} point${s}` : `${oppDo("marque", "marquent")} ${n} point${s}`) + (fromJack ? " (boules restantes)" : "");
       if (pts[winner] >= target) later(finish, 2200);
       else later(() => newMene(false), 2600);
     }
@@ -1299,7 +1352,7 @@ function petanque(stage, hud, done) {
       ended = true; finished = true;
       const win = pts.me >= target;
       if (win) Sfx.cheer(); else Sfx.aww();
-      if (online) return done(pts.me - pts.ai, `${win ? "Victoire" : "Défaite"} ${pts.me} à ${pts.ai} contre ${OPP} (en ligne, partie en ${target}).`, undefined, null, null, { level: "En ligne", noRecord: true });
+      if (online) return done(pts.me - pts.ai, `${win ? "Victoire" : "Défaite"} ${pts.me} à ${pts.ai}${MATES.length ? ` avec ${MATES.map(nameOf).join(" et ")}` : ""} contre ${OPP} (en ligne, partie en ${target}).`, undefined, null, null, { level: "En ligne", noRecord: true });
       // Score : l'écart de points en fin de match (positif en cas de victoire)
       done(pts.me - pts.ai, `${win ? "Victoire" : "Défaite"} ${pts.me} à ${pts.ai} contre l'ordinateur (niveau ${L.name}, partie en ${target}).`, undefined, null, null, { level: L.name });
     }
@@ -1315,7 +1368,13 @@ function petanque(stage, hud, done) {
         air: frames, airMax: frames, arc: kind === "pointer" ? 1.75 : 1.25, rollV: roll * (1 - F), ux, uy });
       left[owner]--; lastThrower = owner; phase = "moving"; aim = null; drag = null;
       setModeEnabled(false); setTip("");
-      if (online && owner === "me") netSend({ t: "throw", kind, lx: land.x, ly: land.y });
+    }
+    // Mon lancer : hors ligne il part tout de suite ; en ligne il passe d'abord par Firebase (l'ordre d'arrivée départage les coéquipiers)
+    function myThrow(kind, land) {
+      if (!online) return launch("me", kind, land);
+      phase = "sent"; aim = null; drag = null; tirAim = null; setModeEnabled(false); setTip("");
+      banner = "Lancer envoyé…";
+      netSend({ t: "throw", kind, lx: land.x, ly: land.y, k: throwCount });
     }
     function aiPlay() {
       let kind = "pointer", land;
@@ -1374,7 +1433,7 @@ function petanque(stage, hud, done) {
       const dx = tirAim.x - origin.x, dy = tirAim.y - origin.y, D = hyp(dx, dy);
       const ang = Math.atan2(dy, dx) + e * 0.085;
       const d2 = D * (1 + (Math.random() - .5) * Math.abs(e) * 0.14);
-      launch("me", "tirer", { x: origin.x + Math.cos(ang) * d2 + gauss() * 2, y: origin.y + Math.sin(ang) * d2 + gauss() * 2 });
+      myThrow("tirer", { x: origin.x + Math.cos(ang) * d2 + gauss() * 2, y: origin.y + Math.sin(ang) * d2 + gauss() * 2 });
       banner = Math.abs(e) < 0.15 ? "Beau tir !" : "Vous tirez";
       tirAim = null;
     }
@@ -1382,7 +1441,7 @@ function petanque(stage, hud, done) {
       const e = gaugeVal();                          // -1 à 1, 0 = parfait
       const dx = aim.x - origin.x, dy = aim.y - origin.y, D = hyp(dx, dy);
       const d2 = D + e * 50, lat = (Math.random() < .5 ? -1 : 1) * Math.abs(e) * 14 * Math.random();
-      launch("me", "pointer", { x: origin.x + dx / D * d2 - dy / D * lat, y: origin.y + dy / D * d2 + dx / D * lat });
+      myThrow("pointer", { x: origin.x + dx / D * d2 - dy / D * lat, y: origin.y + dy / D * d2 + dx / D * lat });
       banner = Math.abs(e) < 0.15 ? "Joli dosage !" : "Vous pointez";
     }
     cv.addEventListener("pointerdown", onDown);
@@ -1438,7 +1497,7 @@ function petanque(stage, hud, done) {
       for (let i = balls.length - 1; i >= 0; i--) if (balls[i].air === 0 && touchesEdge(balls[i])) balls.splice(i, 1);
       const moving = balls.some(b => b.air > 0 || b.vx || b.vy) || (!cochDead && (coch.vx || coch.vy));
       if (!moving) {
-        if (online && lastThrower === "me") { snap(sendFinal()); phase = "settle"; later(afterSettle, 450); }
+        if (online && lastThrowerId === ME) { snap(sendFinal()); phase = "settle"; later(afterSettle, 450); }
         else if (online) { phase = "waitFinal"; pump(); }
         else { phase = "settle"; later(afterSettle, 450); }
       }
@@ -1480,7 +1539,7 @@ function petanque(stage, hud, done) {
         ctx.setLineDash([]);
       }
       if (coch && !cochDead) drawBall(coch);
-      if (!coch) { pill(online && phase === "waitMene" ? `${OPP} lance le cochonnet…` : "", W / 2, H / 2, "rgba(8,52,55,.75)", "#fff"); }
+      if (!coch && online && phase === "waitMene") pill("Lancer du cochonnet…", W / 2, H / 2, "rgba(8,52,55,.75)", "#fff");
       for (const b of balls) if (b.air === 0) drawBall(b);
       if (showMeasure && coch && !cochDead) {
         for (const b of balls) pill(Math.round(PQ.gap(b, coch) * CM) + " cm", b.x, b.y - 22, b.owner === "me" ? "rgba(8,52,55,.88)" : "rgba(90,53,23,.88)", "#fff", "700 11px 'Barlow Semi Condensed', sans-serif");
@@ -1528,67 +1587,83 @@ function petanque(stage, hud, done) {
       }
       // Boules restantes
       const dots = (n, x, color, label, alignRight) => {
+        const tot = 3 * SIZE, step = SIZE === 2 ? 11 : 14, wdt = 50 + tot * step;
         ctx.font = "700 11px 'Barlow Semi Condensed', sans-serif"; ctx.fillStyle = "#fff"; ctx.textAlign = alignRight ? "right" : "left";
-        ctx.fillStyle = "rgba(8,52,55,.8)"; roundRect(ctx, alignRight ? x - 84 : x - 4, H - 18, 88, 16, 8); ctx.fill();
+        ctx.fillStyle = "rgba(8,52,55,.8)"; roundRect(ctx, alignRight ? x - wdt + 4 : x - 4, H - 18, wdt, 16, 8); ctx.fill();
         ctx.fillStyle = "#fff"; ctx.fillText(label, x + (alignRight ? -2 : 2), H - 6);
-        for (let i = 0; i < 3; i++) {
-          const cx = alignRight ? x - 38 - i * 14 : x + 38 + i * 14;
+        for (let i = 0; i < tot; i++) {
+          const cx = alignRight ? x - 38 - i * step : x + 38 + i * step;
           ctx.fillStyle = i < n ? color : "rgba(255,255,255,.25)"; ctx.beginPath(); ctx.arc(cx, H - 10, 5, 0, 6.3); ctx.fill();
         }
       };
-      if (phase !== "gauge") { dots(left.me, 12, "#d9dde5", "Vous", false); dots(left.ai, W - 12, "#b9814a", OPP_SHORT.length > 10 ? OPP_SHORT.slice(0, 9) + "…" : OPP_SHORT, true); }
+      if (phase !== "gauge") { dots(left.me, 12, "#d9dde5", US_SHORT, false); dots(left.ai, W - 12, "#b9814a", OPP_SHORT.length > 7 ? OPP_SHORT.slice(0, 6) + "…" : OPP_SHORT, true); }
       if (banner !== shownBanner) { bannerEl.textContent = banner; shownBanner = banner; }   // message affiché au-dessus du terrain, plus dessus
     }
 
-    /* En ligne : messages entre les deux téléphones */
-    let finished = false;
-    const SIDE = online && online.host ? "h" : "g", OTHER = SIDE === "h" ? "g" : "h";
+    /* En ligne : messages entre les téléphones */
+    let finished = false, throwCount = 0, lastThrowerId = null;
+    const leftP = {};
     const r3 = (v) => Math.round(v * 1000) / 1000;
+    const sideOf = (id) => (P[id] && P[id].tm) || null;
     function netSend(ev) { PQNet.send(online.code, ev).catch(() => { banner = "Connexion perdue… nouvel essai"; later(() => netSend(ev), 2000); }); }
-    // Positions après arrêt, envoyées par le lanceur ; l'autre téléphone s'y recale (arrondies pareil des deux côtés)
+    // Positions après arrêt, envoyées par le lanceur ; les autres téléphones s'y recalent (arrondies pareil partout)
     function sendFinal() {
       const f = { t: "final", d: cochDead ? 1 : 0, cx: r3(coch.x), cy: r3(coch.y), b: balls.map(b => [b.owner === "me" ? SIDE : OTHER, r3(b.x), r3(b.y)]) };
       netSend(f); return f;
     }
     function snap(f) {
       let drift = 0;
-      const nb = f.b.map(([s, x, y]) => ({ owner: s === SIDE ? "me" : "ai", kind: "pointer", x, y, r: R, m: 1, vx: 0, vy: 0, air: 0 }));
+      const nb = (f.b || []).map(([s, x, y]) => ({ owner: s === SIDE ? "me" : "ai", kind: "pointer", x, y, r: R, m: 1, vx: 0, vy: 0, air: 0 }));
       if (nb.length === balls.length) nb.forEach((b, i) => { drift = Math.max(drift, hyp(b.x - balls[i].x, b.y - balls[i].y)); });
       else drift = Infinity;
-      if (lastThrower === "ai") window.__pqDrift = Math.max(window.__pqDrift || 0, drift);
+      if (lastThrowerId !== ME) window.__pqDrift = Math.max(window.__pqDrift || 0, drift);
       balls = nb; cochDead = !!f.d; coch.x = f.cx; coch.y = f.cy; coch.vx = coch.vy = 0;
     }
     const queue = [];
+    const TURN_PHASES = ["aim", "gauge", "remote", "sent"];
+    // Chaque message est traité dans le même ordre sur tous les téléphones ; « false » = pas encore (on attend la bonne étape)
     function apply(ev) {
-      if (ev.t === "quit") { if (ev.by !== Online.uid()) oppLeft(); return true; }
-      if (ev.by === Online.uid()) return true;                 // nos propres messages : déjà joués ici
+      if (ev.t === "start") return true;
+      if (ev.t === "quit") { if (ev.by !== ME) oppLeft(nameOf(ev.by)); return true; }
       if (ev.t === "mene") {
         if (phase !== "waitMene") return false;
         mene = ev.n; starter = ev.st === SIDE ? "me" : "ai";
-        coch = { x: ev.x, y: ev.y, vx: 0, vy: 0, r: RC, m: 0.6, owner: "coch", air: 0 };
+        coch = { x: Number(ev.x), y: Number(ev.y), vx: 0, vy: 0, r: RC, m: 0.6, owner: "coch", air: 0 };
         startMene(ev.rp); return true;
       }
       if (ev.t === "throw") {
-        if (!(phase === "remote" && turn === "ai")) return false;
-        banner = ev.kind === "tirer" ? `${OPP} tire !` : `${OPP} pointe`;
-        launch("ai", ev.kind === "tirer" ? "tirer" : "pointer", { x: Number(ev.lx), y: Number(ev.ly) }); return true;
+        // Lancer déjà dépassé (son coéquipier a lancé avant lui) : écarté tout de suite, sans bloquer les messages suivants
+        if (Number(ev.k) !== throwCount) { if (ev.by === ME && phase === "sent") { giveTurn(turn); banner = "Ton partenaire a été plus rapide"; } return true; }
+        if (!TURN_PHASES.includes(phase)) return false;
+        const owner = sideOf(ev.by) === SIDE ? "me" : "ai";
+        // Lancer en retard (coéquipier plus rapide), hors tour ou sans boule : écarté partout de la même façon
+        if (Number(ev.k) !== throwCount || owner !== turn || !(leftP[ev.by] > 0)) {
+          if (ev.by === ME && phase === "sent") { giveTurn(turn); banner = "Ton partenaire a été plus rapide"; }
+          return true;
+        }
+        leftP[ev.by]--; throwCount++; lastThrowerId = ev.by;
+        const kind = ev.kind === "tirer" ? "tirer" : "pointer";
+        banner = ev.by === ME ? (kind === "tirer" ? "Vous tirez" : "Vous pointez") : `${nameOf(ev.by)} ${kind === "tirer" ? "tire !" : "pointe"}`;
+        launch(owner, kind, { x: Number(ev.lx), y: Number(ev.ly) }); return true;
       }
       if (ev.t === "final") {
+        if (ev.by === ME) return true;                          // le lanceur s'est déjà recalé
         if (phase !== "waitFinal") return false;
+        if (ev.by !== lastThrowerId) return true;
         snap(ev); phase = "settle"; later(afterSettle, 300); return true;
       }
       return true;
     }
     function pump() { while (!ended && queue.length && apply(queue[0])) queue.shift(); }
-    function oppLeft() {
+    function oppLeft(who) {
       if (ended) return;
       ended = true; finished = true; phase = "idle"; turn = null; setModeEnabled(false); setTip("");
-      banner = `${OPP} a quitté la partie`;
-      setTimeout(() => done(null, `${OPP} a quitté la partie. Score : ${pts.me} à ${pts.ai}.`, undefined, null, null, { level: "En ligne", noRecord: true }), 1800);
+      banner = `${who} a quitté la partie`;
+      setTimeout(() => done(null, `${who} a quitté la partie. Score : ${pts.me} à ${pts.ai}.`, undefined, null, null, { level: "En ligne", noRecord: true }), 1800);
     }
     if (online) {
       online.handler = (ev) => { queue.push(ev); pump(); };
-      online.onRoom = (room) => { if (!room && !ended) oppLeft(); };
+      online.onRoom = (room) => { if (!room && !ended) oppLeft(OPP); };
       for (const ev of online.buffer.splice(0)) queue.push(ev);
       if (online.host) starter = Math.random() < .5 ? "me" : "ai";
     }
@@ -1609,7 +1684,7 @@ function petanque(stage, hud, done) {
       }
     };
   }
-  return () => { if (stopGame) stopGame(); else if (net) { net.stop(); if (net.host) PQNet.remove(net.code); } };
+  return () => { if (stopGame) stopGame(); else if (net) { net.stop(); if (net.host) PQNet.remove(net.code); else PQNet.leave(net.code); } };
 }
 
 /* =========================================================
@@ -3416,37 +3491,50 @@ function startParcours() { session = { mode: "parcours", queue: GAMES.map(g => g
 
 /* =========================================================
    Parties en ligne (pétanque) : une « salle » par code de 4 lettres dans Firebase.
-   /rooms/CODE = { host, hostName, guest, guestName, target, H, created, ev: { …événements dans l'ordre… } }
-   Événements : mene (cochonnet et main, décidés par l'hôte), throw (le geste), final (positions après arrêt), quit.
-   Les téléphones s'écoutent en direct (flux d'événements Firebase) ; chaque événement n'est traité qu'une fois.
+   /rooms/CODE = { host, hostName, target, H, created, size (1 ou 2 joueurs par équipe), st (partie lancée),
+                   p: { identité: { n: pseudo, tm: "A" ou "B" } }, ev: { …événements dans l'ordre… } }
+   Événements : start (équipes figées), mene (cochonnet et main, décidés par l'hôte), throw (point de chute et numéro du lancer),
+   final (positions après arrêt, envoyées par le lanceur), quit.
+   Tous les lancers, y compris les siens, passent par Firebase : l'ordre d'arrivée décide, et un lancer arrivé trop tard
+   (son coéquipier a été plus rapide) est écarté de la même façon sur tous les téléphones.
    ========================================================= */
 const PQNet = (() => {
   const LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ";   // sans I ni O, trop proches de 1 et 0
   const newCode = () => Array.from({ length: 4 }, () => LETTERS[Math.floor(Math.random() * LETTERS.length)]).join("");
   const url = (path, t) => `${Online.base()}/rooms/${path}.json?auth=${t}`;
-  async function create(target, H) {
+  const J = (method, body) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  async function create(target, size) {
     const t = await Online.auth();
     for (let k = 0; k < 6; k++) {
       const code = newCode();
       try {
-        await Online.json(url(code, t), { method: "PUT", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ host: Online.uid(), hostName: Online.name(), target, H, created: { ".sv": "timestamp" } }) });
+        await Online.json(url(code, t), J("PUT", { host: Online.uid(), hostName: Online.name(), target, H: 640, size, created: { ".sv": "timestamp" }, p: { [Online.uid()]: { n: Online.name(), tm: "A" } } }));
         return code;
       } catch (e) { if (!e.status || e.status >= 500) throw e; }   // code déjà pris : on en tire un autre
     }
     throw new Error("Aucun code libre");
   }
+  const count = (room, tm) => Object.values(room.p || {}).filter(x => x.tm === tm).length;
   async function join(code) {
     const t = await Online.auth(), room = await Online.json(url(code, t));
     if (!room || !room.host) return { error: "Aucune partie avec ce code." };
-    if (room.host === Online.uid()) return { error: "C'est ta propre partie : donne ce code à ton adversaire." };
-    if (room.guest && room.guest !== Online.uid()) return { error: "Cette partie est déjà complète." };
-    if (!room.guest) await Online.json(url(code, t), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guest: Online.uid(), guestName: Online.name() }) });
-    return { room: { ...room, guest: Online.uid(), guestName: Online.name() } };
+    const me = Online.uid(), size = Number(room.size) === 2 ? 2 : 1, mine = room.p && room.p[me];
+    if (room.st && !mine) return { error: "Cette partie a déjà commencé." };
+    if (!mine) {
+      const tm = count(room, "A") <= count(room, "B") ? "A" : "B", other = tm === "A" ? "B" : "A";
+      const pick = count(room, tm) < size ? tm : count(room, other) < size ? other : null;
+      if (!pick) return { error: "Cette partie est déjà complète." };
+      await Online.json(url(`${code}/p/${me}`, t), J("PUT", { n: Online.name(), tm: pick }));
+    }
+    return { room };
   }
-  async function send(code, ev) {
+  async function setTeam(code, tm) { const t = await Online.auth(); return Online.json(url(`${code}/p/${Online.uid()}`, t), J("PUT", { n: Online.name(), tm })); }
+  async function leave(code) { try { const t = await Online.auth(); await Online.json(url(`${code}/p/${Online.uid()}`, t), { method: "DELETE" }); } catch (e) {} }
+  async function send(code, ev) { const t = await Online.auth(); return Online.json(url(code + "/ev", t), J("POST", { ...ev, by: Online.uid() })); }
+  async function start(code, players) {
     const t = await Online.auth();
-    return Online.json(url(code + "/ev", t), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...ev, by: Online.uid() }) });
+    await Online.json(url(code + "/st", t), J("PUT", true));
+    return send(code, { t: "start", p: players });
   }
   async function remove(code) { try { const t = await Online.auth(); await Online.json(url(code, t), { method: "DELETE" }); } catch (e) {} }
   // Écoute en direct d'une salle : onRoom(salle) à chaque changement, onEvent(id, ev) une fois par événement, dans l'ordre
@@ -3486,7 +3574,7 @@ const PQNet = (() => {
     open();
     return () => { closed = true; clearTimeout(retry); if (es) es.close(); };
   }
-  return { create, join, send, remove, listen };
+  return { create, join, setTeam, leave, send, start, remove, listen, count };
 })();
 /* ---------- Classements en ligne : encart après une partie, page des classements ---------- */
 const escH = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
