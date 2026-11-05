@@ -437,7 +437,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .online .btn { flex: 0 0 auto; }
 .online .err { color: #ff8a93; font-size: .9rem; }
 .linkish { background: none; border: none; padding: 0; color: var(--gold); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
-.bd-tabs button { flex: 1 1 30%; font-size: .9rem; padding: 8px 6px; }
+.bd-tabs { flex-wrap: nowrap; } .bd-tabs button { flex: 1 1 0; min-width: 0; font-size: .88rem; line-height: 1.15; padding: 8px 4px; }
 .bd-sub { display: flex; flex-direction: column; gap: 8px; }
 .bd-levels button { padding: 8px 4px; font-size: .92rem; }
 .bd-song { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--bg-3); background: var(--bg-2); color: var(--ink); font: 700 1rem var(--body); }
@@ -690,8 +690,7 @@ const BOARD_GAMES = [
   { id: "petanque", name: "Pétanque", levels: ["F", "C", "E"], fmt: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) },
   { id: "tapas", name: "Tapas", levels: ["F", "C", "E"], fmt: (v) => v + "/100" },
   { id: "tour", name: "Tour de ville", levels: ["F", "C", "E", "M"], fmt: (v) => v + " €" },   // M : le Marathon, rangé avec le tour de ville
-  { id: "banda", name: "1000 guêpes", levels: ["F", "C", "E", "L"], songs: true, fmt: (v) => v + "/100" },
-  { id: "parcours", name: "Parcours complet", fmt: (v) => v + "/100" }
+  { id: "banda", name: "1000 guêpes", levels: ["F", "C", "E", "L"], songs: true, fmt: (v) => v + "/100" }
 ];
 function boardKey(game, level, song) {
   const g = BOARD_GAMES.find(x => x.id === game); if (!g) return null;
@@ -3258,8 +3257,6 @@ function showFinal() {
   const rec = $("fin-record");
   rec.className = "record" + (isNew ? " new" : "");
   rec.textContent = isNew ? (prev == null ? "Première moyenne enregistrée." : `Nouveau record de parcours ! (ancien : ${prev})`) : `Meilleure moyenne : ${prev}/100`;
-  noteBest("parcours", avg);
-  onlineBox($("fin-online"), "parcours");
   show("final");
 }
 function startParcours() { session = { mode: "parcours", queue: GAMES.map(g => g.id), results: [], retried: {} }; openIntro(); }
@@ -3267,10 +3264,9 @@ function startParcours() { session = { mode: "parcours", queue: GAMES.map(g => g
 /* ---------- Classements en ligne : encart après une partie, page des classements ---------- */
 const escH = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const ordinal = (n) => n === 1 ? "1<sup>er</sup>" : n + "<sup>e</sup>";
-// Meilleurs scores par classement en ligne, gardés sur ce téléphone (le Marathon et le Parcours reprennent les anciens records)
+// Meilleurs scores par classement en ligne, gardés sur ce téléphone (le Marathon reprend l'ancien record)
 const boardBests = store.get("arbas-board-bests") || {};
 if (boardBests.marathon == null && bests.tourMarathon) boardBests.marathon = bests.tourMarathon.value;
-if (boardBests.parcours == null && bests.parcours != null) boardBests.parcours = bests.parcours;
 function noteBest(board, score) { if (board && Number.isFinite(score) && (boardBests[board] == null || score > boardBests[board])) { boardBests[board] = score; store.set("arbas-board-bests", boardBests); } }
 const localBest = (board) => boardBests[board] == null ? null : Number(boardBests[board]);
 function boardFor(g, meta) {
