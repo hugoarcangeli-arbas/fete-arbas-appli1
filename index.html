@@ -4049,7 +4049,7 @@ const SOON = {
 };
 // Merch : articles donnés par Hugo. price: null = prix à venir ; colors/sizes: null = à venir.
 // MERCH_SHOP : lien de la boutique HelloAsso (toute la boutique, pour donner envie de prendre autre chose).
-const MERCH_SHOP = "";
+const MERCH_SHOP = "https://www.helloasso.com/associations/comite-des-fetes-d-arbas/boutiques/merch-2027";
 const MERCH = [
   { name: "T-shirt", price: 15, desc: "Le T-shirt de l'année : la couleur change à chaque édition.", colors: null, colorsTbc: "Couleur 2027 bientôt dévoilée", sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], ic: "tee" },
   { name: "Short « Comité des fesses »", price: 20, desc: "Coupe short de rugby.", colors: [["Noir", "#111"], ["Blanc", "#f4f4f4"], ["Rouge", "#e63946"]], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], ic: "short" },
@@ -4071,7 +4071,7 @@ function showMerch() {
       <div class="mc-row">${chips(m.sizes, m.sizesTbc)}</div>
     </article>`).join("");
   const go = $("merch-go");
-  if (MERCH_SHOP) { go.href = MERCH_SHOP; go.removeAttribute("aria-disabled"); go.textContent = "Commander sur HelloAsso ↗"; $("merch-foot").textContent = "Le paiement se fait sur HelloAsso, la boutique en ligne de l'association."; }
+  if (MERCH_SHOP) { go.href = MERCH_SHOP; go.removeAttribute("aria-disabled"); go.textContent = "Commander sur HelloAsso ↗"; $("merch-foot").textContent = "Le paiement se fait sur HelloAsso. Au moment de payer, HelloAsso propose une contribution facultative pour son fonctionnement : tu peux la mettre à 0 €. Le Comité reçoit le prix complet."; }
   else { go.removeAttribute("href"); go.setAttribute("aria-disabled", "true"); go.textContent = "Boutique bientôt ouverte"; $("merch-foot").textContent = "La commande se fera sur la boutique HelloAsso du Comité, dès qu'elle sera ouverte."; }
   show("merch");
 }
