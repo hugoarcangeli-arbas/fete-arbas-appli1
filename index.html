@@ -671,13 +671,12 @@ const ONLINE = Object.assign({ db: "https://fete-d-arbas-l-appli-default-rtdb.eu
 // Un classement par jeu et par niveau (et par morceau pour les 1000 guêpes) ; Marathon et Parcours complet à part.
 // Clé en base : « tapas-C », « banda-montero-L », « marathon »… (les mêmes que dans les règles Firebase)
 const LEVEL_KEYS = { "Facile": "F", "Confirmé": "C", "Expert": "E", "Légende": "L" };
-const LEVEL_NAMES = { F: "Facile", C: "Confirmé", E: "Expert", L: "Légende" };
+const LEVEL_NAMES = { F: "Facile", C: "Confirmé", E: "Expert", L: "Légende", M: "Marathon" };
 const slug = (t) => String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const BOARD_GAMES = [
   { id: "petanque", name: "Pétanque", levels: ["F", "C", "E"], fmt: (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) },
   { id: "tapas", name: "Tapas", levels: ["F", "C", "E"], fmt: (v) => v + "/100" },
-  { id: "tour", name: "Tour de ville", levels: ["F", "C", "E"], fmt: (v) => v + " €" },
-  { id: "marathon", name: "Marathon", fmt: (v) => v + " €" },
+  { id: "tour", name: "Tour de ville", levels: ["F", "C", "E", "M"], fmt: (v) => v + " €" },   // M : le Marathon, rangé avec le tour de ville
   { id: "banda", name: "1000 guêpes", levels: ["F", "C", "E", "L"], songs: true, fmt: (v) => v + "/100" },
   { id: "parcours", name: "Parcours complet", fmt: (v) => v + "/100" }
 ];
@@ -685,6 +684,7 @@ function boardKey(game, level, song) {
   const g = BOARD_GAMES.find(x => x.id === game); if (!g) return null;
   if (!g.levels) return g.id;
   if (!g.levels.includes(level)) return null;
+  if (g.id === "tour" && level === "M") return "marathon";   // nom gardé en base (règles Firebase inchangées)
   return g.songs ? `${g.id}-${slug(song)}-${level}` : `${g.id}-${level}`;
 }
 const Online = (() => {
@@ -3294,6 +3294,7 @@ function onlineBox(el, board) {
 }
 let boardSel = { game: "petanque", level: "C", song: null }, boardReq = 0;
 function boardFromKey(key) {
+  if (key === "marathon") return { game: "tour", level: "M" };
   const [game, ...rest] = String(key).split("-"), g = BOARD_GAMES.find(x => x.id === game); if (!g) return null;
   if (!g.levels) return { game };
   const level = rest.pop(); return { game, level, song: g.songs ? (GUEPES_LIST.find(s => slug(s.name) === rest.join("-")) || {}).name : null };
