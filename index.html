@@ -395,6 +395,20 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .modal-box p { margin: 0; font-size: 1.05rem; line-height: 1.35; }
 .modal-box .btn-row { margin-top: 4px; }
 .modal-box .btn.ghost { border-color: #c9c4b4; color: var(--slate); }
+/* Mode d'emploi pour installer l'appli (caché quand elle est déjà installée) */
+.inst-open { align-self: center; margin-top: -4px; background: rgba(255,255,255,.08); border: 1px dashed var(--rose); border-radius: 999px; padding: 8px 14px; color: var(--ink); font-weight: 700; font-size: .95rem; }
+.inst-box { max-height: calc(100vh - 32px); overflow-y: auto; }
+.inst-box h2 { font-size: 1.45rem; }
+.inst-box p { font-size: .98rem; }
+.inst-tabs { background: #ebe6d6; border-color: #d6d0bd; }
+.inst-tabs button { color: var(--slate); }
+.inst-steps { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 8px; font-size: 1.02rem; line-height: 1.35; }
+.inst-ic { display: inline-block; padding: 0 5px; border: 1.5px solid currentColor; border-radius: 5px; font-size: .85em; }
+.inst-tip { color: #5d5a50; font-size: .9rem !important; }
+.inst-link { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.inst-link code { flex: 1 1 100%; font-size: .78rem; word-break: break-all; background: rgba(0,0,0,.06); padding: 6px 8px; border-radius: 8px; }
+.inst-box .btn { flex: 0 0 auto; }
+.inst-link .btn { flex: 1 1 auto; }
 .pc-card { display: flex; flex-direction: column; gap: 12px; min-height: 250px; justify-content: center; text-align: center; border-radius: 18px; padding: 22px 18px; background: var(--chalk-ink); color: var(--slate); border: 4px solid var(--gold); box-shadow: 0 6px 0 rgba(0,0,0,.25); }
 .pc-type { align-self: center; font-size: .8rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; background: var(--gold); color: var(--slate); }
 .pc-text { margin: 0; font-weight: 700; font-size: 1.45rem; line-height: 1.3; text-wrap: balance; overflow-wrap: anywhere; }
@@ -564,6 +578,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <h1>Fête d'Arbas</h1>
       <span class="eyebrow">L'appli du Comité des fêtes</span>
     </header>
+    <button class="inst-open" id="inst-open" type="button" hidden>📲 Mettre l'appli sur l'écran d'accueil</button>
     <nav class="home-nav" aria-label="Rubriques">
       <button class="hn hn-main" id="go-jeux" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="9" width="26" height="15" rx="7.5" fill="currentColor"/><path d="M10 13v7M6.5 16.5h7" stroke="var(--hn-bg)" stroke-width="2.4" stroke-linecap="round"/><circle cx="21" cy="14.5" r="1.8" fill="var(--hn-bg)"/><circle cx="24.5" cy="18.5" r="1.8" fill="var(--hn-bg)"/></svg><span class="hn-t"><b>Jeux</b><small>Les mini-jeux de la fête</small></span><span class="hn-go" aria-hidden="true">›</span></button>
       <button class="hn" id="go-boire" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 4h16l-2 11a6 6 0 0 1-12 0z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M9 10h14" stroke="currentColor" stroke-width="2.2"/><path d="M16 21v6M11 28h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span class="hn-t"><b>Jeux à boire</b><small>Réservé aux adultes</small></span><span class="hn-go" aria-hidden="true">›</span></button>
@@ -572,6 +587,26 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <button class="hn" id="go-merch" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M11 4l-7 4 3 6 3-1.5V28h12V12.5l3 1.5 3-6-7-4c-.5 2.5-2.5 4-5 4s-4.5-1.5-5-4z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Précommander du merch</b><small>T-shirts, shorts, bobs</small></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
   </section>
+  <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
+    <div class="modal-box inst-box">
+      <h2 id="inst-t">L'appli sur ton téléphone</h2>
+      <p>Une icône sur l'écran d'accueil, comme une vraie appli, et les jeux marchent même sans réseau.</p>
+      <div class="seg inst-tabs"><button type="button" data-os="ios">iPhone</button><button type="button" data-os="android">Android</button></div>
+      <ol class="inst-steps" data-os="ios">
+        <li>Ouvre le lien dans <b>Safari</b>.</li>
+        <li>Touche le bouton <b>Partager</b> <span class="inst-ic" aria-hidden="true">⬆︎</span> (le carré avec une flèche vers le haut).</li>
+        <li>Choisis <b>« Sur l'écran d'accueil »</b> (fais défiler la liste si besoin), puis <b>Ajouter</b>.</li>
+      </ol>
+      <ol class="inst-steps" data-os="android" hidden>
+        <li>Ouvre le lien dans <b>Chrome</b>.</li>
+        <li>Touche le menu <b>⋮</b> en haut à droite.</li>
+        <li>Choisis <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>, puis confirme.</li>
+      </ol>
+      <p class="inst-tip">Ouvre ensuite l'appli une première fois avec du réseau : elle se garde en mémoire pour marcher hors connexion.</p>
+      <div class="inst-link"><code id="inst-url"></code><button type="button" class="btn ghost" id="inst-copy">Copier le lien</button></div>
+      <button type="button" class="btn primary" id="inst-close">Fermer</button>
+    </div>
+  </div>
 
   <section class="screen" id="menu" hidden>
     <div class="topbar">
@@ -4080,6 +4115,28 @@ function showSoon(k) { $("soon-title").textContent = SOON[k][0]; $("soon-text").
 $("go-jeux").addEventListener("click", renderMenu);
 $("go-programme").addEventListener("click", () => showSoon("programme"));
 $("go-merch").addEventListener("click", showMerch);
+// Installer l'appli : mode d'emploi iPhone / Android, proposé seulement hors de l'appli installée
+(() => {
+  const APP_URL = "https://hugoarcangeli-arbas.github.io/fete-arbas-appli1/";
+  const installed = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  const open = $("inst-open"), modal = $("inst-modal");
+  if (installed) return;
+  open.hidden = false; $("inst-url").textContent = APP_URL;
+  const pick = (os) => {
+    modal.querySelectorAll(".inst-tabs button").forEach(b => b.classList.toggle("on", b.dataset.os === os));
+    modal.querySelectorAll(".inst-steps").forEach(o => { o.hidden = o.dataset.os !== os; });
+  };
+  modal.querySelectorAll(".inst-tabs button").forEach(b => b.addEventListener("click", () => pick(b.dataset.os)));
+  open.addEventListener("click", () => { pick(/android/i.test(navigator.userAgent) ? "android" : "ios"); modal.hidden = false; });
+  $("inst-close").addEventListener("click", () => { modal.hidden = true; });
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.hidden = true; });
+  $("inst-copy").addEventListener("click", async () => {
+    const b = $("inst-copy");
+    try { await navigator.clipboard.writeText(APP_URL); b.textContent = "Lien copié ✓"; }
+    catch (e) { const r = document.createRange(); r.selectNodeContents($("inst-url")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = "Lien sélectionné"; }
+    setTimeout(() => { b.textContent = "Copier le lien"; }, 2000);
+  });
+})();
 $("merch-back").addEventListener("click", showHome);
 $("games-back").addEventListener("click", showHome);
 $("soon-back").addEventListener("click", showHome);
