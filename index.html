@@ -172,10 +172,11 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .soon .eyebrow { color: var(--rose); }
 /* Merch : vitrine, la commande se fait sur la boutique HelloAsso */
 .mc-list { display: flex; flex-direction: column; gap: 12px; }
-.mc-item { display: grid; grid-template-columns: 72px 1fr; gap: 4px 14px; align-items: start; padding: 14px 16px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--bg-3); }
-.mc-ic { grid-row: 1 / span 4; width: 72px; height: 72px; border-radius: 12px; background: var(--bg-3); display: grid; place-items: center; color: var(--rose); }
+.mc-item { display: grid; grid-template-columns: 84px 1fr; gap: 4px 14px; align-items: start; padding: 14px 16px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--bg-3); }
+.mc-ic { grid-row: 1 / span 4; width: 84px; height: 84px; border-radius: 12px; background: var(--bg-3); display: grid; place-items: center; color: var(--rose); }
 .mc-ic svg { width: 50px; height: 50px; }
-.mc-ic img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.mc-ic img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+.mc-ic.ph { background: #fff; }
 .mc-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .mc-name { font-weight: 800; font-size: 1.2rem; line-height: 1.15; color: #fff; }
 .mc-price { font-family: var(--num); font-weight: 900; font-size: 1.25rem; color: var(--rose); white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -588,7 +589,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <a class="hn" id="go-repas" href="https://booking.myrezapp.com/fr/online/booking/minisite/21026/comite-des-fetes-darbas" target="_blank" rel="noopener"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M4 5v8a2 2 0 0 0 2 2v12M6 5v7M28 5c-2 0-3 3-3 7s1 4 3 4v11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="hn-t"><b>Réserver des repas</b><small>Sur le site de réservation</small></span><span class="hn-go" aria-hidden="true">↗</span></a>
       <button class="hn" id="go-merch" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M11 4l-7 4 3 6 3-1.5V28h12V12.5l3 1.5 3-6-7-4c-.5 2.5-2.5 4-5 4s-4.5-1.5-5-4z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Précommander du merch</b><small>T-shirts, shorts, bobs</small></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
-    <p class="app-ver" id="app-ver">v95</p>
+    <p class="app-ver" id="app-ver">v96</p>
   </section>
   <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
     <div class="modal-box inst-box">
@@ -4090,8 +4091,8 @@ const SOON = {
 const MERCH_SHOP = "https://www.helloasso.com/associations/comite-des-fetes-d-arbas/boutiques/merch-2027";
 const MERCH = [
   { name: "T-shirt", price: 15, desc: "Le T-shirt de l'année : la couleur change à chaque édition.", colors: null, colorsTbc: "Couleur 2027 bientôt dévoilée", sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], ic: "tee" },
-  { name: "Short « Comité des fesses »", price: 20, desc: "Coupe short de rugby.", colors: [["Noir", "#111"], ["Blanc", "#f4f4f4"], ["Rouge", "#e63946"]], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], ic: "short" },
-  { name: "Bob brodé", price: 20, desc: "Bob avec broderie.", colors: null, colorsTbc: "Couleur à venir", sizes: null, sizesTbc: "Tailles à venir", ic: "bob" }
+  { name: "Short « Comité des fesses »", price: 20, desc: "Coupe short de rugby.", colors: [["Noir", "#111"], ["Blanc", "#f4f4f4"], ["Rouge", "#e63946"]], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], ic: "short", img: "images/merch-short.webp" },
+  { name: "Bob brodé", price: 20, desc: "Bob avec broderie.", colors: null, colorsTbc: "Couleur à venir", sizes: null, sizesTbc: "Tailles à venir", ic: "bob", img: "images/merch-bob.webp" }
 ];
 const MERCH_IC = {
   tee: '<path d="M18 8l-11 6 4 9 5-2.5V44h20V20.5l5 2.5 4-9-11-6c-1 4-4 6-8 6s-7-2-8-6z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>',
@@ -4102,7 +4103,7 @@ function showMerch() {
   const chips = (arr, tbc) => arr ? arr.map(x => `<span class="mc-chip">${escH(x)}</span>`).join("") : `<span class="mc-chip tbc">${escH(tbc)}</span>`;
   $("merch-list").innerHTML = MERCH.map(m => `
     <article class="mc-item">
-      <div class="mc-ic">${m.img ? `<img src="${m.img}" alt="">` : `<svg viewBox="0 0 52 52" aria-hidden="true">${MERCH_IC[m.ic]}</svg>`}</div>
+      <div class="mc-ic${m.img ? " ph" : ""}">${m.img ? `<img src="${m.img}" alt="">` : `<svg viewBox="0 0 52 52" aria-hidden="true">${MERCH_IC[m.ic]}</svg>`}</div>
       <div class="mc-top"><span class="mc-name">${escH(m.name)}</span>${m.price != null ? `<span class="mc-price">${m.price}\u00a0€</span>` : `<span class="mc-price tbc">Prix à venir</span>`}</div>
       <p class="mc-desc">${escH(m.desc)}</p>
       <div class="mc-row">${m.colors ? m.colors.map(([n, c]) => `<span class="mc-chip"><i class="mc-dot" style="background:${c}"></i>${escH(n)}</span>`).join("") : chips(null, m.colorsTbc)}</div>
