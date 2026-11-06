@@ -170,6 +170,52 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .hn-main:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--red-sh); }
 .sub-h { margin: 0; font-weight: 800; font-size: 2rem; line-height: 1.05; color: #fff; }
 .soon .eyebrow { color: var(--rose); }
+/* Espace membres : code d'accès, planning, note commune */
+.mb-code { display: flex; flex-direction: column; gap: 14px; align-items: center; padding: 18px 0; }
+.mb-code p { margin: 0; color: var(--muted); text-align: center; }
+.mb-pin { width: 190px; text-align: center; font-family: var(--num); font-size: 2.2rem; letter-spacing: .4em; padding: 10px 0 10px .4em; border-radius: 14px; border: 2px solid var(--bg-3); background: var(--bg-2); color: #fff; }
+.mb-pin:focus { outline: none; border-color: var(--rose); }
+.mb-err { color: #ffb3b8; font-weight: 700; min-height: 1.3em; text-align: center; }
+.mb-off { margin: 0 0 10px; padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,.08); color: var(--muted); font-size: .88rem; }
+.mb-tabs { margin-bottom: 14px; }
+.mb-h3 { margin: 18px 0 8px; font-size: 1.1rem; color: #fff; }
+.mb-days { margin-bottom: 10px; }
+.mb-find { display: flex; gap: 8px; margin-bottom: 12px; }
+.mb-find input { flex: 1; min-width: 0; }
+.mb-mine { margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: rgba(240,128,160,.14); border: 1px solid var(--rose); font-size: .95rem; }
+.mb-mine b { color: #fff; }
+.mb-mine ul { margin: 6px 0 0; padding-left: 1.1em; }
+.mb-post { padding: 12px 14px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--bg-3); margin-bottom: 10px; }
+.mb-post.me { border-color: var(--rose); box-shadow: 0 0 0 1px var(--rose) inset; }
+.mb-pt { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.mb-pt b { font-size: 1.12rem; color: #fff; }
+.mb-time { font-family: var(--num); font-weight: 800; color: var(--rose); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mb-need { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+.mb-who { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.mb-who .mc-chip.hit { background: var(--rose); border-color: var(--rose); color: #222; }
+.mb-gh { flex-basis: 100%; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 4px; }
+.mb-note-add { display: flex; gap: 8px; margin-bottom: 12px; }
+.mb-note-add input { flex: 1; min-width: 0; }
+.mb-note { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: start; padding: 10px 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--bg-3); margin-bottom: 8px; }
+.mb-note.done .mb-ntxt { text-decoration: line-through; opacity: .55; }
+.mb-ntxt { color: #fff; word-break: break-word; }
+.mb-nmeta { display: block; font-size: .75rem; color: var(--muted); margin-top: 2px; }
+.mb-chk { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--rose); background: transparent; color: #222; font-weight: 900; padding: 0; }
+.mb-note.done .mb-chk { background: var(--rose); }
+.mb-del { background: none; border: none; color: var(--muted); font-size: 1.2rem; padding: 0 4px; }
+.mb-note-add + .mb-err:empty { display: none; }
+.mb-empty { color: var(--muted); text-align: center; margin: 14px 0; }
+.mb-admin { margin-top: 22px; text-align: center; }
+.mb-admin button { background: none; border: none; color: var(--muted); text-decoration: underline; font-size: .85rem; }
+.mb-ed { padding: 12px; border-radius: 14px; background: var(--bg-2); border: 1px dashed var(--rose); margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.mb-ed .row { display: flex; gap: 8px; }
+.mb-ed .row > * { flex: 1; min-width: 0; }
+.mb-ed label { font-size: .75rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+.mb-ed textarea { min-height: 110px; resize: vertical; font: inherit; }
+.mb-in { padding: 9px 10px; border-radius: 10px; border: 1px solid var(--bg-3); background: var(--bg); color: #fff; font: inherit; font-size: 1rem; }
+.mb-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.mb-actions .btn { flex: 1 1 auto; }
+.mb-small { font-size: .8rem; color: var(--muted); }
 /* Merch : vitrine, la commande se fait sur la boutique HelloAsso */
 .mc-list { display: flex; flex-direction: column; gap: 12px; }
 .mc-item { display: grid; grid-template-columns: 84px 1fr; gap: 4px 14px; align-items: start; padding: 14px 16px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--bg-3); }
@@ -588,8 +634,9 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <button class="hn" id="go-programme" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M4 13h24M11 3v6M21 3v6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="9" y="17" width="5" height="4" rx="1" fill="currentColor"/></svg><span class="hn-t"><b>Programme 2027</b><small>Bientôt disponible</small></span><span class="hn-go" aria-hidden="true">›</span></button>
       <a class="hn" id="go-repas" href="https://booking.myrezapp.com/fr/online/booking/minisite/21026/comite-des-fetes-darbas" target="_blank" rel="noopener"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="17" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M4 5v8a2 2 0 0 0 2 2v12M6 5v7M28 5c-2 0-3 3-3 7s1 4 3 4v11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="hn-t"><b>Réserver des repas</b><small>Sur le site de réservation</small></span><span class="hn-go" aria-hidden="true">↗</span></a>
       <button class="hn" id="go-merch" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M11 4l-7 4 3 6 3-1.5V28h12V12.5l3 1.5 3-6-7-4c-.5 2.5-2.5 4-5 4s-4.5-1.5-5-4z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Précommander du merch</b><small>T-shirts, shorts, bobs</small></span><span class="hn-go" aria-hidden="true">›</span></button>
+      <button class="hn" id="go-membres" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="14" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 14v-4a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="21" r="2" fill="currentColor"/></svg><span class="hn-t"><b>Espace membres</b><small>Planning et note commune</small></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
-    <p class="app-ver" id="app-ver">v96</p>
+    <p class="app-ver" id="app-ver">v97</p>
   </section>
   <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
     <div class="modal-box inst-box">
@@ -646,6 +693,13 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <div class="btn-row"><button class="btn primary" id="pc-modal-ok" type="button">C'est parti</button><button class="btn ghost" id="pc-modal-no" type="button">Retour</button></div>
     </div>
   </div>
+
+  <section class="screen" id="membres" hidden>
+    <div class="topbar"><button class="quit" id="mb-back" type="button">‹ Accueil</button><button class="quit" id="mb-lock" type="button" hidden>Verrouiller</button></div>
+    <span class="eyebrow" style="color:var(--rose)">Réservé aux membres du Comité</span>
+    <h2 class="sub-h">Espace membres</h2>
+    <div id="mb-body"></div>
+  </section>
 
   <section class="screen" id="merch" hidden>
     <div class="topbar"><button class="quit" id="merch-back" type="button">‹ Accueil</button></div>
@@ -3750,7 +3804,7 @@ const RANKS = [
 ];
 const rankOf = (s) => RANKS.find(([m]) => s >= m)[1];
 
-const screens = ["home", "menu", "drinks", "merch", "soon", "intro", "play", "result", "final", "board"];
+const screens = ["home", "menu", "drinks", "merch", "membres", "soon", "intro", "play", "result", "final", "board"];
 const MENU_MUSIC = "audio/accueil.mp3";
 function menuMusic() {
   // Accueil et écran des règles : musique d'accueil. En jeu : la musique du jeu. Résultats : silence (sons de fin).
@@ -4142,6 +4196,230 @@ $("go-merch").addEventListener("click", showMerch);
   });
 })();
 $("merch-back").addEventListener("click", showHome);
+/* ---------- Espace membres : code à 4 chiffres, planning (modifiable par l'admin) et note commune ----------
+   Rien de privé n'est écrit dans l'appli : tout est rangé sur Firebase sous membres/<code>/, introuvable sans le code.
+   Le planning et la note sont gardés sur le téléphone pour être lus hors connexion. */
+const Membres = (() => {
+  const KEY = "arbas-membres";
+  let code = null, admin = false, plan = null, notes = {}, tab = "planning", day = 0, draft = null, offline = false, at = 0, timer = null, busy = false;
+  let me = store.get("arbas-mb-me") || "";
+  const body = () => $("mb-body");
+  const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+  const arr = (v) => Array.isArray(v) ? v.filter((x) => x != null) : (v && typeof v === "object" ? Object.keys(v).sort((a, b) => a - b).map((k) => v[k]) : []);
+  const mins = (h) => { const m = /^(\d{1,2})\s*h\s*(\d{2})?$/i.exec(String(h || "").trim()); return m ? (+m[1] < 6 ? 24 + +m[1] : +m[1]) * 60 + (+m[2] || 0) : 9999; };
+  const url = (p, t) => `${Online.base()}/membres/${code}/${p}.json${t ? "?auth=" + t : ""}`;
+  async function hash(c) {
+    try { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("arbas-membres|" + c)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join(""); }
+    catch (e) { return ""; }
+  }
+  function days() { return arr(plan && plan.days).map((d) => ({ n: String(d.n || "Jour"), p: arr(d.p).map((p) => ({ t: String(p.t || ""), from: String(p.from || ""), to: String(p.to || ""), need: +p.need || 0, who: arr(p.who).map(String) })) })); }
+  async function saveCache() { const h = await hash(code); if (h) store.set(KEY, { h, plan, notes, at }); }
+
+  async function load() {
+    const t = await Online.auth();
+    const [p, n] = await Promise.all([Online.json(url("planning", t)), Online.json(url("notes", t))]);
+    plan = p; notes = n || {}; at = Date.now(); offline = false; saveCache();
+  }
+  async function enter(c) {
+    if (busy) return; busy = true;
+    const err = $("mb-err"); if (err) err.textContent = "";
+    try {
+      if (!/^\d{4}$/.test(c)) throw { msg: "Le code fait 4 chiffres." };
+      let ok = null, net = true;
+      try { const t = await Online.auth(); ok = await Online.json(`${Online.base()}/membres/${c}/ok.json?auth=${t}`); }
+      catch (e) { if (e && e.status) ok = null; else net = false; }
+      if (net) {
+        if (ok !== true) throw { msg: "Code incorrect." };
+        code = c; await load();
+      } else {
+        const cached = store.get(KEY), h = await hash(c);
+        if (!cached || !h || cached.h !== h) throw { msg: "Pas de réseau, et ce code n'a jamais été ouvert sur ce téléphone." };
+        code = c; plan = cached.plan; notes = cached.notes || {}; at = cached.at || 0; offline = true;
+      }
+      day = Math.min(day, Math.max(0, days().length - 1)); render(); startTimer();
+    } catch (e) { const el = $("mb-err"); if (el) el.textContent = (e && e.msg) || "Connexion impossible, réessaie."; }
+    finally { busy = false; }
+  }
+  function lock() { code = null; admin = false; plan = null; notes = {}; draft = null; stopTimer(); }
+  function startTimer() { stopTimer(); timer = setInterval(async () => { if (!code || draft || document.hidden) return; try { await load(); render(true); } catch (e) {} }, 20000); }
+  function stopTimer() { if (timer) clearInterval(timer); timer = null; }
+
+  /* ----- Affichage ----- */
+  function render(soft) {
+    $("mb-lock").hidden = !code;
+    if (!code) {
+      body().innerHTML = `<div class="mb-code"><p>Entre le code du Comité.</p>
+        <input class="mb-pin" id="mb-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Code à 4 chiffres">
+        <p class="mb-err" id="mb-err" role="alert"></p>
+        <button class="btn primary" id="mb-go" type="button">Entrer</button></div>`;
+      const pin = $("mb-pin");
+      pin.addEventListener("input", () => { pin.value = pin.value.replace(/\D/g, "").slice(0, 4); if (pin.value.length === 4) enter(pin.value); });
+      pin.addEventListener("keydown", (e) => { if (e.key === "Enter") enter(pin.value); });
+      $("mb-go").addEventListener("click", () => enter(pin.value));
+      setTimeout(() => pin.focus(), 50);
+      return;
+    }
+    if (soft && (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) return;   // ne pas couper une saisie
+    const open = Object.values(notes || {}).filter((n) => n && !n.done).length;
+    let h = offline ? `<p class="mb-off">Hors connexion : version gardée sur le téléphone${at ? " (" + new Date(at).toLocaleString("fr-FR", { weekday: "long", hour: "2-digit", minute: "2-digit" }) + ")" : ""}.</p>` : "";
+    h += `<div class="seg mb-tabs"><button type="button" data-tab="planning" class="${tab === "planning" ? "on" : ""}">Planning</button><button type="button" data-tab="notes" class="${tab === "notes" ? "on" : ""}">Note commune${open ? " (" + open + ")" : ""}</button></div>`;
+    h += tab === "planning" ? (draft ? editHtml() : planHtml()) : notesHtml();
+    body().innerHTML = h;
+    body().querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", async () => {
+      tab = b.dataset.tab; render();
+      if (!offline && !draft) { try { await load(); render(true); } catch (e) {} }   // au changement d'onglet : dernières nouvelles
+    }));
+    if (tab === "planning") (draft ? bindEdit : bindPlan)(); else bindNotes();
+  }
+
+  function whoHtml(p) {
+    return p.who.map((w) => {
+      const line = w.trim(); if (!line) return "";
+      if (/:\s*$/.test(line)) return `<span class="mb-gh">${escH(line.replace(/\s*:\s*$/, ""))}</span>`;
+      return `<span class="mc-chip${me && norm(line) === norm(me) ? " hit" : ""}">${escH(line)}</span>`;
+    }).join("");
+  }
+  const timeTxt = (p) => p.from ? escH(p.from) + (p.to ? " → " + (p.to === "fin" ? "fin" : escH(p.to)) : "") : "";
+  const isMine = (p) => me && p.who.some((w) => norm(w) === norm(me));
+  function planHtml() {
+    const ds = days();
+    if (!ds.length) return `<p class="mb-empty">Le planning n'est pas encore en ligne.</p>` + adminLink();
+    day = Math.min(day, ds.length - 1);
+    let h = `<div class="seg mb-days">${ds.map((d, i) => `<button type="button" data-day="${i}" class="${i === day ? "on" : ""}">${escH(d.n)}</button>`).join("")}</div>`;
+    h += `<div class="mb-find"><input class="mb-in" id="mb-me" type="text" placeholder="Ton prénom, pour voir tes créneaux" value="${escH(me)}" autocomplete="off"></div>`;
+    if (me) {
+      const mine = ds.flatMap((d) => d.p.filter(isMine).map((p) => `<li><b>${escH(d.n)}</b> : ${escH(p.t)}${p.from ? " (" + timeTxt(p) + ")" : ""}</li>`));
+      h += `<div class="mb-mine">${mine.length ? `<b>Tes créneaux</b><ul>${mine.join("")}</ul>` : `Aucun créneau trouvé pour « ${escH(me)} ». Vérifie l'orthographe du prénom dans le planning.`}</div>`;
+    }
+    const ps = ds[day].p.slice().sort((a, b) => mins(a.from) - mins(b.from));
+    h += ps.map((p) => `<div class="mb-post${isMine(p) ? " me" : ""}"><div class="mb-pt"><b>${escH(p.t)}</b><span class="mb-time">${timeTxt(p)}</span></div>
+      ${p.need ? `<div class="mb-need">Besoin : ${p.need} personne${p.need > 1 ? "s" : ""}</div>` : ""}<div class="mb-who">${whoHtml(p)}</div></div>`).join("") || `<p class="mb-empty">Rien de prévu ce jour-là.</p>`;
+    return h + adminLink();
+  }
+  const adminLink = () => offline ? "" : `<div class="mb-admin">${admin ? `<button type="button" id="mb-edit">Modifier le planning</button>` : `<button type="button" id="mb-adm">Modifier le planning (admin)</button>`}</div>`;
+  function bindPlan() {
+    body().querySelectorAll("[data-day]").forEach((b) => b.addEventListener("click", () => { day = +b.dataset.day; render(); }));
+    const inp = $("mb-me");
+    if (inp) inp.addEventListener("change", () => { me = inp.value.replace(/\s+/g, " ").trim(); store.set("arbas-mb-me", me); render(); });
+    bindAdmin();
+  }
+  function bindAdmin() {
+    const e = $("mb-edit"); if (e) e.addEventListener("click", () => { draft = { days: days() }; if (!draft.days.length) draft.days.push({ n: "Vendredi", p: [] }); day = Math.min(day, draft.days.length - 1); render(); });
+    const a = $("mb-adm"); if (!a) return;
+    a.addEventListener("click", () => {
+      a.parentNode.innerHTML = `<div class="mb-code" style="padding:6px 0"><p>Code admin</p><input class="mb-pin" id="mb-apin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="Code admin"><p class="mb-err" id="mb-aerr" role="alert"></p></div>`;
+      const pin = $("mb-apin"); pin.focus();
+      pin.addEventListener("input", async () => {
+        pin.value = pin.value.replace(/\D/g, "").slice(0, 4); if (pin.value.length < 4) return;
+        try {
+          const t = await Online.auth();
+          await Online.json(url("admins/" + Online.uid(), t), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(pin.value) });
+          admin = true; draft = { days: days() }; if (!draft.days.length) draft.days.push({ n: "Vendredi", p: [] }); render();
+        } catch (e) { $("mb-aerr").textContent = e && e.status ? "Code admin incorrect." : "Pas de réseau."; pin.value = ""; }
+      });
+    });
+  }
+
+  /* ----- Modification du planning (admin) ----- */
+  function editHtml() {
+    const ds = draft.days; day = Math.min(day, ds.length - 1); const d = ds[day];
+    let h = `<div class="seg mb-days">${ds.map((x, i) => `<button type="button" data-day="${i}" class="${i === day ? "on" : ""}">${escH(x.n || "Jour")}</button>`).join("")}</div>`;
+    h += `<div class="mb-ed"><label>Nom du jour<input class="mb-in" data-f="dn" value="${escH(d.n)}"></label>
+      <div class="mb-actions"><button type="button" class="btn ghost" id="mb-dadd">+ Ajouter un jour</button><button type="button" class="btn ghost" id="mb-ddel">Supprimer ce jour</button></div></div>`;
+    h += d.p.map((p, i) => `<div class="mb-ed" data-i="${i}">
+      <label>Poste<input class="mb-in" data-f="t" value="${escH(p.t)}"></label>
+      <div class="row"><label>Début<input class="mb-in" data-f="from" value="${escH(p.from)}" placeholder="18h30"></label><label>Fin<input class="mb-in" data-f="to" value="${escH(p.to)}" placeholder="20h30 ou fin"></label><label>Besoin<input class="mb-in" data-f="need" type="number" min="0" max="99" value="${p.need || ""}"></label></div>
+      <label>Personnes (une par ligne ; une ligne qui finit par « : » fait un sous-groupe)<textarea class="mb-in" data-f="who">${escH(p.who.join("\n"))}</textarea></label>
+      <button type="button" class="btn ghost" data-del="${i}">Supprimer ce poste</button></div>`).join("");
+    h += `<div class="mb-actions"><button type="button" class="btn ghost" id="mb-padd">+ Ajouter un poste</button><button type="button" class="btn ghost" id="mb-imp">Importer un fichier</button><input type="file" id="mb-file" accept=".json,application/json" hidden></div>
+      <p class="mb-err" id="mb-serr" role="alert"></p>
+      <div class="mb-actions"><button type="button" class="btn ghost" id="mb-cancel">Annuler</button><button type="button" class="btn primary" id="mb-save">Enregistrer</button></div>
+      <p class="mb-small">Les modifications ne sont visibles par les membres qu'après « Enregistrer ».</p>`;
+    return h;
+  }
+  function readForm() {
+    const d = draft.days[day]; if (!d) return;
+    const dn = body().querySelector('[data-f="dn"]'); if (dn) d.n = dn.value.trim() || "Jour";
+    body().querySelectorAll(".mb-ed[data-i]").forEach((box) => {
+      const p = d.p[+box.dataset.i], f = (k) => box.querySelector(`[data-f="${k}"]`).value;
+      p.t = f("t").trim(); p.from = f("from").trim(); p.to = f("to").trim(); p.need = Math.max(0, Math.min(99, parseInt(f("need"), 10) || 0));
+      p.who = f("who").split("\n").map((x) => x.trim()).filter(Boolean);
+    });
+  }
+  function bindEdit() {
+    const go = (fn) => () => { readForm(); fn(); render(); };
+    body().querySelectorAll("[data-day]").forEach((b) => b.addEventListener("click", go(() => { day = +b.dataset.day; })));
+    $("mb-dadd").addEventListener("click", go(() => { draft.days.push({ n: "Nouveau jour", p: [] }); day = draft.days.length - 1; }));
+    $("mb-ddel").addEventListener("click", go(() => { if (draft.days.length > 1) { draft.days.splice(day, 1); day = Math.max(0, day - 1); } }));
+    $("mb-padd").addEventListener("click", go(() => { draft.days[day].p.push({ t: "Nouveau poste", from: "", to: "", need: 0, who: [] }); }));
+    body().querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", go(() => { draft.days[day].p.splice(+b.dataset.del, 1); })));
+    $("mb-cancel").addEventListener("click", () => { draft = null; render(); });
+    // Importer un planning complet préparé à l'avance (fichier .json) : il remplace le brouillon, à vérifier avant « Enregistrer »
+    $("mb-imp").addEventListener("click", () => $("mb-file").click());
+    $("mb-file").addEventListener("change", async () => {
+      const f = $("mb-file").files[0]; if (!f) return;
+      try {
+        const d = JSON.parse(await f.text()); const keep = plan; plan = d.planning || d; const ds = days(); plan = keep;
+        if (!ds.length) throw 0;
+        draft = { days: ds }; day = 0; render();
+        $("mb-serr").textContent = `Fichier importé : ${ds.length} jour${ds.length > 1 ? "s" : ""}, ${ds.reduce((n, x) => n + x.p.length, 0)} postes. Vérifie puis « Enregistrer ».`;
+      } catch (e) { $("mb-serr").textContent = "Ce fichier n'est pas un planning."; }
+    });
+    $("mb-save").addEventListener("click", async () => {
+      readForm();
+      const out = { days: draft.days.map((d) => ({ n: d.n, p: d.p.filter((p) => p.t).map((p) => ({ t: p.t, from: p.from, to: p.to, need: p.need, who: p.who })) })), maj: { ".sv": "timestamp" } };
+      try {
+        const t = await Online.auth();
+        await Online.json(url("planning", t), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(out) });
+        draft = null; await load(); render();
+      } catch (e) { $("mb-serr").textContent = e && e.status ? "Enregistrement refusé : retape le code admin." : "Pas de réseau : rien n'a été enregistré."; if (e && e.status) admin = false; }
+    });
+  }
+
+  /* ----- Note commune ----- */
+  function notesHtml() {
+    const list = Object.entries(notes || {}).filter(([, n]) => n && n.txt).sort(([, a], [, b]) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (b.at || 0) - (a.at || 0));
+    const author = me || Online.name();
+    let h = offline ? "" : `<div class="mb-note-add">${author ? "" : `<input class="mb-in" id="mb-by" placeholder="Ton prénom" maxlength="16" style="flex:0 0 32%">`}<input class="mb-in" id="mb-txt" maxlength="200" placeholder="Ex. : plus de coca à la buvette"><button type="button" class="btn primary" id="mb-add" style="flex:0 0 auto">Ajouter</button></div><p class="mb-err" id="mb-nerr" role="alert"></p>`;
+    h += list.map(([id, n]) => `<div class="mb-note${n.done ? " done" : ""}">
+      <button type="button" class="mb-chk" data-chk="${escH(id)}" aria-label="${n.done ? "Remettre à faire" : "Marquer comme fait"}" ${offline ? "disabled" : ""}>${n.done ? "✓" : ""}</button>
+      <span><span class="mb-ntxt">${escH(n.txt)}</span><span class="mb-nmeta">${escH(n.by || "?")}${n.at ? " · " + new Date(n.at).toLocaleString("fr-FR", { weekday: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span></span>
+      ${offline ? "<span></span>" : `<button type="button" class="mb-del" data-rm="${escH(id)}" aria-label="Supprimer">×</button>`}</div>`).join("") || `<p class="mb-empty">Rien pour l'instant. Une course à faire, une info pour le groupe ? Note-la ici.</p>`;
+    return h;
+  }
+  function bindNotes() {
+    const err = (m) => { const e = $("mb-nerr"); if (e) e.textContent = m; };
+    const add = $("mb-add");
+    if (add) add.addEventListener("click", async () => {
+      const txt = $("mb-txt").value.replace(/\s+/g, " ").trim(); if (!txt) return;
+      let by = me || Online.name();
+      if (!by) { by = Online.validName($("mb-by").value); if (!by) return err("Mets ton prénom (2 lettres au moins)."); me = by; store.set("arbas-mb-me", me); }
+      try {
+        const t = await Online.auth();
+        await Online.json(url("notes", t), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ txt: txt.slice(0, 200), by: String(by).slice(0, 16), at: { ".sv": "timestamp" }, done: false }) });
+        await load(); render();
+      } catch (e) { err("Pas de réseau : la note n'a pas été ajoutée."); }
+    });
+    const txt = $("mb-txt"); if (txt) txt.addEventListener("keydown", (e) => { if (e.key === "Enter") add.click(); });
+    body().querySelectorAll("[data-chk]").forEach((b) => b.addEventListener("click", async () => {
+      const id = b.dataset.chk, n = notes[id]; if (!n) return;
+      try { const t = await Online.auth(); await Online.json(url("notes/" + id + "/done", t), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(!n.done) }); await load(); render(); }
+      catch (e) { err("Pas de réseau."); }
+    }));
+    body().querySelectorAll("[data-rm]").forEach((b) => b.addEventListener("click", async () => {
+      try { const t = await Online.auth(); await Online.json(url("notes/" + b.dataset.rm, t), { method: "DELETE" }); await load(); render(); }
+      catch (e) { err("Pas de réseau."); }
+    }));
+  }
+
+  function open() { lock(); tab = "planning"; show("membres"); render(); }
+  function leave() { lock(); showHome(); }
+  return { open, leave, relock: () => { lock(); render(); } };
+})();
+$("go-membres").addEventListener("click", Membres.open);
+$("mb-back").addEventListener("click", Membres.leave);
+$("mb-lock").addEventListener("click", Membres.relock);
+
 $("games-back").addEventListener("click", showHome);
 $("soon-back").addEventListener("click", showHome);
 $("soon-home").addEventListener("click", showHome);
