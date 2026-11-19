@@ -595,6 +595,90 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .pc-ans { align-self: center; border: 2px dashed var(--slate); background: none; border-radius: 10px; padding: 8px 14px; font-weight: 700; color: var(--slate); }
 .pc-r { margin: 0; font-size: 1.15rem; } .pc-r b { color: var(--red); }
 .pc-care { margin: 0; color: var(--muted); }
+/* VDO-CSS-START */
+/* ---------- La Vallée de l'Ours ---------- */
+.vd { width: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; color: var(--ink); }
+.vd-form { display: flex; flex-direction: column; gap: 14px; padding: 4px 2px 16px; }
+.vd-form h2 { margin: 0; font-family: "Titan One", var(--display); font-weight: 400; font-size: 1.9rem; color: #fff; line-height: 1.05; }
+.vd-form p { margin: 0; color: var(--muted); }
+.vd-field { display: flex; flex-direction: column; gap: 6px; }
+.vd-field > span { font-weight: 700; font-size: .95rem; }
+.vd-colors { display: flex; flex-wrap: wrap; gap: 8px; }
+.vd-colors button { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; padding: 0; box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset; }
+.vd-colors button.on { border-color: var(--gold); }
+.vd-players { display: grid; gap: 6px; }
+.vd-pl { min-width: 0; display: flex; flex-direction: column; gap: 1px; padding: 6px 8px; border-radius: 12px; background: var(--bg-2); border: 2px solid transparent; font-size: .8rem; line-height: 1.2; }
+.vd-pl.turn { border-color: var(--gold); }
+.vd-pl .nm { display: flex; align-items: center; gap: 5px; font-weight: 800; color: #fff; font-size: .88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vd-pl .meta { font-size: .74rem; }
+.vd-pl .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255,255,255,.7); flex: 0 0 auto; }
+.vd-pl .pts { font-family: var(--num); font-size: 1.15rem; color: var(--gold); }
+.vd-pl .meta { color: var(--muted); }
+.vd-pl .bdg { display: inline-block; margin-top: 2px; padding: 0 5px; border-radius: 6px; background: var(--gold); color: #2a2100; font-weight: 800; font-size: .68rem; }
+.vd-board { position: relative; border-radius: 16px; background: #0a3f42; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+.vd-board svg { display: block; width: 100%; height: auto; }
+.vd-zoom { position: absolute; right: 8px; bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
+.vd-zoom button { width: 40px; height: 40px; border-radius: 12px; border: none; background: rgba(0,0,0,.45); color: #fff; font-size: 1.4rem; font-weight: 800; line-height: 1; }
+.vd-dice { position: absolute; left: 8px; top: 8px; display: flex; gap: 5px; }
+.vd-die { width: 30px; height: 30px; border-radius: 7px; background: #fff; color: #1d1d1d; display: grid; place-items: center; font-family: var(--num); font-size: 1.15rem; box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.vd-die.seven { background: #4a2f22; color: #fff; }
+.vd-status { min-height: 1.4em; padding: 8px 12px; border-radius: 12px; background: var(--bg-2); font-weight: 700; color: #fff; line-height: 1.3; }
+.vd-status.mine { background: var(--gold); color: #2a2100; }
+.vd-hand { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.vd-res { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px 5px; border-radius: 12px; color: #1d1d1d; font-weight: 800; }
+.vd-res svg { width: 36px; height: 30px; }
+.vd-res b { font-family: var(--num); font-size: 1.25rem; line-height: 1; }
+.vd-res.zero { opacity: .45; }
+.vd-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.vd-actions .btn { flex: 1 1 30%; min-height: 46px; padding: 8px 6px; font-size: 1rem; }
+.vd-cards { font-size: .85rem; color: var(--muted); }
+.vd-log { margin: 0; padding: 0; list-style: none; font-size: .82rem; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+.vd-log li:last-child { color: var(--ink); }
+.vd-confirm { display: flex; gap: 6px; }
+.vd-confirm .btn { flex: 1; min-height: 44px; padding: 6px; }
+.vd-sheet { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.5); display: flex; align-items: flex-end; justify-content: center; }
+.vd-sheet-box { width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto; box-sizing: border-box; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius: 20px 20px 0 0; background: var(--bg); border-top: 3px solid var(--gold); display: flex; flex-direction: column; gap: 12px; }
+.vd-sheet-box h3 { margin: 0; font-family: "Titan One", var(--display); font-weight: 400; font-size: 1.4rem; color: #fff; }
+.vd-sheet-box p { margin: 0; color: var(--muted); }
+.vd-opt { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 14px; border: 2px solid var(--bg-3); background: var(--bg-2); color: var(--ink); text-align: left; font: inherit; }
+.vd-opt:disabled { opacity: .45; }
+.vd-opt b { color: #fff; font-size: 1.05rem; }
+.vd-opt .why { display: block; font-size: .8rem; color: var(--muted); }
+.vd-cost { display: inline-flex; gap: 2px; margin-left: auto; flex: 0 0 auto; }
+.vd-cost i { width: 20px; height: 20px; border-radius: 6px; display: inline-grid; place-items: center; box-shadow: 0 0 0 1px rgba(0,0,0,.3) inset; }
+.vd-cost svg { width: 16px; height: 14px; }
+.vd-steps { display: flex; flex-direction: column; gap: 6px; }
+.vd-step { display: grid; grid-template-columns: 44px 1fr 44px 44px; align-items: center; gap: 8px; }
+.vd-step .chip { height: 40px; border-radius: 10px; display: grid; place-items: center; }
+.vd-step .chip svg { width: 32px; height: 26px; }
+.vd-step button { height: 44px; border-radius: 12px; border: 2px solid var(--bg-3); background: var(--bg-2); color: #fff; font-size: 1.3rem; font-weight: 800; }
+.vd-step .n { font-family: var(--num); font-size: 1.3rem; color: #fff; }
+.vd-pick { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.vd-pick button { padding: 8px 2px; border-radius: 12px; border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 2px; font-weight: 800; color: #1d1d1d; font-size: .8rem; }
+.vd-pick button.on { border-color: #fff; box-shadow: 0 0 0 2px var(--gold); }
+.vd-pick button:disabled { opacity: .35; }
+.vd-pick svg { width: 34px; height: 28px; }
+.vd-tabs { margin-bottom: 0; }
+.vd-replies { display: flex; flex-direction: column; gap: 6px; }
+.vd-reply { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--bg-2); }
+.vd-reply .btn { flex: 0 0 auto; min-height: 40px; padding: 4px 12px; margin-left: auto; }
+.vd-end { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 16px; background: var(--bg-2); border: 2px solid var(--gold); }
+.vd-end h3 { margin: 0; font-family: "Titan One", var(--display); font-weight: 400; font-size: 1.6rem; color: #fff; }
+.vd-end ol { margin: 0; padding-left: 1.3em; }
+
+.vd-sheet-box .btn { flex: 0 0 auto; }
+.vd-tgrid { display: grid; grid-template-columns: 52px 1fr 1fr; gap: 6px 8px; align-items: center; }
+.vd-tgrid > span:nth-child(-n+3) { font-size: .85rem; font-weight: 700; color: var(--muted); text-align: center; }
+.vd-tgrid .chip { position: relative; height: 40px; border-radius: 10px; display: grid; place-items: center; }
+.vd-tgrid .chip svg { width: 30px; height: 24px; }
+.vd-tgrid .chip small { position: absolute; right: 3px; bottom: 1px; font-weight: 800; color: #1d1d1d; font-size: .72rem; }
+.vd-tc { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; text-align: center; }
+.vd-tc button { height: 40px; border-radius: 10px; border: 2px solid var(--bg-3); background: var(--bg-2); color: #fff; font-size: 1.2rem; font-weight: 800; }
+.vd-tc .n { font-family: var(--num); font-size: 1.25rem; color: #fff; }
+
+.vd .mo-err:empty, .vd-sheet .mo-err:empty { display: none; }
+
+/* VDO-CSS-END */
 </style>
 
 <div id="app">
@@ -662,7 +746,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <button class="hn" id="go-livre" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6h9a3 3 0 0 1 3 3v17a2.5 2.5 0 0 0-2.5-2.5H6zM26 6h-5a3 3 0 0 0-3 3v17a2.5 2.5 0 0 1 2.5-2.5H26z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Livre d'or</b><small>Laisse un mot au Comité</small></span><span class="hn-go" aria-hidden="true">›</span></button>
       <button class="hn" id="go-membres" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="14" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 14v-4a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="21" r="2" fill="currentColor"/></svg><span class="hn-t"><b>Espace membres</b></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
-    <p class="app-ver" id="app-ver">v103</p>
+    <p class="app-ver" id="app-ver">v104</p>
   </section>
   <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
     <div class="modal-box inst-box">
@@ -3785,6 +3869,1110 @@ function plusmoins(stage, hud) {
 /* =========================================================
    Menu, enchaînement et scores
    ========================================================= */
+/* VDO-JS-START */
+/* =========================================================
+   La Vallée de l'Ours : moteur de règles (sans affichage)
+   Inspiré des règles de base d'un jeu de colonisation connu, adapté au Comité.
+   Tout l'état tient dans un objet simple (copiable en JSON), pour pouvoir plus tard
+   le faire arbitrer par le téléphone de l'hôte en ligne.
+   ========================================================= */
+const VDO = (() => {
+  const RES = ["bois", "argile", "laine", "paille", "ardoise"];
+  const RES_NOM = { bois: "bois", argile: "argile", laine: "laine", paille: "paille", ardoise: "ardoise" };
+  const COST = {
+    route: { bois: 1, argile: 1 },
+    maison: { bois: 1, argile: 1, laine: 1, paille: 1 },
+    hotel: { paille: 2, ardoise: 3 },
+    carte: { laine: 1, paille: 1, ardoise: 1 }
+  };
+  const LIMITS = { route: 15, maison: 5, hotel: 4 };
+  const DECK = { ours: 14, point: 5, chantier: 2, coup: 2, monopole: 2, patou: 2, marche: 2, fete: 2 };
+  const CARTE_NOM = { ours: "L'Ours", point: "Point bonus", chantier: "Chantier communal", coup: "Coup de main", monopole: "Monopole", patou: "Le Patou", marche: "Jour de marché", fete: "Fête au village" };
+  const BANK_START = 19;
+  const COLORS = ["bleu", "orange", "violet", "blanc", "rouge", "vertclair", "noir"];
+  const PATOU_TOURS = 4;
+
+  /* ---------- hasard reproductible ---------- */
+  function rng(st) {   // mulberry32 sur st.seed
+    let t = (st.seed = (st.seed + 0x6D2B79F5) >>> 0);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  const rint = (st, n) => Math.floor(rng(st) * n);
+  function shuffle(st, a) { for (let i = a.length - 1; i > 0; i--) { const j = rint(st, i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  /* ---------- géométrie : 19 cases hexagonales (pointe en haut) ---------- */
+  function geometry() {
+    const hexes = [];
+    for (let q = -2; q <= 2; q++) for (let r = -2; r <= 2; r++) if (Math.abs(q + r) <= 2) hexes.push({ q, r, x: Math.sqrt(3) * (q + r / 2), y: 1.5 * r });
+    const V = [], vkey = new Map(), E = [], ekey = new Map();
+    const vid = (x, y) => {
+      const k = Math.round(x * 100) + "," + Math.round(y * 100);
+      if (!vkey.has(k)) { vkey.set(k, V.length); V.push({ x, y, hexes: [], adj: [], edges: [] }); }
+      return vkey.get(k);
+    };
+    hexes.forEach((h, hi) => {
+      h.v = [];
+      for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 90); h.v.push(vid(h.x + Math.cos(a), h.y + Math.sin(a))); }
+      h.v.forEach((v) => V[v].hexes.push(hi));
+      h.e = [];
+      for (let i = 0; i < 6; i++) {
+        const a = h.v[i], b = h.v[(i + 1) % 6], k = Math.min(a, b) + "-" + Math.max(a, b);
+        if (!ekey.has(k)) { ekey.set(k, E.length); E.push({ a: Math.min(a, b), b: Math.max(a, b), hexes: [] }); }
+        const ei = ekey.get(k); E[ei].hexes.push(hi); h.e.push(ei);
+      }
+    });
+    E.forEach((e, ei) => { V[e.a].adj.push(e.b); V[e.b].adj.push(e.a); V[e.a].edges.push(ei); V[e.b].edges.push(ei); });
+    hexes.forEach((h) => { h.nb = hexes.map((o, oi) => oi).filter((oi) => { const o = hexes[oi]; const d = Math.hypot(o.x - h.x, o.y - h.y); return d > 0.1 && d < 1.8; }); });
+    // Côte : arêtes qui ne touchent qu'une case, rangées en tournant autour du centre
+    const coast = E.map((e, i) => i).filter((i) => E[i].hexes.length === 1)
+      .sort((i, j) => ang(E[i]) - ang(E[j]));
+    function ang(e) { return Math.atan2((V[e.a].y + V[e.b].y) / 2, (V[e.a].x + V[e.b].x) / 2); }
+    return { hexes, V, E, coast };
+  }
+  const G = geometry();
+
+  /* ---------- nouvelle partie ---------- */
+  // cfg : { players: [{ name, bot, color }], target: 10, discard: 7, seed }
+  function newGame(cfg) {
+    const n = cfg.players.length;
+    const st = { seed: (cfg.seed >>> 0) || 1, cfg: { target: cfg.target || 10, discard: cfg.discard || 7 } };
+    // Cases : 3 de chaque ressource, la grotte, 3 montagnes
+    const kinds = shuffle(st, [...RES.flatMap((r) => [r, r, r]), "grotte", "mont", "mont", "mont"]);
+    // Jetons : 14 fixes + 1 tiré parmi 3, 4, 10, 11 ; jamais deux numéros rouges (6, 8) voisins
+    const extra = [3, 4, 10, 11][rint(st, 4)];
+    const tokens = [2, 3, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 11, 12, extra];
+    let nums;
+    for (let tries = 0; tries < 2000; tries++) {
+      const tk = shuffle(st, tokens.slice()); nums = []; let k = 0;
+      kinds.forEach((kd, i) => { nums[i] = RES.includes(kd) ? tk[k++] : 0; });
+      const red = (x) => x === 6 || x === 8;
+      if (G.hexes.every((h, i) => !red(nums[i]) || h.nb.every((j) => !red(nums[j])))) break;
+    }
+    st.tiles = kinds.map((k, i) => ({ k, n: nums[i] }));
+    // Marchés : 9 sur la côte (4 généraux, 1 par ressource), régulièrement espacés
+    const types = shuffle(st, ["3", "3", "3", "3", ...RES]);
+    const off = rint(st, 3);
+    st.ports = types.map((t, i) => ({ e: G.coast[(off + Math.round(i * G.coast.length / 9)) % G.coast.length], t }));
+    st.vport = {};
+    st.ports.forEach((p) => { st.vport[G.E[p.e].a] = p.t; st.vport[G.E[p.e].b] = p.t; });
+    st.bear = st.tiles.findIndex((t) => t.k === "grotte");
+    st.patou = null;   // { tile, until }
+    st.vOwn = G.V.map(() => -1); st.vLvl = G.V.map(() => 0); st.eOwn = G.E.map(() => -1);
+    st.bank = Object.fromEntries(RES.map((r) => [r, BANK_START]));
+    st.deck = shuffle(st, Object.entries(DECK).flatMap(([t, c]) => Array(c).fill(t)));
+    st.players = cfg.players.map((p, i) => ({
+      name: p.name, bot: !!p.bot, color: p.color || COLORS[i],
+      res: Object.fromEntries(RES.map((r) => [r, 0])), cards: [], ours: 0, left: { ...LIMITS }
+    }));
+    const order = [...Array(n).keys()];
+    st.setup = [...order, ...order.slice().reverse()];   // aller puis retour
+    st.setupStep = 0; st.setupNeed = "maison"; st.lastSetupV = -1;
+    st.turn = 0; st.turnNo = 0; st.phase = "setup";
+    st.rolled = false; st.dice = null; st.devPlayed = false; st.marketDay = false;
+    st.discardNeed = {}; st.freeRoads = 0; st.feteNeed = {}; st.stealFrom = [];
+    st.longest = { p: -1, len: 0 }; st.army = { p: -1, n: 0 };
+    st.trade = null; st.tradeSeq = 0;
+    st.winner = -1; st.log = [];
+    return st;
+  }
+
+  /* ---------- outils ---------- */
+  const total = (res) => RES.reduce((s, r) => s + (res[r] || 0), 0);
+  const has = (res, cost) => Object.entries(cost).every(([r, c]) => (res[r] || 0) >= c);
+  const pay = (st, p, cost) => Object.entries(cost).forEach(([r, c]) => { st.players[p].res[r] -= c; st.bank[r] += c; });
+  const log = (st, txt) => { st.log.push(txt); if (st.log.length > 60) st.log.shift(); };
+  const cur = (st) => st.phase === "setup" ? st.setup[st.setupStep] : st.turn;
+  function points(st, p, hidden) {
+    let s = 0;
+    st.vOwn.forEach((o, v) => { if (o === p) s += st.vLvl[v]; });
+    if (st.longest.p === p) s += 2;
+    if (st.army.p === p) s += 2;
+    if (hidden) s += st.players[p].cards.filter((c) => c.t === "point").length;
+    return s;
+  }
+  const publicPoints = (st, p) => points(st, p, false);
+  function rate(st, p, r) {
+    if (st.marketDay && st.turn === p) return 2;
+    let best = 4;
+    st.vOwn.forEach((o, v) => { if (o === p && st.vport[v]) best = Math.min(best, st.vport[v] === "3" ? 3 : (st.vport[v] === r ? 2 : 4)); });
+    return best;
+  }
+  function bearBlocked(st, tile) { return st.patou && st.patou.tile === tile && st.turnNo <= st.patou.until; }
+
+  /* ---------- règles de placement ---------- */
+  function canHouse(st, p, v, setup) {
+    if (st.vOwn[v] !== -1) return false;
+    if (G.V[v].adj.some((u) => st.vOwn[u] !== -1)) return false;          // au moins 2 tronçons entre deux maisons
+    if (setup) return true;
+    return G.V[v].edges.some((e) => st.eOwn[e] === p);                    // touche une de mes routes
+  }
+  function canRoad(st, p, e, fromV) {
+    if (st.eOwn[e] !== -1) return false;
+    const ed = G.E[e];
+    if (fromV != null) return ed.a === fromV || ed.b === fromV;           // mise en place : à côté de la maison posée
+    return [ed.a, ed.b].some((v) => {
+      if (st.vOwn[v] === p) return true;
+      if (st.vOwn[v] !== -1) return false;                                // on ne passe pas à travers la maison d'un autre
+      return G.V[v].edges.some((e2) => e2 !== e && st.eOwn[e2] === p);
+    });
+  }
+  const housesOk = (st, p, setup) => G.V.map((_, v) => v).filter((v) => canHouse(st, p, v, setup));
+  const roadsOk = (st, p, fromV) => G.E.map((_, e) => e).filter((e) => canRoad(st, p, e, fromV));
+  const hotelsOk = (st, p) => G.V.map((_, v) => v).filter((v) => st.vOwn[v] === p && st.vLvl[v] === 1);
+  function bearTiles(st) { return st.tiles.map((_, i) => i).filter((i) => i !== st.bear && !bearBlocked(st, i)); }
+  function victimsOf(st, tile, p) {
+    return [...new Set(G.hexes[tile].v.map((v) => st.vOwn[v]).filter((o) => o !== -1 && o !== p && total(st.players[o].res) > 0))];
+  }
+
+  /* ---------- route la plus longue ---------- */
+  function roadLength(st, p) {
+    let best = 0;
+    const mine = G.E.map((_, e) => e).filter((e) => st.eOwn[e] === p);
+    const used = new Set();
+    function dfs(v, len) {
+      if (len > best) best = len;
+      if (len > 0 && st.vOwn[v] !== -1 && st.vOwn[v] !== p) return;     // une maison adverse coupe la route
+      for (const e of G.V[v].edges) {
+        if (st.eOwn[e] !== p || used.has(e)) continue;
+        used.add(e); dfs(G.E[e].a === v ? G.E[e].b : G.E[e].a, len + 1); used.delete(e);
+      }
+    }
+    const starts = new Set(); mine.forEach((e) => { starts.add(G.E[e].a); starts.add(G.E[e].b); });
+    starts.forEach((v) => dfs(v, 0));
+    return best;
+  }
+  function updateLongest(st) {
+    const lens = st.players.map((_, p) => roadLength(st, p));
+    const h = st.longest.p;
+    if (h !== -1) {
+      const max = Math.max(...lens);
+      if (lens[h] >= 5 && lens[h] === max) { st.longest.len = lens[h]; return; }
+      // le détenteur a été coupé ou dépassé
+      const top = lens.map((l, p) => [l, p]).filter(([l]) => l === max && max >= 5);
+      const prev = h;
+      if (top.length === 1) { st.longest = { p: top[0][1], len: max }; }
+      else st.longest = { p: -1, len: 0 };
+      if (st.longest.p !== prev) log(st, st.longest.p === -1 ? "Plus personne n'a la route la plus longue." : `${st.players[st.longest.p].name} prend la route la plus longue (${max}).`);
+      return;
+    }
+    lens.forEach((l, p) => { if (l >= 5 && l > st.longest.len) { st.longest = { p, len: l }; log(st, `${st.players[p].name} prend la route la plus longue (${l}).`); } });
+  }
+  function updateArmy(st, p) {
+    const n = st.players[p].ours;
+    if (n >= 3 && n > st.army.n && st.army.p !== p) { st.army = { p, n }; log(st, `${st.players[p].name} a la plus grande famille d'ours (${n}).`); }
+    else if (st.army.p === p) st.army.n = n;
+  }
+  function checkWin(st) {
+    if (st.phase === "setup" || st.winner !== -1) return;
+    const p = st.turn;
+    if (points(st, p, true) >= st.cfg.target) { st.winner = p; st.phase = "over"; log(st, `${st.players[p].name} gagne avec ${points(st, p, true)} points !`); }
+  }
+
+  /* ---------- production ---------- */
+  function produce(st, roll) {
+    const gain = st.players.map(() => Object.fromEntries(RES.map((r) => [r, 0])));
+    st.tiles.forEach((t, i) => {
+      if (t.n !== roll || i === st.bear || !RES.includes(t.k)) return;
+      G.hexes[i].v.forEach((v) => { if (st.vOwn[v] !== -1) gain[st.vOwn[v]][t.k] += st.vLvl[v]; });
+    });
+    RES.forEach((r) => {
+      const want = gain.reduce((s, g) => s + g[r], 0);
+      const who = gain.filter((g) => g[r] > 0).length;
+      if (want <= st.bank[r]) gain.forEach((g, p) => { st.players[p].res[r] += g[r]; st.bank[r] -= g[r]; });
+      else if (who === 1) { const p = gain.findIndex((g) => g[r] > 0); const k = st.bank[r]; st.players[p].res[r] += k; st.bank[r] = 0; }
+      // sinon : la banque ne peut servir tout le monde, personne n'en reçoit
+    });
+    return gain;
+  }
+
+  /* ---------- actions ----------
+     act(st, p, a) applique l'action a du joueur p et renvoie null, ou un message d'erreur.
+     Types : setupHouse{v} setupRoad{e} roll discard{res} bear{tile} steal{p} build{what,v|e} buy
+             play{card,...} give{r} bank{give,get} offer{give,want} reply{ok} counter{give,want} accept{p} cancelTrade end */
+  function act(st, p, a) {
+    if (st.phase === "over") return "La partie est finie.";
+    const P = st.players[p];
+    switch (a.t) {
+      case "setupHouse": {
+        if (st.phase !== "setup" || cur(st) !== p || st.setupNeed !== "maison") return "Pas maintenant.";
+        if (!canHouse(st, p, a.v, true)) return "Emplacement interdit.";
+        st.vOwn[a.v] = p; st.vLvl[a.v] = 1; P.left.maison--; st.lastSetupV = a.v; st.setupNeed = "route";
+        if (st.setupStep >= st.players.length) {   // 2e maison : 1 ressource par case voisine
+          G.V[a.v].hexes.forEach((h) => { const k = st.tiles[h].k; if (RES.includes(k) && st.bank[k] > 0) { P.res[k]++; st.bank[k]--; } });
+        }
+        log(st, `${P.name} pose une maison.`);
+        return null;
+      }
+      case "setupRoad": {
+        if (st.phase !== "setup" || cur(st) !== p || st.setupNeed !== "route") return "Pas maintenant.";
+        if (!canRoad(st, p, a.e, st.lastSetupV)) return "La route doit partir de la maison posée.";
+        st.eOwn[a.e] = p; P.left.route--;
+        st.setupStep++; st.setupNeed = "maison";
+        if (st.setupStep >= st.setup.length) { st.phase = "roll"; st.turn = 0; st.turnNo = 1; log(st, "La partie commence !"); }
+        return null;
+      }
+      case "roll": {
+        if (st.turn !== p || st.phase !== "roll") return "Pas maintenant.";
+        const d = [1 + rint(st, 6), 1 + rint(st, 6)], s = d[0] + d[1];
+        st.dice = d; st.rolled = true;
+        log(st, `${P.name} fait ${s}.`);
+        if (s === 7) {
+          st.discardNeed = {};
+          st.players.forEach((q, i) => { const n = total(q.res); if (n > st.cfg.discard) st.discardNeed[i] = Math.floor(n / 2); });
+          st.phase = Object.keys(st.discardNeed).length ? "discard" : "bear";
+        } else { produce(st, s); st.phase = "main"; }
+        return null;
+      }
+      case "discard": {
+        if (st.phase !== "discard" || !st.discardNeed[p]) return "Pas de défausse à faire.";
+        const n = total(a.res);
+        if (n !== st.discardNeed[p] || !has(P.res, a.res)) return `Il faut défausser ${st.discardNeed[p]} cartes.`;
+        pay(st, p, a.res); delete st.discardNeed[p];
+        log(st, `${P.name} défausse ${n} cartes.`);
+        if (!Object.keys(st.discardNeed).length) st.phase = "bear";
+        return null;
+      }
+      case "bear": {
+        if (st.turn !== p || st.phase !== "bear") return "Pas maintenant.";
+        if (!bearTiles(st).includes(a.tile)) return "L'ours ne peut pas aller là.";
+        st.bear = a.tile;
+        log(st, `${P.name} déplace l'ours.`);
+        st.stealFrom = victimsOf(st, a.tile, p);
+        if (st.stealFrom.length > 1) st.phase = "steal";
+        else { if (st.stealFrom.length === 1) steal(st, p, st.stealFrom[0]); afterBear(st); }
+        return null;
+      }
+      case "steal": {
+        if (st.turn !== p || st.phase !== "steal" || !st.stealFrom.includes(a.p)) return "Pas maintenant.";
+        steal(st, p, a.p); afterBear(st);
+        return null;
+      }
+      case "build": {
+        if (st.turn !== p) return "Ce n'est pas ton tour.";
+        const free = st.phase === "roads" && a.what === "route";
+        if (!free && st.phase !== "main") return "Pas maintenant.";
+        if (a.what === "route") {
+          if (!free && !has(P.res, COST.route)) return "Il faut 1 bois et 1 argile.";
+          if (P.left.route <= 0) return "Tu n'as plus de routes.";
+          if (!canRoad(st, p, a.e)) return "Route impossible ici.";
+          if (!free) pay(st, p, COST.route);
+          st.eOwn[a.e] = p; P.left.route--;
+          if (free) { st.freeRoads--; if (st.freeRoads <= 0 || !roadsOk(st, p).length || P.left.route <= 0) { st.freeRoads = 0; st.phase = st.rolled ? "main" : "roll"; } }
+          updateLongest(st); checkWin(st);
+          return null;
+        }
+        if (a.what === "maison") {
+          if (!has(P.res, COST.maison)) return "Il faut 1 bois, 1 argile, 1 laine et 1 paille.";
+          if (P.left.maison <= 0) return "Tu n'as plus de maisons.";
+          if (!canHouse(st, p, a.v, false)) return "Maison impossible ici.";
+          pay(st, p, COST.maison); st.vOwn[a.v] = p; st.vLvl[a.v] = 1; P.left.maison--;
+          log(st, `${P.name} construit une maison.`);
+          updateLongest(st); checkWin(st);
+          return null;
+        }
+        if (a.what === "hotel") {
+          if (!has(P.res, COST.hotel)) return "Il faut 2 pailles et 3 ardoises.";
+          if (P.left.hotel <= 0) return "Tu n'as plus d'hôtels.";
+          if (st.vOwn[a.v] !== p || st.vLvl[a.v] !== 1) return "Un hôtel remplace une de tes maisons.";
+          pay(st, p, COST.hotel); st.vLvl[a.v] = 2; P.left.hotel--; P.left.maison++;
+          log(st, `${P.name} construit un hôtel.`);
+          checkWin(st);
+          return null;
+        }
+        return "Construction inconnue.";
+      }
+      case "buy": {
+        if (st.turn !== p || st.phase !== "main") return "Pas maintenant.";
+        if (!st.deck.length) return "Il n'y a plus de cartes spéciales.";
+        if (!has(P.res, COST.carte)) return "Il faut 1 laine, 1 paille et 1 ardoise.";
+        pay(st, p, COST.carte);
+        const t = st.deck.pop(); P.cards.push({ t, at: st.turnNo });
+        log(st, `${P.name} achète une carte spéciale.`);
+        checkWin(st);   // un Point bonus peut faire gagner tout de suite
+        return null;
+      }
+      case "play": return playCard(st, p, a);
+      case "give": {   // Fête au village : chaque autre joueur donne 1 ressource de son choix
+        if (st.phase !== "fete" || !st.feteNeed[p]) return "Rien à donner.";
+        if (!(P.res[a.r] > 0)) return "Tu n'as pas cette ressource.";
+        P.res[a.r]--; st.players[st.turn].res[a.r]++; delete st.feteNeed[p];
+        log(st, `${P.name} offre 1 ${RES_NOM[a.r]} pour la fête.`);
+        if (!Object.keys(st.feteNeed).length) st.phase = st.rolled ? "main" : "roll";
+        return null;
+      }
+      case "bank": {
+        if (st.turn !== p || st.phase !== "main") return "Pas maintenant.";
+        if (!RES.includes(a.give) || !RES.includes(a.get) || a.give === a.get) return "Échange impossible.";
+        const k = rate(st, p, a.give);
+        if (P.res[a.give] < k) return `Il faut ${k} ${RES_NOM[a.give]}.`;
+        if (st.bank[a.get] <= 0) return "La banque n'en a plus.";
+        P.res[a.give] -= k; st.bank[a.give] += k; P.res[a.get]++; st.bank[a.get]--;
+        log(st, `${P.name} échange ${k} ${RES_NOM[a.give]} contre 1 ${RES_NOM[a.get]} à la banque.`);
+        return null;
+      }
+      case "offer": {
+        if (st.turn !== p || st.phase !== "main") return "Pas maintenant.";
+        if (!total(a.give) || !total(a.want)) return "Il faut donner et demander au moins une carte.";
+        if (RES.some((r) => (a.give[r] || 0) > 0 && (a.want[r] || 0) > 0)) return "Une même ressource ne peut pas être donnée et demandée.";
+        if (!has(P.res, a.give)) return "Tu n'as pas ces cartes.";
+        st.trade = { id: ++st.tradeSeq, give: clean(a.give), want: clean(a.want), replies: {}, counters: {} };
+        log(st, `${P.name} propose un échange.`);
+        return null;
+      }
+      case "reply": {
+        if (!st.trade || p === st.turn) return "Pas d'échange en cours.";
+        if (a.ok && !has(P.res, st.trade.want)) return "Tu n'as pas les cartes demandées.";
+        st.trade.replies[p] = !!a.ok; delete st.trade.counters[p];
+        return null;
+      }
+      case "counter": {
+        if (!st.trade || p === st.turn) return "Pas d'échange en cours.";
+        if (!total(a.give) || !total(a.want) || !has(P.res, a.give)) return "Contre-proposition impossible.";
+        st.trade.counters[p] = { give: clean(a.give), want: clean(a.want) }; st.trade.replies[p] = false;
+        return null;
+      }
+      case "accept": {   // le joueur actif conclut avec un joueur (sa réponse « oui » ou sa contre-proposition)
+        if (st.turn !== p || !st.trade || st.phase !== "main") return "Pas d'échange en cours.";
+        const q = a.p, T = st.trade, c = T.counters[q];
+        let giveP, giveQ;
+        if (c) { giveP = c.want; giveQ = c.give; }
+        else if (T.replies[q]) { giveP = T.give; giveQ = T.want; }
+        else return "Ce joueur n'a pas accepté.";
+        const Q = st.players[q];
+        if (!has(P.res, giveP) || !has(Q.res, giveQ)) { st.trade = null; return "Un des joueurs n'a plus les cartes."; }
+        Object.entries(giveP).forEach(([r, n]) => { P.res[r] -= n; Q.res[r] += n; });
+        Object.entries(giveQ).forEach(([r, n]) => { Q.res[r] -= n; P.res[r] += n; });
+        log(st, `${P.name} et ${Q.name} échangent.`);
+        st.trade = null;
+        return null;
+      }
+      case "cancelTrade": { if (st.turn !== p) return "Pas maintenant."; st.trade = null; return null; }
+      case "end": {
+        if (st.turn !== p || st.phase !== "main") return "Pas maintenant.";
+        st.trade = null; st.rolled = false; st.dice = null; st.devPlayed = false; st.marketDay = false;
+        st.turn = (st.turn + 1) % st.players.length; st.turnNo++; st.phase = "roll";
+        if (st.patou && st.turnNo > st.patou.until) { st.patou = null; log(st, "Le Patou rentre à la bergerie."); }
+        return null;
+      }
+    }
+    return "Action inconnue.";
+  }
+  function clean(o) { const r = {}; RES.forEach((k) => { if (o[k] > 0) r[k] = Math.floor(o[k]); }); return r; }
+  function steal(st, p, q) {
+    const Q = st.players[q], pool = RES.flatMap((r) => Array(Q.res[r]).fill(r));
+    if (!pool.length) return;
+    const r = pool[rint(st, pool.length)];
+    Q.res[r]--; st.players[p].res[r]++;
+    st.lastSteal = { from: q, to: p, r };
+    log(st, `${st.players[p].name} vole une carte à ${Q.name}.`);
+  }
+  function afterBear(st) { st.stealFrom = []; st.phase = st.rolled ? "main" : "roll"; }
+
+  function playable(st, p) {
+    const P = st.players[p];
+    if (st.turn !== p || st.devPlayed || !["roll", "main"].includes(st.phase)) return [];
+    return [...new Set(P.cards.filter((c) => c.t !== "point" && c.at < st.turnNo).map((c) => c.t))];
+  }
+  function playCard(st, p, a) {
+    const P = st.players[p];
+    if (!playable(st, p).includes(a.card)) return "Tu ne peux pas jouer cette carte maintenant.";
+    const take = () => { P.cards.splice(P.cards.findIndex((c) => c.t === a.card && c.at < st.turnNo), 1); st.devPlayed = true; };
+    const back = st.rolled ? "main" : "roll";
+    switch (a.card) {
+      case "ours":
+        take(); P.ours++; log(st, `${P.name} joue L'Ours.`); updateArmy(st, p); st.phase = "bear"; checkWin(st);
+        return null;
+      case "chantier":
+        if (!roadsOk(st, p).length || P.left.route <= 0) return "Aucune route possible.";
+        take(); st.freeRoads = 2; st.phase = "roads"; log(st, `${P.name} lance un chantier communal.`);
+        return null;
+      case "coup": {
+        const rs = [a.r1, a.r2];
+        if (!rs.every((r) => RES.includes(r))) return "Choisis 2 ressources.";
+        const need = {}; rs.forEach((r) => { need[r] = (need[r] || 0) + 1; });
+        if (!Object.entries(need).every(([r, n]) => st.bank[r] >= n)) return "La banque n'en a pas assez.";
+        take(); rs.forEach((r) => { P.res[r]++; st.bank[r]--; }); log(st, `${P.name} reçoit un coup de main.`);
+        return null;
+      }
+      case "monopole": {
+        if (!RES.includes(a.r)) return "Choisis une ressource.";
+        take(); let n = 0;
+        st.players.forEach((q, i) => { if (i !== p) { n += q.res[a.r]; P.res[a.r] += q.res[a.r]; q.res[a.r] = 0; } });
+        log(st, `${P.name} joue Monopole sur ${RES_NOM[a.r]} et récupère ${n} cartes.`);
+        return null;
+      }
+      case "patou": {
+        if (!(a.tile >= 0 && a.tile < st.tiles.length) || st.tiles[a.tile].k === "grotte") return "Choisis une case (pas la grotte).";
+        take(); st.patou = { tile: a.tile, until: st.turnNo + PATOU_TOURS };
+        if (st.bear === a.tile) { st.bear = st.tiles.findIndex((t) => t.k === "grotte"); log(st, "L'ours retourne à la grotte."); }
+        log(st, `${P.name} pose le Patou.`);
+        return null;
+      }
+      case "marche":
+        take(); st.marketDay = true; log(st, `${P.name} : jour de marché, la banque échange à 2 contre 1.`);
+        return null;
+      case "fete":
+        take(); st.feteNeed = {};
+        st.players.forEach((q, i) => { if (i !== p && total(q.res) > 0) st.feteNeed[i] = true; });
+        log(st, `${P.name} organise une fête au village !`);
+        st.phase = Object.keys(st.feteNeed).length ? "fete" : back;
+        return null;
+    }
+    return "Carte inconnue.";
+  }
+
+  // Qui doit agir maintenant (pour l'affichage et les ordis)
+  function waitingFor(st) {
+    if (st.phase === "over") return [];
+    if (st.phase === "setup") return [cur(st)];
+    if (st.phase === "discard") return Object.keys(st.discardNeed).map(Number);
+    if (st.phase === "fete") return Object.keys(st.feteNeed).map(Number);
+    return [st.turn];
+  }
+
+  // Vue d'un joueur : les cartes des autres sont cachées (leur nombre reste visible)
+  function view(st, p) {
+    const v = JSON.parse(JSON.stringify(st));
+    delete v.seed; delete v.deck; v.deckLeft = st.deck.length;
+    v.players.forEach((q, i) => {
+      q.nRes = total(q.res); q.nCards = q.cards.length; q.vp = publicPoints(st, i);
+      if (i !== p) { q.res = null; q.cards = null; }
+    });
+    return v;
+  }
+
+  return {
+    RES, RES_NOM, COST, LIMITS, DECK, CARTE_NOM, COLORS, G, PATOU_TOURS,
+    newGame, act, points, publicPoints, rate, canHouse, canRoad, housesOk, roadsOk, hotelsOk, bearTiles, victimsOf,
+    playable, waitingFor, view, total, has, roadLength, cur, bearBlocked, rng, rint
+  };
+})();
+
+
+/* =========================================================
+   La Vallée de l'Ours : les ordis (niveau « normal »)
+   Ils ne lisent que ce qu'un joueur voit : leur main, le plateau, le nombre de cartes des autres.
+   ========================================================= */
+const VDOBot = (() => {
+  const V = (typeof VDO !== "undefined") ? VDO : require("./vdo-core.js");
+  const { RES, COST, G } = V;
+  const PIPS = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 };
+  const pips = (st, h) => (RES.includes(st.tiles[h].k) ? PIPS[st.tiles[h].n] || 0 : 0);
+
+  // Valeur d'un carrefour : production attendue, variété, marché utile
+  function vScore(st, p, v) {
+    const hs = G.V[v].hexes;
+    let s = 0; const kinds = new Set();
+    hs.forEach((h) => { const k = st.tiles[h].k; if (RES.includes(k)) { s += pips(st, h) * (h === st.bear ? 0.4 : 1); kinds.add(k); } });
+    s += kinds.size * 1.2;
+    // ressources que je ne produis pas encore
+    const mine = new Set();
+    st.vOwn.forEach((o, u) => { if (o === p) G.V[u].hexes.forEach((h) => mine.add(st.tiles[h].k)); });
+    kinds.forEach((k) => { if (!mine.has(k)) s += 1.5; });
+    if (st.vport[v]) s += st.vport[v] === "3" ? 1 : 1.5;
+    return s;
+  }
+  function best(list, f) { let b = null, bs = -Infinity; list.forEach((x) => { const s = f(x); if (s > bs) { bs = s; b = x; } }); return b; }
+  const need = (res, cost) => { const n = {}; Object.entries(cost).forEach(([r, c]) => { if ((res[r] || 0) < c) n[r] = c - (res[r] || 0); }); return n; };
+
+  // Chemin de routes le plus court vers un bon emplacement de maison : renvoie la 1re route à poser
+  function roadToward(st, p) {
+    const starts = new Set();
+    G.E.forEach((e, i) => { if (st.eOwn[i] === p) { starts.add(e.a); starts.add(e.b); } });
+    st.vOwn.forEach((o, v) => { if (o === p) starts.add(v); });
+    const prev = new Map(), dist = new Map(), q = [];
+    starts.forEach((v) => { if (st.vOwn[v] === -1 || st.vOwn[v] === p) { dist.set(v, 0); q.push(v); } });
+    let target = null, tScore = -Infinity;
+    while (q.length) {
+      const v = q.shift(), d = dist.get(v);
+      if (d > 0 && d <= 4) {
+        const free = st.vOwn[v] === -1 && G.V[v].adj.every((u) => st.vOwn[u] === -1);
+        if (free) { const s = vScore(st, p, v) - d * 1.6; if (s > tScore) { tScore = s; target = v; } }
+      }
+      if (d >= 4) continue;
+      if (d > 0 && st.vOwn[v] !== -1 && st.vOwn[v] !== p) continue;
+      G.V[v].edges.forEach((e) => {
+        if (st.eOwn[e] !== -1) return;
+        const u = G.E[e].a === v ? G.E[e].b : G.E[e].a;
+        if (dist.has(u)) return;
+        dist.set(u, d + 1); prev.set(u, [v, e]); q.push(u);
+      });
+    }
+    if (target == null) return null;
+    let v = target, e = null;
+    while (prev.has(v)) { const [pv, pe] = prev.get(v); e = pe; v = pv; if (dist.get(v) === 0) break; }
+    return e != null && V.canRoad(st, p, e) ? e : null;
+  }
+
+  function goal(st, p) {
+    const P = st.players[p];
+    if (P.left.hotel > 0 && V.hotelsOk(st, p).length && (P.res.ardoise >= 1 || P.res.paille >= 2)) return COST.hotel;
+    if (P.left.maison > 0 && V.housesOk(st, p, false).length) return COST.maison;
+    if (P.left.route > 0 && roadToward(st, p) != null) return COST.route;
+    if (st.deck.length) return COST.carte;
+    return COST.hotel;
+  }
+
+  function decide(st, p) {
+    const P = st.players[p];
+    const wait = V.waitingFor(st);
+    // Réponse à un échange proposé par un autre joueur
+    if (st.trade && st.turn !== p && st.trade.replies[p] === undefined && st.phase === "main") {
+      const T = st.trade, g = need(P.res, goal(st, p));
+      const getsUseful = Object.keys(T.give).some((r) => g[r]);
+      const canPay = V.has(P.res, T.want);
+      const losesNeeded = Object.keys(T.want).some((r) => g[r] || (P.res[r] - T.want[r]) < (goal(st, p)[r] || 0));
+      const leaderTooClose = V.publicPoints(st, st.turn) >= st.cfg.target - 2;
+      const fair = V.total(T.give) >= V.total(T.want);
+      return { t: "reply", ok: canPay && getsUseful && !losesNeeded && !leaderTooClose && fair };
+    }
+    if (!wait.includes(p)) return null;
+    switch (st.phase) {
+      case "setup":
+        if (st.setupNeed === "maison") return { t: "setupHouse", v: best(V.housesOk(st, p, true), (v) => vScore(st, p, v) + Math.random() * 0.3) };
+        return { t: "setupRoad", e: best(V.roadsOk(st, p, st.lastSetupV), (e) => { const o = G.E[e].a === st.lastSetupV ? G.E[e].b : G.E[e].a; return Math.max(...G.V[o].adj.filter((u) => u !== st.lastSetupV).map((u) => V.canHouse(st, p, u, true) ? vScore(st, p, u) : 0), 0); }) };
+      case "discard": {
+        let n = st.discardNeed[p]; const out = {}; const r2 = { ...P.res }; const g = goal(st, p);
+        while (n > 0) { const r = best(RES.filter((x) => r2[x] > 0), (x) => r2[x] - (g[x] || 0) * 0.8); r2[r]--; out[r] = (out[r] || 0) + 1; n--; }
+        return { t: "discard", res: out };
+      }
+      case "fete": { const g = goal(st, p); return { t: "give", r: best(RES.filter((x) => P.res[x] > 0), (x) => P.res[x] - (g[x] || 0)) }; }
+      case "bear": return { t: "bear", tile: bearTarget(st, p) };
+      case "steal": return { t: "steal", p: best(st.stealFrom, (q) => V.publicPoints(st, q) * 3 + V.total(st.players[q].res) * 0.01) };
+      case "roads": { const e = roadToward(st, p) ?? best(V.roadsOk(st, p), () => Math.random()); return { t: "build", what: "route", e }; }
+      case "roll": {
+        const c = V.playable(st, p);
+        if (c.includes("ours") && myTileUnderBear(st, p)) return { t: "play", card: "ours" };
+        return { t: "roll" };
+      }
+      case "main": return mainMove(st, p);
+    }
+    return null;
+  }
+  function myTileUnderBear(st, p) { return G.hexes[st.bear].v.some((v) => st.vOwn[v] === p); }
+  function bearTarget(st, p) {
+    const lead = (q) => V.publicPoints(st, q);
+    return best(V.bearTiles(st), (t) => {
+      let s = 0;
+      G.hexes[t].v.forEach((v) => { const o = st.vOwn[v]; if (o === -1) return; if (o === p) s -= 20; else s += st.vLvl[v] * pips(st, t) * (1 + lead(o) * 0.15); });
+      return s + Math.random() * 0.1;
+    });
+  }
+  function mainMove(st, p) {
+    const P = st.players[p];
+    st._bot = st._bot && st._bot.turnNo === st.turnNo && st._bot.p === p ? st._bot : { turnNo: st.turnNo, p, trades: 0, cards: 0 };
+    const memo = st._bot;
+    // 1. Cartes spéciales
+    const c = V.playable(st, p);
+    if (c.length) {
+      const g = need(P.res, goal(st, p));
+      if (c.includes("ours") && myTileUnderBear(st, p)) return { t: "play", card: "ours" };
+      if (c.includes("fete")) return { t: "play", card: "fete" };
+      if (c.includes("coup") && Object.keys(g).length) {
+        const ks = Object.entries(g).flatMap(([r, n]) => Array(n).fill(r)).filter((r) => st.bank[r] > 0);
+        const r1 = ks[0], r2 = ks[1] && (ks[1] !== r1 || st.bank[r1] >= 2) ? ks[1] : RES.find((r) => st.bank[r] > (r === r1 ? 1 : 0));
+        if (r1 && r2) return { t: "play", card: "coup", r1, r2 };
+      }
+      if (c.includes("chantier") && P.left.route >= 2 && roadToward(st, p) != null) return { t: "play", card: "chantier" };
+      if (c.includes("monopole") && Object.keys(g).length) { const r = best(Object.keys(g), (x) => g[x]); return { t: "play", card: "monopole", r }; }
+      if (c.includes("patou")) { const t = best(st.tiles.map((_, i) => i).filter((i) => st.tiles[i].k !== "grotte"), (i) => G.hexes[i].v.reduce((s, v) => s + (st.vOwn[v] === p ? st.vLvl[v] * pips(st, i) : 0), 0) + (i === st.bear ? 3 : 0)); if (t != null) return { t: "play", card: "patou", tile: t }; }
+      if (c.includes("ours") && st.players.some((q, i) => i !== p && V.publicPoints(st, i) >= V.publicPoints(st, p))) return { t: "play", card: "ours" };
+      if (c.includes("marche") && RES.some((r) => P.res[r] >= 3)) return { t: "play", card: "marche" };
+    }
+    // 2. Constructions, de la plus rentable à la moins chère
+    if (P.left.hotel > 0 && V.has(P.res, COST.hotel)) { const v = best(V.hotelsOk(st, p), (v) => vScore(st, p, v)); if (v != null) return { t: "build", what: "hotel", v }; }
+    if (P.left.maison > 0 && V.has(P.res, COST.maison)) { const v = best(V.housesOk(st, p, false), (v) => vScore(st, p, v)); if (v != null) return { t: "build", what: "maison", v }; }
+    const spot = V.housesOk(st, p, false).length > 0;
+    if (!spot && P.left.route > 0 && V.has(P.res, COST.route)) { const e = roadToward(st, p); if (e != null) return { t: "build", what: "route", e }; }
+    if (st.deck.length && V.has(P.res, COST.carte) && memo.cards < 2 && (!spot || V.total(P.res) > 7)) { memo.cards++; return { t: "buy" }; }
+    // 3. Échange avec la banque pour avancer vers l'objectif
+    if (memo.trades < 3) {
+      const gc = goal(st, p), g = need(P.res, gc);
+      const want = Object.keys(g)[0];
+      if (want && st.bank[want] > 0) {
+        const give = best(RES.filter((r) => r !== want && P.res[r] - (gc[r] || 0) >= V.rate(st, p, r)), (r) => P.res[r] - (gc[r] || 0) - V.rate(st, p, r));
+        if (give) { memo.trades++; return { t: "bank", give, get: want }; }
+      }
+    }
+    if (st.trade) return { t: "cancelTrade" };
+    return { t: "end" };
+  }
+  return { decide, vScore };
+})();
+
+
+/* =========================================================
+   La Vallée de l'Ours : écran de jeu (contre les ordis, sur ce téléphone)
+   ========================================================= */
+const VDO_OURS = "data:image/png;base64,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";
+const VDO_PCOL = { bleu: ["#2b6cb0", "#0d2a4a"], orange: ["#e8862a", "#6b3606"], violet: ["#7b4bb3", "#2f1748"], blanc: ["#f4f4f4", "#2a2a2a"], rouge: ["#e01e37", "#5c0612"], vertclair: ["#8bd450", "#2c5410"], noir: ["#1b1b1b", "#f5ecd7"] };
+const VDO_PNOM = { bleu: "bleu", orange: "orange", violet: "violet", blanc: "blanc", rouge: "rouge", vertclair: "vert clair", noir: "noir" };
+const VDO_TCOL = { bois: "#2f6b3a", argile: "#d9705a", laine: "#d8c39a", paille: "#e8c547", ardoise: "#6f8aa3", grotte: "#4a2f22", mont: "#9b968c" };
+const VDO_ICON = {   // dessins de la planche validée, dans une boîte 60 × 50
+  bois: '<path d="M44 48 v-5" stroke="#4a2c16" stroke-width="3.5"/><path d="M44 16 L53 28 H49 L56 37 H50 L58 44 H30 L38 37 H32 L39 28 H35 Z" fill="#4fa35a" stroke="#0f2a16" stroke-width="2" stroke-linejoin="round"/><path d="M20 48 v-6" stroke="#4a2c16" stroke-width="4"/><path d="M20 4 L33 20 H27 L37 32 H29 L39 43 H1 L11 32 H3 L13 20 H7 Z" fill="#6fbf73" stroke="#0f2a16" stroke-width="2" stroke-linejoin="round"/>',
+  argile: '<rect x="6" y="10" width="48" height="30" rx="3" fill="#a8372a" stroke="#5e1d16" stroke-width="2"/><path d="M6 25 h48 M30 10 v15 M18 25 v15 M42 25 v15" stroke="#f0d2c0" stroke-width="2"/>',
+  laine: '<ellipse cx="13" cy="24" rx="9" ry="4" transform="rotate(-15 13 24)" fill="#3b3127"/><ellipse cx="47" cy="24" rx="9" ry="4" transform="rotate(15 47 24)" fill="#3b3127"/><ellipse cx="30" cy="31" rx="10" ry="14" fill="#3b3127"/><circle cx="25.5" cy="27" r="2" fill="#fff"/><circle cx="34.5" cy="27" r="2" fill="#fff"/><path d="M27 39 q3 3 6 0" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="22" cy="13" r="7" fill="#fbf7ee" stroke="#6d5a3d" stroke-width="1.5"/><circle cx="38" cy="13" r="7" fill="#fbf7ee" stroke="#6d5a3d" stroke-width="1.5"/><circle cx="30" cy="10" r="8" fill="#fbf7ee" stroke="#6d5a3d" stroke-width="1.5"/>',
+  paille: '<path d="M8 18 L18 9 H54 L44 18 Z" fill="#fbe7a1" stroke="#8a6a12" stroke-width="2" stroke-linejoin="round"/><path d="M44 18 L54 9 V33 L44 42 Z" fill="#e2bd4f" stroke="#8a6a12" stroke-width="2" stroke-linejoin="round"/><rect x="8" y="18" width="36" height="24" fill="#f6dc7e" stroke="#8a6a12" stroke-width="2"/><path d="M19 18 v24 M33 18 v24 M19 18 L29 9 M33 18 L43 9" stroke="#b5651d" stroke-width="2.2"/>',
+  ardoise: '<rect x="40" y="4" width="6" height="10" fill="#7a6a5a" stroke="#1d2a36" stroke-width="1.5"/><path d="M6 44 L18 14 H42 L54 44 Z" fill="#3e5266" stroke="#1d2a36" stroke-width="2" stroke-linejoin="round"/><path d="M14.8 23.5 H45.2 M11.8 31 H48.2 M8.8 38 H51.2" stroke="#9bb0c4" stroke-width="1.6"/><path d="M24 14 v9.5 M36 14 v9.5 M20 23.5 v7.5 M30 23.5 v7.5 M40 23.5 v7.5 M16 31 v7 M26 31 v7 M36 31 v7 M46 31 v7" stroke="#9bb0c4" stroke-width="1.4"/>',
+  mont: '<path d="M2 46 L22 10 L32 26 L40 16 L58 46 Z" fill="#6f6a60" stroke="#3a3630" stroke-width="2" stroke-linejoin="round"/><path d="M16 21 L22 10 L28 21 L25 19 L22 22 L19 19 Z M36 22 L40 16 L44 22 L42 21 L40 23 Z" fill="#ffffff"/>',
+  grotte: '<path d="M6 46 L12 18 L26 8 L40 9 L52 20 L56 46 Z" fill="#6e4a36" stroke="#2a1a12" stroke-width="2" stroke-linejoin="round"/><path d="M20 46 Q20 22 31 22 Q42 22 42 46 Z" fill="#140c08"/>'
+};
+const vdIcon = (k, cls) => `<svg viewBox="0 0 60 50" class="${cls || ""}" aria-hidden="true">${VDO_ICON[k]}</svg>`;
+const VDO_PATOU = '<path d="M30 4 L54 12 V30 C54 46 42 56 30 60 C18 56 6 46 6 30 V12 Z" fill="#ffffff" stroke="#1d2a36" stroke-width="3" stroke-linejoin="round"/><ellipse cx="30" cy="38" rx="9" ry="8" fill="#3a3a3a"/><ellipse cx="18" cy="27" rx="4" ry="5" fill="#3a3a3a"/><ellipse cx="25" cy="20" rx="4" ry="5.5" fill="#3a3a3a"/><ellipse cx="35" cy="20" rx="4" ry="5.5" fill="#3a3a3a"/><ellipse cx="42" cy="27" rx="4" ry="5" fill="#3a3a3a"/>';
+const VDO_HOUSE = '<path d="M5 19 L20 6 L35 19 V35 H5 Z" stroke-width="3" stroke-linejoin="round"/>';
+const VDO_HOTEL = '<path d="M4 44 V18 L24 5 L44 18 V44 Z" stroke-width="3" stroke-linejoin="round"/>';
+
+function vallee(stage, hud) {
+  const V = VDO, Bt = VDOBot, G = V.G, RES = V.RES;
+  const ME = 0;
+  let st = null, mode = null, sel = null, timer = null, dead = false, sheet = null, cam = { s: 1, x: 0, y: 0 };
+  let tradeDraft = null;
+  const VB = { x: -5.8, y: -5.3, w: 11.6, h: 10.6 };
+  const prefs = Object.assign({ name: Online.name() || "", bots: 2, color: "rouge", target: 10, discard: 7 }, store.get("arbas-vdo") || {});
+  const pname = (p) => (p === ME ? "Toi" : st.players[p].name);
+  const col = (p) => VDO_PCOL[st.players[p].color] || VDO_PCOL.bleu;
+
+  setupScreen();
+
+  /* ---------- réglages de la partie ---------- */
+  function setupScreen() {
+    hud.textContent = "";
+    const opt = (n, cur) => `<button type="button" data-v="${n}" class="${n === cur ? "on" : ""}">${n}</button>`;
+    stage.innerHTML = `<div class="vd"><div class="vd-form">
+      <h2>La Vallée de l'Ours</h2>
+      <p>Construis routes, maisons et hôtels dans la vallée. Le premier à ${"<b>"}${prefs.target} points${"</b>"} gagne. Attention à l'ours !</p>
+      <label class="vd-field"><span>Ton prénom</span><input class="mo-input" id="vd-name" maxlength="16" autocomplete="given-name" value="${escH(prefs.name)}"></label>
+      <div class="vd-field"><span>Nombre d'ordis</span><div class="seg" id="vd-bots">${[1, 2, 3].map((n) => opt(n, prefs.bots)).join("")}</div></div>
+      <div class="vd-field"><span>Ta couleur</span><div class="vd-colors" id="vd-col">${V.COLORS.map((c) => `<button type="button" data-c="${c}" class="${c === prefs.color ? "on" : ""}" style="background:${VDO_PCOL[c][0]}" aria-label="${VDO_PNOM[c]}"></button>`).join("")}</div></div>
+      <div class="vd-field"><span>Points pour gagner</span><div class="seg" id="vd-target">${[6, 8, 10, 12].map((n) => opt(n, prefs.target)).join("")}</div></div>
+      <div class="vd-field"><span>Cartes en main avant de défausser sur un 7</span><div class="seg" id="vd-disc">${[7, 9, 11].map((n) => opt(n, prefs.discard)).join("")}</div></div>
+      <p class="mo-err" id="vd-err" role="alert"></p>
+      <button type="button" class="btn primary" id="vd-go">Jouer contre les ordis</button>
+    </div></div>`;
+    const seg = (id, key) => $(id).querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { prefs[key] = +b.dataset.v; $(id).querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); }));
+    seg("vd-bots", "bots"); seg("vd-target", "target"); seg("vd-disc", "discard");
+    $("vd-col").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { prefs.color = b.dataset.c; $("vd-col").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); }));
+    $("vd-go").addEventListener("click", () => {
+      const nm = $("vd-name").value.replace(/\s+/g, " ").trim().slice(0, 16);
+      if (nm.length < 2) { $("vd-err").textContent = "Mets ton prénom (2 lettres au moins)."; return; }
+      prefs.name = nm; store.set("arbas-vdo", prefs);
+      const others = V.COLORS.filter((c) => c !== prefs.color);
+      const botNames = ["Mémé Josette", "Le Garde", "Tonton Pierrot"];
+      const players = [{ name: nm, color: prefs.color }];
+      for (let i = 0; i < prefs.bots; i++) players.push({ name: botNames[i], bot: true, color: others[i] });
+      st = V.newGame({ players, seed: (Math.random() * 4294967295) >>> 0, target: prefs.target, discard: prefs.discard });
+      cam = { s: 1, x: 0, y: 0 };
+      loop();
+    });
+  }
+
+  /* ---------- boucle : les ordis jouent, on attend le joueur ---------- */
+  function loop() {
+    clearTimeout(timer); if (dead) return;
+    if (st.phase === "over") { closeSheet(); render(); return; }
+    // réponses des ordis à ma proposition d'échange
+    if (st.trade && st.turn === ME) {
+      const q = st.players.findIndex((pl, i) => i !== ME && st.trade.replies[i] === undefined);
+      if (q !== -1) { timer = setTimeout(() => { const a = Bt.decide(st, q); V.act(st, q, a && a.t === "reply" ? a : { t: "reply", ok: false }); render(); loop(); }, 500); render(); return; }
+    }
+    const w = V.waitingFor(st), bot = w.find((p) => st.players[p].bot);
+    if (bot !== undefined) {
+      const delay = st.phase === "setup" ? 450 : st.phase === "roll" ? 650 : 550;
+      timer = setTimeout(() => {
+        if (dead) return;
+        const a = Bt.decide(st, bot);
+        const err = a ? V.act(st, bot, a) : "rien";
+        if (err) fallback(bot);
+        render(); loop();
+      }, delay);
+    }
+    render();
+  }
+  function fallback(p) {   // un ordi bloqué : on lui fait jouer le coup le plus simple
+    if (st.phase === "main" && st.turn === p) return V.act(st, p, { t: "end" });
+    if (st.phase === "bear") return V.act(st, p, { t: "bear", tile: V.bearTiles(st)[0] });
+    if (st.phase === "steal") return V.act(st, p, { t: "steal", p: st.stealFrom[0] });
+    if (st.phase === "roads") { st.freeRoads = 0; st.phase = st.rolled ? "main" : "roll"; return; }
+  }
+  function doAct(a) {
+    const err = V.act(st, ME, a);
+    if (err) { flash(err); return false; }
+    mode = null; sel = null; loop(); return true;
+  }
+  function flash(msg) { const s = $("vd-status"); if (s) { s.textContent = msg; s.classList.remove("mine"); } }
+
+  /* ---------- affichage ---------- */
+  function render() {
+    if (dead || !st) return;
+    const mine = V.waitingFor(st).includes(ME);
+    autoMode();
+    const P = st.players[ME];
+    hud.textContent = `${V.points(st, ME, true)} / ${st.cfg.target} pts`;
+    stage.innerHTML = `<div class="vd">
+      <div class="vd-players" style="grid-template-columns:repeat(${st.players.length}, minmax(0, 1fr))">${st.players.map((pl, i) => `<div class="vd-pl${st.phase !== "setup" && st.turn === i || st.phase === "setup" && V.cur(st) === i ? " turn" : ""}">
+        <span class="nm"><i class="dot" style="background:${col(i)[0]}"></i>${escH(pname(i))}</span>
+        <span><b class="pts">${i === ME ? V.points(st, i, true) : V.publicPoints(st, i)}</b> pts</span>
+        <span class="meta">${V.total(pl.res)} carte${V.total(pl.res) > 1 ? "s" : ""} · ${pl.cards.length} spé.</span>
+        ${st.longest.p === i ? '<span class="bdg">Route</span>' : ""}${st.army.p === i ? '<span class="bdg">Ours</span>' : ""}</div>`).join("")}</div>
+      <div class="vd-board" id="vd-board">${boardSvg()}
+        ${st.dice ? `<div class="vd-dice"><span class="vd-die${st.dice[0] + st.dice[1] === 7 ? " seven" : ""}">${st.dice[0]}</span><span class="vd-die${st.dice[0] + st.dice[1] === 7 ? " seven" : ""}">${st.dice[1]}</span></div>` : ""}
+        <div class="vd-zoom"><button type="button" id="vd-zin" aria-label="Zoomer">+</button><button type="button" id="vd-zout" aria-label="Dézoomer">−</button></div>
+      </div>
+      ${sel != null && mode ? `<div class="vd-confirm"><button type="button" class="btn primary" id="vd-ok">${confirmLabel()}</button><button type="button" class="btn ghost" id="vd-no">Annuler</button></div>` : ""}
+      <div class="vd-status${mine ? " mine" : ""}" id="vd-status" role="status">${statusText()}</div>
+      <div class="vd-hand">${RES.map((r) => `<div class="vd-res${P.res[r] ? "" : " zero"}" style="background:${VDO_TCOL[r]}">${vdIcon(r)}<b>${P.res[r]}</b></div>`).join("")}</div>
+      <div class="vd-actions">${buttons()}</div>
+      <div class="vd-cards">${P.cards.length ? "Tes cartes spéciales : " + cardSummary() : "Pas de carte spéciale."} · Pioche : ${st.deck.length}</div>
+      <ul class="vd-log">${st.log.slice(-4).map((l) => `<li>${escH(l)}</li>`).join("")}</ul>
+      ${st.phase === "over" ? endHtml() : ""}
+    </div>`;
+    bind();
+    if (mine) autoSheet();
+  }
+  function cardSummary() {
+    const c = {}; st.players[ME].cards.forEach((x) => { c[x.t] = (c[x.t] || 0) + 1; });
+    return Object.entries(c).map(([t, n]) => `${V.CARTE_NOM[t]}${n > 1 ? " ×" + n : ""}`).join(", ");
+  }
+  function statusText() {
+    if (st.phase === "over") return `${st.winner === ME ? "Tu as gagné !" : escH(st.players[st.winner].name) + " a gagné."}`;
+    const w = V.waitingFor(st);
+    if (!w.includes(ME)) {
+      if (st.trade && st.turn === ME) return "Les autres réfléchissent à ta proposition…";
+      return `Au tour de ${escH(st.players[w[0]].name)}…`;
+    }
+    switch (st.phase) {
+      case "setup": return st.setupNeed === "maison" ? `Mise en place : touche un carrefour pour poser ta ${st.setupStep >= st.players.length ? "2e" : "1re"} maison.` : "Mise en place : pose une route à côté de ta maison.";
+      case "roll": return "À toi ! Lance les dés (ou joue une carte avant).";
+      case "discard": return `Un 7 ! Tu dois défausser ${st.discardNeed[ME]} cartes.`;
+      case "bear": return "Déplace l'ours : touche une case.";
+      case "steal": return "Choisis à qui voler une carte.";
+      case "roads": return `Chantier communal : pose encore ${st.freeRoads} route${st.freeRoads > 1 ? "s" : ""} gratuite${st.freeRoads > 1 ? "s" : ""}.`;
+      case "fete": return "Fête au village : offre une ressource.";
+      case "main": return mode ? modeText() : "Construis, échange, joue une carte, puis finis ton tour.";
+    }
+    return "";
+  }
+  function modeText() { return { route: "Touche l'endroit de ta nouvelle route.", maison: "Touche le carrefour de ta nouvelle maison.", hotel: "Touche la maison à transformer en hôtel.", patou: "Touche la case à protéger avec le Patou." }[mode.k] || ""; }
+  function confirmLabel() { return { setupHouse: "Poser la maison", setupRoad: "Poser la route", route: "Construire la route", maison: "Construire la maison", hotel: "Construire l'hôtel", bear: "Mettre l'ours ici", patou: "Poser le Patou ici", free: "Poser la route" }[mode.k] || "Valider"; }
+  function buttons() {
+    if (st.phase === "over") return `<button type="button" class="btn primary" id="vd-again">Rejouer</button>`;
+    const w = V.waitingFor(st);
+    if (!w.includes(ME) || st.turn !== ME && st.phase !== "setup") return "";
+    const canPlay = V.playable(st, ME).length > 0;
+    if (st.phase === "roll") return `<button type="button" class="btn primary" id="vd-roll">Lancer les dés</button>${canPlay ? '<button type="button" class="btn ghost" id="vd-cardsbtn">Jouer une carte</button>' : ""}`;
+    if (st.phase === "main") return `<button type="button" class="btn ghost" id="vd-build">Construire</button><button type="button" class="btn ghost" id="vd-trade">Échanger</button><button type="button" class="btn ghost" id="vd-cardsbtn"${canPlay ? "" : " disabled"}>Cartes</button><button type="button" class="btn primary" id="vd-end">Fin du tour</button>`;
+    return "";
+  }
+  function endHtml() {
+    const order = st.players.map((pl, i) => [V.points(st, i, true), i]).sort((a, b) => b[0] - a[0]);
+    return `<div class="vd-end"><h3>${st.winner === ME ? "Victoire !" : "Partie terminée"}</h3><ol>${order.map(([pt, i]) => `<li>${escH(pname(i))} : ${pt} points</li>`).join("")}</ol></div>`;
+  }
+
+  /* ---------- plateau ---------- */
+  function boardSvg() {
+    const out = [];
+    const r3 = (x) => Math.round(x * 1000) / 1000;
+    // marchés
+    st.ports.forEach((p) => {
+      const e = G.E[p.e], a = G.V[e.a], b = G.V[e.b], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx, my), px = mx + mx / d * 0.62, py = my + my / d * 0.62;
+      out.push(`<line x1="${r3(a.x)}" y1="${r3(a.y)}" x2="${r3(px)}" y2="${r3(py)}" stroke="#f5ecd7" stroke-width=".06"/><line x1="${r3(b.x)}" y1="${r3(b.y)}" x2="${r3(px)}" y2="${r3(py)}" stroke="#f5ecd7" stroke-width=".06"/>`);
+      out.push(`<circle cx="${r3(px)}" cy="${r3(py)}" r=".34" fill="${p.t === "3" ? "#f5ecd7" : VDO_TCOL[p.t]}" stroke="#1d1d1d" stroke-width=".05"/>`);
+      if (p.t === "3") out.push(`<text x="${r3(px)}" y="${r3(py + 0.11)}" text-anchor="middle" font-size=".3" font-weight="800" fill="#1d1d1d" font-family="system-ui, sans-serif">3:1</text>`);
+      else out.push(`<g transform="translate(${r3(px - 0.2)} ${r3(py - 0.2)}) scale(.0067)">${VDO_ICON[p.t]}</g><text x="${r3(px + mx / d * 0.5)}" y="${r3(py + my / d * 0.5 + 0.08)}" text-anchor="middle" font-size=".22" font-weight="800" fill="#f5ecd7" font-family="system-ui, sans-serif">2:1</text>`);
+    });
+    // cases
+    G.hexes.forEach((h, i) => {
+      const t = st.tiles[i], pts = h.v.map((v) => `${r3(G.V[v].x)},${r3(G.V[v].y)}`).join(" ");
+      out.push(`<polygon points="${pts}" fill="${VDO_TCOL[t.k]}" stroke="#f5ecd7" stroke-width=".07"/>`);
+      const ico = VDO_ICON[t.k];
+      if (ico) out.push(`<g transform="translate(${r3(h.x - 0.36)} ${r3(h.y - 0.66)}) scale(.012)" opacity=".95">${ico}</g>`);
+      if (t.n) {
+        const red = t.n === 6 || t.n === 8, dots = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 }[t.n];
+        out.push(`<circle cx="${r3(h.x)}" cy="${r3(h.y + 0.34)}" r=".3" fill="#f5ecd7" stroke="#3b2a1a" stroke-width=".03"/><text x="${r3(h.x)}" y="${r3(h.y + 0.43)}" text-anchor="middle" font-size=".3" font-weight="800" fill="${red ? "#b3261e" : "#1d1d1d"}" font-family="system-ui, sans-serif">${t.n}</text>`);
+        for (let k = 0; k < dots; k++) out.push(`<circle cx="${r3(h.x + (k - (dots - 1) / 2) * 0.06)}" cy="${r3(h.y + 0.52)}" r=".022" fill="${red ? "#b3261e" : "#1d1d1d"}"/>`);
+      }
+      if (st.patou && st.patou.tile === i && V.bearBlocked(st, i)) out.push(`<g transform="translate(${r3(h.x + 0.32)} ${r3(h.y - 0.1)}) scale(.0085)">${VDO_PATOU}</g>`);
+    });
+    // routes
+    G.E.forEach((e, i) => {
+      const o = st.eOwn[i]; if (o === -1) return;
+      const a = G.V[e.a], b = G.V[e.b], c = col(o), k = 0.16;
+      const x1 = a.x + (b.x - a.x) * k, y1 = a.y + (b.y - a.y) * k, x2 = b.x + (a.x - b.x) * k, y2 = b.y + (a.y - b.y) * k;
+      out.push(`<line x1="${r3(x1)}" y1="${r3(y1)}" x2="${r3(x2)}" y2="${r3(y2)}" stroke="${c[1]}" stroke-width=".22" stroke-linecap="round"/><line x1="${r3(x1)}" y1="${r3(y1)}" x2="${r3(x2)}" y2="${r3(y2)}" stroke="${c[0]}" stroke-width=".13" stroke-linecap="round"/>`);
+    });
+    // maisons et hôtels
+    G.V.forEach((v, i) => {
+      const o = st.vOwn[i]; if (o === -1) return;
+      const c = col(o);
+      if (st.vLvl[i] === 2) out.push(`<g transform="translate(${r3(v.x - 0.3)} ${r3(v.y - 0.36)}) scale(.0135)" fill="${c[0]}" stroke="${c[1]}">${VDO_HOTEL}</g>`);
+      else out.push(`<g transform="translate(${r3(v.x - 0.25)} ${r3(v.y - 0.3)}) scale(.0128)" fill="${c[0]}" stroke="${c[1]}">${VDO_HOUSE}</g>`);
+    });
+    // l'ours
+    const bh = G.hexes[st.bear];
+    out.push(`<circle cx="${r3(bh.x)}" cy="${r3(bh.y - 0.3)}" r=".33" fill="#fff" stroke="#4a2f22" stroke-width=".07"/><image href="${VDO_OURS}" x="${r3(bh.x - 0.26)}" y="${r3(bh.y - 0.55)}" width=".52" height=".5"/>`);
+    // cibles possibles
+    if (mode) {
+      mode.c.forEach((c) => {
+        const on = c === sel;
+        if (mode.type === "v") { const v = G.V[c]; out.push(`<circle cx="${r3(v.x)}" cy="${r3(v.y)}" r="${on ? 0.2 : 0.13}" fill="${on ? "#ffd166" : "#ffffff"}" stroke="#1d1d1d" stroke-width=".04" opacity="${on ? 1 : 0.85}"/>`); }
+        else if (mode.type === "e") { const e = G.E[c], a = G.V[e.a], b = G.V[e.b]; out.push(`<line x1="${r3(a.x)}" y1="${r3(a.y)}" x2="${r3(b.x)}" y2="${r3(b.y)}" stroke="${on ? "#ffd166" : "#ffffff"}" stroke-width="${on ? 0.16 : 0.09}" stroke-dasharray="${on ? "" : ".12 .08"}" stroke-linecap="round"/>`); }
+        else { const h = G.hexes[c], pts = h.v.map((v) => `${r3(G.V[v].x)},${r3(G.V[v].y)}`).join(" "); out.push(`<polygon points="${pts}" fill="${on ? "rgba(255,209,102,.35)" : "none"}" stroke="${on ? "#ffd166" : "#ffffff"}" stroke-width="${on ? 0.12 : 0.07}" stroke-dasharray="${on ? "" : ".15 .1"}"/>`); }
+      });
+    }
+    return `<svg id="vd-svg" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Plateau de jeu"><g id="vd-cam" transform="translate(${cam.x} ${cam.y}) scale(${cam.s})">${out.join("")}</g></svg>`;
+  }
+
+  // Mode de pose : ce que le joueur peut toucher sur le plateau
+  function autoMode() {
+    const w = V.waitingFor(st);
+    if (!w.includes(ME)) { mode = null; sel = null; return; }
+    let m = null;
+    if (st.phase === "setup") m = st.setupNeed === "maison" ? { k: "setupHouse", type: "v", c: V.housesOk(st, ME, true) } : { k: "setupRoad", type: "e", c: V.roadsOk(st, ME, st.lastSetupV) };
+    else if (st.phase === "bear") m = { k: "bear", type: "t", c: V.bearTiles(st) };
+    else if (st.phase === "roads") m = { k: "free", type: "e", c: V.roadsOk(st, ME) };
+    else if (st.phase === "main" && mode && ["route", "maison", "hotel", "patou"].includes(mode.k)) m = mode;
+    if (!m || !mode || m.k !== mode.k) sel = null;
+    mode = m;
+    if (mode && sel != null && !mode.c.includes(sel)) sel = null;
+  }
+  function confirm() {
+    if (sel == null || !mode) return;
+    const s = sel;
+    const a = { setupHouse: { t: "setupHouse", v: s }, setupRoad: { t: "setupRoad", e: s }, route: { t: "build", what: "route", e: s }, free: { t: "build", what: "route", e: s }, maison: { t: "build", what: "maison", v: s }, hotel: { t: "build", what: "hotel", v: s }, bear: { t: "bear", tile: s }, patou: { t: "play", card: "patou", tile: s } }[mode.k];
+    doAct(a);
+  }
+  function svgPoint(ev) {
+    const svg = $("vd-svg"), pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    return { x: (p.x - cam.x) / cam.s, y: (p.y - cam.y) / cam.s };
+  }
+  function nearest(p) {
+    if (!mode) return null;
+    let best = null, bd = Infinity;
+    mode.c.forEach((c) => {
+      let x, y;
+      if (mode.type === "v") ({ x, y } = G.V[c]);
+      else if (mode.type === "e") { const e = G.E[c]; x = (G.V[e.a].x + G.V[e.b].x) / 2; y = (G.V[e.a].y + G.V[e.b].y) / 2; }
+      else ({ x, y } = G.hexes[c]);
+      const d = Math.hypot(x - p.x, y - p.y); if (d < bd) { bd = d; best = c; }
+    });
+    return bd < (mode.type === "t" ? 1 : 0.6) ? best : null;
+  }
+  function setCam(s, x, y) {
+    cam.s = Math.max(1, Math.min(2.6, s));
+    const lim = (v) => Math.max(-(cam.s - 1) * 5.4, Math.min((cam.s - 1) * 5.4, v));
+    cam.x = cam.s === 1 ? 0 : lim(x); cam.y = cam.s === 1 ? 0 : lim(y);
+    const g = $("vd-cam"); if (g) g.setAttribute("transform", `translate(${cam.x} ${cam.y}) scale(${cam.s})`);
+  }
+
+  /* ---------- gestes et boutons ---------- */
+  function bind() {
+    const board = $("vd-board"), svg = $("vd-svg");
+    const pts = new Map(); let moved = 0, pinch = null, last = null;
+    svg.addEventListener("pointerdown", (e) => { svg.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; last = { x: e.clientX, y: e.clientY }; if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: cam.s }; } });
+    svg.addEventListener("pointermove", (e) => {
+      if (!pts.has(e.pointerId)) return;
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      const k = VB.w / svg.clientWidth;
+      if (pts.size === 2 && pinch) { const [a, b] = [...pts.values()]; setCam(pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, cam.x, cam.y); moved = 99; return; }
+      const dx = e.clientX - last.x, dy = e.clientY - last.y; last = { x: e.clientX, y: e.clientY };
+      moved += Math.abs(dx) + Math.abs(dy);
+      if (cam.s > 1 && moved > 6) setCam(cam.s, cam.x + dx * k, cam.y + dy * k);
+    });
+    const up = (e) => {
+      if (!pts.has(e.pointerId)) return;
+      pts.delete(e.pointerId); if (pts.size < 2) pinch = null;
+      if (moved < 8 && mode) { const c = nearest(svgPoint(e)); if (c != null) { sel = c; render(); } }
+    };
+    svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", (e) => pts.delete(e.pointerId));
+    $("vd-zin").addEventListener("click", () => setCam(cam.s + 0.4, cam.x, cam.y));
+    $("vd-zout").addEventListener("click", () => setCam(cam.s - 0.4, cam.x, cam.y));
+    const on = (id, f) => { const b = $(id); if (b) b.addEventListener("click", f); };
+    on("vd-ok", confirm);
+    on("vd-no", () => { sel = null; if (mode && ["route", "maison", "hotel", "patou"].includes(mode.k)) mode = null; render(); });
+    on("vd-roll", () => doAct({ t: "roll" }));
+    on("vd-end", () => doAct({ t: "end" }));
+    on("vd-build", buildSheet);
+    on("vd-trade", () => tradeSheet("banque"));
+    on("vd-cardsbtn", cardsSheet);
+    on("vd-again", () => { closeSheet(); setupScreen(); });
+    board.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+
+  /* ---------- fenêtres du bas ---------- */
+  function openSheet(html, onBind) {
+    closeSheet();
+    sheet = document.createElement("div"); sheet.className = "vd-sheet";
+    sheet.innerHTML = `<div class="vd-sheet-box" role="dialog" aria-modal="true">${html}</div>`;
+    document.body.appendChild(sheet);
+    sheet.addEventListener("click", (e) => { if (e.target === sheet && sheet.dataset.close !== "no") closeSheet(); });
+    onBind(sheet);
+  }
+  function closeSheet() { if (sheet) { sheet.remove(); sheet = null; } }
+  const costHtml = (c) => `<span class="vd-cost">${Object.entries(c).flatMap(([r, n]) => Array(n).fill(`<i style="background:${VDO_TCOL[r]}">${vdIcon(r)}</i>`)).join("")}</span>`;
+  const resName = (r, n) => n > 1 && r !== "bois" ? V.RES_NOM[r] + "s" : V.RES_NOM[r];
+
+  function autoSheet() {
+    if (sheet) return;
+    if (st.phase === "discard" && st.discardNeed[ME]) discardSheet();
+    else if (st.phase === "steal" && st.turn === ME) stealSheet();
+    else if (st.phase === "fete" && st.feteNeed[ME]) giveSheet();
+  }
+  function buildSheet() {
+    const P = st.players[ME], items = [
+      ["route", "Route", V.COST.route, P.left.route > 0 ? (V.roadsOk(st, ME).length ? "" : "Aucun emplacement") : "Plus de routes"],
+      ["maison", "Maison (1 point)", V.COST.maison, P.left.maison > 0 ? (V.housesOk(st, ME, false).length ? "" : "Aucun carrefour libre au bout de tes routes") : "Plus de maisons"],
+      ["hotel", "Hôtel (2 points)", V.COST.hotel, P.left.hotel > 0 ? (V.hotelsOk(st, ME).length ? "" : "Il faut une maison à transformer") : "Plus d'hôtels"],
+      ["carte", "Carte spéciale", V.COST.carte, st.deck.length ? "" : "Pioche vide"]
+    ];
+    openSheet(`<h3>Construire</h3>${items.map(([k, label, cost, why]) => {
+      const afford = V.has(P.res, cost), dis = why || !afford;
+      return `<button type="button" class="vd-opt" data-k="${k}"${dis ? " disabled" : ""}><span><b>${label}</b><span class="why">${why || (afford ? "" : "Pas assez de ressources")}</span></span>${costHtml(cost)}</button>`;
+    }).join("")}<button type="button" class="btn ghost" data-close="1">Fermer</button>`, (s) => {
+      s.querySelector("[data-close]").addEventListener("click", closeSheet);
+      s.querySelectorAll("[data-k]").forEach((b) => b.addEventListener("click", () => {
+        closeSheet();
+        const k = b.dataset.k;
+        if (k === "carte") { doAct({ t: "buy" }); return; }
+        mode = { k, type: k === "route" ? "e" : "v", c: k === "route" ? V.roadsOk(st, ME) : k === "maison" ? V.housesOk(st, ME, false) : V.hotelsOk(st, ME) };
+        sel = mode.c.length === 1 ? mode.c[0] : null;
+        render();
+      }));
+    });
+  }
+  function stepper(id, max, val) {
+    return `<div class="vd-steps" id="${id}">${RES.map((r) => `<div class="vd-step" data-r="${r}"><span class="chip" style="background:${VDO_TCOL[r]}">${vdIcon(r)}</span><span><b class="n">${val[r] || 0}</b> <span class="why">${max ? "/ " + max[r] : ""} ${resName(r, 2)}</span></span><button type="button" data-d="-1" aria-label="Moins de ${V.RES_NOM[r]}">−</button><button type="button" data-d="1" aria-label="Plus de ${V.RES_NOM[r]}">+</button></div>`).join("")}</div>`;
+  }
+  function bindStepper(root, id, val, max, onChange) {
+    root.querySelectorAll(`#${id} .vd-step`).forEach((row) => row.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+      const r = row.dataset.r, n = Math.max(0, Math.min(max ? max[r] : 19, (val[r] || 0) + +b.dataset.d));
+      val[r] = n; row.querySelector(".n").textContent = n; onChange();
+    })));
+  }
+  function discardSheet() {
+    const need = st.discardNeed[ME], val = {}, P = st.players[ME];
+    openSheet(`<h3>Défausse</h3><p>Un 7 a été tiré et tu as plus de ${st.cfg.discard} cartes : choisis-en <b id="vd-left">${need}</b> à rendre à la banque.</p>${stepper("vd-disc", P.res, val)}<button type="button" class="btn primary" id="vd-dok" disabled>Défausser</button>`, (s) => {
+      s.dataset.close = "no";
+      const upd = () => { const n = V.total(val); $("vd-left").textContent = need - n; $("vd-dok").disabled = n !== need; };
+      bindStepper(s, "vd-disc", val, P.res, upd);
+      $("vd-dok").addEventListener("click", () => { closeSheet(); doAct({ t: "discard", res: val }); });
+    });
+  }
+  function stealSheet() {
+    openSheet(`<h3>Voler une carte</h3><p>Plusieurs joueurs ont une construction sur cette case.</p>${st.stealFrom.map((q) => `<button type="button" class="vd-opt" data-p="${q}"><i class="dot" style="width:16px;height:16px;border-radius:50%;background:${col(q)[0]}"></i><b>${escH(st.players[q].name)}</b><span class="why" style="margin-left:auto">${V.total(st.players[q].res)} cartes</span></button>`).join("")}`, (s) => {
+      s.dataset.close = "no";
+      s.querySelectorAll("[data-p]").forEach((b) => b.addEventListener("click", () => { closeSheet(); doAct({ t: "steal", p: +b.dataset.p }); }));
+    });
+  }
+  function pickHtml(id, filter) { return `<div class="vd-pick" id="${id}">${RES.map((r) => `<button type="button" data-r="${r}" style="background:${VDO_TCOL[r]}"${filter && !filter(r) ? " disabled" : ""}>${vdIcon(r)}${V.RES_NOM[r]}</button>`).join("")}</div>`; }
+  function giveSheet() {
+    const P = st.players[ME];
+    openSheet(`<h3>Fête au village</h3><p>${escH(st.players[st.turn].name)} organise une fête : offre-lui une ressource de ton choix.</p>${pickHtml("vd-give", (r) => P.res[r] > 0)}`, (s) => {
+      s.dataset.close = "no";
+      s.querySelectorAll("#vd-give button").forEach((b) => b.addEventListener("click", () => { closeSheet(); doAct({ t: "give", r: b.dataset.r }); }));
+    });
+  }
+  const CARD_TXT = {
+    ours: "Déplace l'ours et vole 1 carte. Compte pour la plus grande famille d'ours.",
+    point: "1 point de victoire, gardé secret. Ne se joue pas.",
+    chantier: "Construis 2 routes gratuitement.",
+    coup: "Prends 2 ressources de ton choix à la banque.",
+    monopole: "Choisis une ressource : les autres te donnent toutes leurs cartes de cette ressource.",
+    patou: `Protège une case de l'ours pendant ton tour et les ${V.PATOU_TOURS} suivants. Renvoie l'ours à la grotte s'il y est.`,
+    marche: "Pendant ce tour, la banque échange à 2 contre 1.",
+    fete: "Chaque autre joueur t'offre 1 ressource de son choix."
+  };
+  function cardsSheet() {
+    const P = st.players[ME], ok = V.playable(st, ME), seen = {};
+    P.cards.forEach((c) => { seen[c.t] = (seen[c.t] || 0) + 1; });
+    const why = (t) => t === "point" ? "Compte tout seul" : st.devPlayed ? "Déjà une carte jouée ce tour" : !ok.includes(t) ? "Achetée ce tour : jouable au prochain" : "";
+    openSheet(`<h3>Tes cartes spéciales</h3>${Object.entries(seen).map(([t, n]) => `<button type="button" class="vd-opt" data-c="${t}"${ok.includes(t) ? "" : " disabled"}><span><b>${V.CARTE_NOM[t]}${n > 1 ? " ×" + n : ""}</b><span class="why">${CARD_TXT[t]}${why(t) ? " · " + why(t) : ""}</span></span></button>`).join("") || "<p>Aucune carte.</p>"}<button type="button" class="btn ghost" data-close="1">Fermer</button>`, (s) => {
+      s.querySelector("[data-close]").addEventListener("click", closeSheet);
+      s.querySelectorAll("[data-c]").forEach((b) => b.addEventListener("click", () => playCard(b.dataset.c)));
+    });
+  }
+  function playCard(t) {
+    if (t === "coup") {
+      const pick = [];
+      openSheet(`<h3>Coup de main</h3><p>Choisis 2 ressources (deux fois la même si tu veux).</p>${pickHtml("vd-cp", (r) => st.bank[r] > 0)}<p id="vd-cpl">Aucune choisie.</p><button type="button" class="btn primary" id="vd-cpok" disabled>Prendre</button>`, (s) => {
+        s.querySelectorAll("#vd-cp button").forEach((b) => b.addEventListener("click", () => { if (pick.length >= 2) pick.shift(); pick.push(b.dataset.r); $("vd-cpl").textContent = "Choix : " + pick.map((r) => V.RES_NOM[r]).join(" + "); $("vd-cpok").disabled = pick.length < 2; }));
+        $("vd-cpok").addEventListener("click", () => { closeSheet(); doAct({ t: "play", card: "coup", r1: pick[0], r2: pick[1] }); });
+      });
+      return;
+    }
+    if (t === "monopole") {
+      openSheet(`<h3>Monopole</h3><p>Quelle ressource veux-tu récupérer chez tous les autres ?</p>${pickHtml("vd-mo")}`, (s) => {
+        s.querySelectorAll("#vd-mo button").forEach((b) => b.addEventListener("click", () => { closeSheet(); doAct({ t: "play", card: "monopole", r: b.dataset.r }); }));
+      });
+      return;
+    }
+    closeSheet();
+    if (t === "patou") { mode = { k: "patou", type: "t", c: st.tiles.map((_, i) => i).filter((i) => st.tiles[i].k !== "grotte") }; sel = null; render(); return; }
+    doAct({ t: "play", card: t });
+  }
+  function tradeSheet(tab) {
+    const P = st.players[ME];
+    const tabs = `<div class="seg vd-tabs"><button type="button" data-tab="banque" class="${tab === "banque" ? "on" : ""}">Banque et marchés</button><button type="button" data-tab="joueurs" class="${tab === "joueurs" ? "on" : ""}">Joueurs</button></div>`;
+    if (tab === "banque") {
+      let give = null, get = null;
+      openSheet(`<h3>Échanger</h3>${tabs}<p>Tu donnes (taux selon tes marchés) :</p><div class="vd-pick" id="vd-bg">${RES.map((r) => { const k = V.rate(st, ME, r); return `<button type="button" data-r="${r}" style="background:${VDO_TCOL[r]}"${P.res[r] >= k ? "" : " disabled"}>${vdIcon(r)}${k} : 1</button>`; }).join("")}</div><p>Tu reçois :</p>${pickHtml("vd-bt", (r) => st.bank[r] > 0)}<button type="button" class="btn primary" id="vd-bok" disabled>Échanger</button><button type="button" class="btn ghost" data-close="1">Fermer</button>`, (s) => {
+        bindTabs(s);
+        s.querySelector("[data-close]").addEventListener("click", closeSheet);
+        const upd = () => { s.querySelectorAll("#vd-bg button").forEach((b) => b.classList.toggle("on", b.dataset.r === give)); s.querySelectorAll("#vd-bt button").forEach((b) => b.classList.toggle("on", b.dataset.r === get)); $("vd-bok").disabled = !give || !get || give === get; };
+        s.querySelectorAll("#vd-bg button").forEach((b) => b.addEventListener("click", () => { give = b.dataset.r; upd(); }));
+        s.querySelectorAll("#vd-bt button").forEach((b) => b.addEventListener("click", () => { get = b.dataset.r; upd(); }));
+        $("vd-bok").addEventListener("click", () => { if (doAct({ t: "bank", give, get })) tradeSheet("banque"); });
+      });
+      return;
+    }
+    // Échange entre joueurs
+    if (st.trade) { tradeStatusSheet(); return; }
+    tradeDraft = tradeDraft || { give: {}, want: {} };
+    const cell = (k, r) => `<span class="vd-tc" data-k="${k}" data-r="${r}"><button type="button" data-d="-1" aria-label="Moins">−</button><b class="n">${tradeDraft[k][r] || 0}</b><button type="button" data-d="1" aria-label="Plus">+</button></span>`;
+    openSheet(`<h3>Échanger</h3>${tabs}<div class="vd-tgrid"><span></span><span>Tu donnes</span><span>Tu demandes</span>${RES.map((r) => `<span class="chip" style="background:${VDO_TCOL[r]}">${vdIcon(r)}<small>${P.res[r]}</small></span>${cell("give", r)}${cell("want", r)}`).join("")}</div><p class="mo-err" id="vd-terr" role="alert"></p><button type="button" class="btn primary" id="vd-tok">Proposer à tout le monde</button><button type="button" class="btn ghost" data-close="1">Fermer</button>`, (s) => {
+      bindTabs(s);
+      s.querySelector("[data-close]").addEventListener("click", closeSheet);
+      s.querySelectorAll(".vd-tc").forEach((c) => c.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+        const k = c.dataset.k, r = c.dataset.r, o = tradeDraft[k], other = tradeDraft[k === "give" ? "want" : "give"];
+        o[r] = Math.max(0, Math.min(k === "give" ? P.res[r] : 19, (o[r] || 0) + +b.dataset.d));
+        if (o[r] > 0 && other[r]) { other[r] = 0; s.querySelector(`.vd-tc[data-k="${k === "give" ? "want" : "give"}"][data-r="${r}"] .n`).textContent = 0; }
+        c.querySelector(".n").textContent = o[r];
+      })));
+      $("vd-tok").addEventListener("click", () => {
+        const err = V.act(st, ME, { t: "offer", give: tradeDraft.give, want: tradeDraft.want });
+        if (err) { $("vd-terr").textContent = err; return; }
+        tradeStatusSheet(); loop();
+      });
+    });
+  }
+  function bindTabs(s) { s.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => tradeSheet(b.dataset.tab))); }
+  function tradeStatusSheet() {
+    const T = st.trade; if (!T) { closeSheet(); return; }
+    const fmt = (o) => Object.entries(o).map(([r, n]) => `${n} ${resName(r, n)}`).join(", ");
+    const rows = st.players.map((pl, i) => {
+      if (i === ME) return "";
+      const c = T.counters[i], r = T.replies[i];
+      const txt = c ? `propose plutôt : ${fmt(c.give)} contre ${fmt(c.want)}` : r === undefined ? "réfléchit…" : r ? "accepte" : "refuse";
+      return `<div class="vd-reply"><i class="dot" style="width:14px;height:14px;border-radius:50%;background:${col(i)[0]}"></i><span><b>${escH(pl.name)}</b> ${txt}</span>${r || c ? `<button type="button" class="btn primary" data-acc="${i}">Conclure</button>` : ""}</div>`;
+    }).join("");
+    openSheet(`<h3>Ta proposition</h3><p>Tu donnes ${fmt(T.give)} et tu demandes ${fmt(T.want)}.</p><div class="vd-replies">${rows}</div><button type="button" class="btn ghost" id="vd-tcancel">Retirer la proposition</button>`, (s) => {
+      s.dataset.close = "no";
+      s.querySelectorAll("[data-acc]").forEach((b) => b.addEventListener("click", () => { closeSheet(); tradeDraft = null; doAct({ t: "accept", p: +b.dataset.acc }); }));
+      $("vd-tcancel").addEventListener("click", () => { V.act(st, ME, { t: "cancelTrade" }); closeSheet(); render(); });
+    });
+  }
+  // Rafraîchir la fenêtre d'échange quand les ordis répondent
+  const origRender = render;
+  render = function () { origRender(); if (sheet && st && st.trade && st.turn === ME && sheet.querySelector(".vd-replies")) tradeStatusSheet(); };
+
+  // Pour les tests automatiques seulement (adresse avec ?vdodebug)
+  if (/vdodebug/.test(location.search)) window.__vdo = { V: VDO, B: VDOBot, get st() { return st; }, act: (a) => doAct(a), get mode() { return mode; }, svgOf: (x, y) => { const svg = $("vd-svg"), m = svg.getScreenCTM(), r = { x: x * cam.s + cam.x, y: y * cam.s + cam.y }; return { x: m.a * r.x + m.c * r.y + m.e, y: m.b * r.x + m.d * r.y + m.f }; } };
+  return () => { dead = true; clearTimeout(timer); closeSheet(); };
+}
+
+/* VDO-JS-END */
 const GAMES = [
   {
     id: "petanque", name: "Concours de pétanque",
@@ -3841,6 +5029,19 @@ const GAMES = [
       "<b>Le vote :</b> à main levée, puis on touche le joueur éliminé. Son rôle est révélé. En cas d'égalité, le jeu tire au sort un joueur dont la voix compte double.",
       "<b>M. Leblanc éliminé</b> peut tenter de deviner le mot des Arbasiens. S'il trouve, il gagne seul.",
       "<b>Victoire :</b> les Arbasiens gagnent quand il ne reste plus aucun infiltré ni M. Leblanc. Les infiltrés (et M. Leblanc s'il est en jeu) gagnent s'il ne reste plus qu'un Arbasien."
+    ]
+  },
+  {
+    id: "vallee", name: "La Vallée de l'Ours",
+    desc: "Routes, maisons et hôtels dans la vallée. De 2 à 4 joueurs, contre les ordis.", run: vallee,
+    rules: [
+      "<b>Le but :</b> être le premier à atteindre le nombre de points choisi (10 par défaut). Maison = 1 point, hôtel = 2 points.",
+      "<b>Les ressources :</b> à chaque lancer de dés, les cases qui portent ce numéro rapportent leur ressource aux maisons (1) et hôtels (2) qui les touchent.",
+      "<b>Construire :</b> route = bois + argile ; maison = bois + argile + laine + paille ; hôtel = 2 pailles + 3 ardoises ; carte spéciale = laine + paille + ardoise.",
+      "<b>Les maisons :</b> toujours au moins 2 tronçons de route entre deux maisons, et reliées à une de tes routes.",
+      "<b>Le 7 :</b> l'ours bouge et vole une carte ; sa case ne rapporte plus rien. Ceux qui ont trop de cartes en défaussent la moitié.",
+      "<b>Échanger :</b> avec la banque (4 contre 1, mieux avec les marchés) ou avec les autres joueurs pendant ton tour.",
+      "<b>Bonus :</b> route la plus longue (5 tronçons ou plus) et plus grande famille d'ours (3 cartes Ours ou plus) : 2 points chacun, à reprendre en faisant mieux."
     ]
   }
 ];
