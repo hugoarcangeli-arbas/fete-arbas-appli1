@@ -717,6 +717,19 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .vd-tsum { color: var(--ink) !important; }
 .vd-dice { left: 10px; top: 10px; }
 .vd-die { width: 36px; height: 36px; font-size: 1.35rem; }
+/* v114 : pas de zoom par double tape pendant la partie, récapitulatif de fin */
+.vd-nozoom body, .vd-nozoom .vd, .vd-nozoom .vd-sheet, .vd-nozoom button { touch-action: manipulation; }
+.vd-nozoom .vd-board, .vd-nozoom #vd-svg { touch-action: none; }
+.vd-recap { width: 100%; border-collapse: collapse; font-size: .82rem; color: var(--ink); }
+.vd-recap th, .vd-recap td { padding: 7px 2px; text-align: center; border-bottom: 1px solid var(--bg-3); vertical-align: top; }
+.vd-recap thead th { font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; color: var(--muted); }
+.vd-recap tbody th { text-align: left; font-weight: 800; white-space: nowrap; max-width: 86px; overflow: hidden; text-overflow: ellipsis; }
+.vd-recap tbody th .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: 0; }
+.vd-recap td b { font-family: var(--num); font-size: 1.05rem; }
+.vd-recap td small { display: block; font-size: .62rem; color: var(--muted); line-height: 1.1; }
+.vd-recap .nil { color: var(--muted); }
+.vd-recap .tot b { font-size: 1.3rem; color: var(--gold); }
+.vd-recap tr.win { background: rgba(255, 209, 102, .12); }
 
 /* VDO-CSS-END */
 </style>
@@ -786,7 +799,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <button class="hn" id="go-livre" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6h9a3 3 0 0 1 3 3v17a2.5 2.5 0 0 0-2.5-2.5H6zM26 6h-5a3 3 0 0 0-3 3v17a2.5 2.5 0 0 1 2.5-2.5H26z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Livre d'or</b><small>Laisse un mot au Comité</small></span><span class="hn-go" aria-hidden="true">›</span></button>
       <button class="hn" id="go-membres" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="14" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 14v-4a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="21" r="2" fill="currentColor"/></svg><span class="hn-t"><b>Espace membres</b></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
-    <p class="app-ver" id="app-ver">v113</p>
+    <p class="app-ver" id="app-ver">v114</p>
   </section>
   <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
     <div class="modal-box inst-box">
@@ -4246,10 +4259,12 @@ const VDO = (() => {
       name: p.name, bot: !!p.bot, color: p.color || COLORS[i],
       res: Object.fromEntries(RES.map((r) => [r, 0])), cards: [], ours: 0, left: { ...LIMITS }
     }));
-    const order = [...Array(n).keys()];
+    // Le premier joueur est tiré au sort (cfg.first pour l'imposer, dans les tests) ; on tourne à partir de lui
+    st.first = Number.isInteger(cfg.first) ? cfg.first : rint(st, n);
+    const order = [...Array(n).keys()].map((i) => (st.first + i) % n);
     st.setup = [...order, ...order.slice().reverse()];   // aller puis retour
     st.setupStep = 0; st.setupNeed = "maison"; st.lastSetupV = -1;
-    st.turn = 0; st.turnNo = 0; st.phase = "setup";
+    st.turn = st.first; st.turnNo = 0; st.phase = "setup"; st.lastProd = [];
     st.rolled = false; st.dice = null; st.devPlayed = false; st.marketDay = false;
     st.discardNeed = {}; st.freeRoads = 0; st.feteNeed = {}; st.stealFrom = [];
     st.longest = { p: -1, len: 0 }; st.army = { p: -1, n: 0 };
@@ -4273,6 +4288,12 @@ const VDO = (() => {
     return s;
   }
   const publicPoints = (st, p) => points(st, p, false);
+  function breakdown(st, p) {
+    let maisons = 0, hotels = 0;
+    st.vOwn.forEach((o, v) => { if (o === p) { if (st.vLvl[v] === 2) hotels++; else maisons++; } });
+    const secrets = st.players[p].cards.filter((c) => c.t === "point").length;
+    return { maisons, hotels, route: st.longest.p === p ? 2 : 0, ours: st.army.p === p ? 2 : 0, secrets, oursJoues: st.players[p].ours, total: points(st, p, true) };
+  }
   function rate(st, p, r) {
     if (st.marketDay && st.turn === p) return 2;
     let best = 4;
@@ -4353,17 +4374,20 @@ const VDO = (() => {
   /* ---------- production ---------- */
   function produce(st, roll) {
     const gain = st.players.map(() => Object.fromEntries(RES.map((r) => [r, 0])));
+    const from = [];   // { tile, p, r, n } : qui reçoit quoi, depuis quelle case
     st.tiles.forEach((t, i) => {
       if (t.n !== roll || i === st.bear || !RES.includes(t.k)) return;
-      G.hexes[i].v.forEach((v) => { if (st.vOwn[v] !== -1) gain[st.vOwn[v]][t.k] += st.vLvl[v]; });
+      G.hexes[i].v.forEach((v) => { if (st.vOwn[v] !== -1) { gain[st.vOwn[v]][t.k] += st.vLvl[v]; from.push({ tile: i, p: st.vOwn[v], r: t.k, n: st.vLvl[v] }); } });
     });
+    const served = st.players.map(() => ({}));
     RES.forEach((r) => {
       const want = gain.reduce((s, g) => s + g[r], 0);
       const who = gain.filter((g) => g[r] > 0).length;
-      if (want <= st.bank[r]) gain.forEach((g, p) => { st.players[p].res[r] += g[r]; st.bank[r] -= g[r]; });
-      else if (who === 1) { const p = gain.findIndex((g) => g[r] > 0); const k = st.bank[r]; st.players[p].res[r] += k; st.bank[r] = 0; }
+      if (want <= st.bank[r]) gain.forEach((g, p) => { st.players[p].res[r] += g[r]; st.bank[r] -= g[r]; if (g[r]) served[p][r] = true; });
+      else if (who === 1) { const p = gain.findIndex((g) => g[r] > 0); const k = st.bank[r]; st.players[p].res[r] += k; st.bank[r] = 0; if (k) served[p][r] = true; }
       // sinon : la banque ne peut servir tout le monde, personne n'en reçoit
     });
+    st.lastProd = from.filter((f) => served[f.p][f.r]);
     return gain;
   }
 
@@ -4390,13 +4414,13 @@ const VDO = (() => {
         if (!canRoad(st, p, a.e, st.lastSetupV)) return "La route doit partir de la maison posée.";
         st.eOwn[a.e] = p; P.left.route--;
         st.setupStep++; st.setupNeed = "maison";
-        if (st.setupStep >= st.setup.length) { st.phase = "roll"; st.turn = 0; st.turnNo = 1; log(st, "La partie commence !"); }
+        if (st.setupStep >= st.setup.length) { st.phase = "roll"; st.turn = st.first; st.turnNo = 1; log(st, "La partie commence !"); }
         return null;
       }
       case "roll": {
         if (st.turn !== p || st.phase !== "roll") return "Pas maintenant.";
         const d = [1 + rint(st, 6), 1 + rint(st, 6)], s = d[0] + d[1];
-        st.dice = d; st.rolled = true;
+        st.dice = d; st.rolled = true; st.lastProd = [];
         log(st, `${P.name} fait ${s}.`);
         if (s === 7) {
           st.discardNeed = {};
@@ -4625,7 +4649,7 @@ const VDO = (() => {
 
   return {
     RES, RES_NOM, COST, LIMITS, DECK, CARTE_NOM, COLORS, G, PATOU_TOURS,
-    newGame, act, points, publicPoints, rate, canHouse, canRoad, housesOk, roadsOk, hotelsOk, bearTiles, victimsOf,
+    newGame, act, points, publicPoints, breakdown, rate, canHouse, canRoad, housesOk, roadsOk, hotelsOk, bearTiles, victimsOf,
     playable, waitingFor, view, total, has, roadLength, cur, bearBlocked, rng, rint
   };
 })();
@@ -4700,13 +4724,14 @@ const VDOBot = (() => {
     const wait = V.waitingFor(st);
     // Réponse à un échange proposé par un autre joueur
     if (st.trade && st.turn !== p && st.trade.replies[p] === undefined && st.phase === "main") {
-      const T = st.trade, g = need(P.res, goal(st, p));
-      const getsUseful = Object.keys(T.give).some((r) => g[r]);
+      // Bilan simple : ce que je reçois vaut plus si j'en ai besoin ; ce que je donne coûte plus si mon objectif en a besoin
+      const T = st.trade, gl = goal(st, p), g = need(P.res, gl);
       const canPay = V.has(P.res, T.want);
-      const losesNeeded = Object.keys(T.want).some((r) => g[r] || (P.res[r] - T.want[r]) < (goal(st, p)[r] || 0));
-      const leaderTooClose = V.publicPoints(st, st.turn) >= st.cfg.target - 2;
-      const fair = V.total(T.give) >= V.total(T.want);
-      return { t: "reply", ok: canPay && getsUseful && !losesNeeded && !leaderTooClose && fair };
+      let gain = 0, cost = 0;
+      Object.entries(T.give).forEach(([r, n]) => { for (let i = 0; i < n; i++) gain += i < (g[r] || 0) ? 2 : 1; });
+      Object.entries(T.want).forEach(([r, n]) => { for (let i = 0; i < n; i++) cost += (P.res[r] - i) <= (gl[r] || 0) ? 1.6 : 0.6; });
+      const leaderTooClose = V.publicPoints(st, st.turn) >= st.cfg.target - 1;
+      return { t: "reply", ok: canPay && !leaderTooClose && gain >= cost };
     }
     if (!wait.includes(p)) return null;
     switch (st.phase) {
@@ -4819,6 +4844,7 @@ function vallee(stage, hud) {
   const col = (p) => VDO_PCOL[st.players[p].color] || VDO_PCOL.bleu;
   const now = () => performance.now();
 
+  const noZoom = lockZoom();
   setupScreen();
 
   /* ---------- réglages de la partie ---------- */
@@ -4859,7 +4885,15 @@ function vallee(stage, hud) {
       rolling = { by: p };
       render();
       const spin = setInterval(() => { document.querySelectorAll(".vd-die.rolling").forEach((d) => { d.textContent = 1 + Math.floor(Math.random() * 6); }); }, 80);
-      setTimeout(() => { clearInterval(spin); rolling = null; if (dead) return; const err = V.act(st, p, a); after && after(err); }, SPEED.dice);
+      setTimeout(() => {
+        clearInterval(spin); rolling = null; if (dead) return;
+        const err = V.act(st, p, a);
+        if (!err && st.lastProd && st.lastProd.length) {
+          st.lastProd.forEach((f) => fly.push({ tile: f.tile, to: f.p, r: f.r, n: f.n, open: true }));
+          busyUntil = Math.max(busyUntil, now() + 1300);
+        }
+        after && after(err);
+      }, SPEED.dice);
       return;
     }
     const before = snap();
@@ -4887,7 +4921,7 @@ function vallee(stage, hud) {
   /* ---------- boucle : les ordis jouent, on attend le joueur ---------- */
   function loop() {
     clearTimeout(timer); if (dead) return;
-    if (st.phase === "over") { closeSheet(); render(); return; }
+    if (st.phase === "over") { closeSheet(); render(); timer = setTimeout(endSheet, Math.max(400, busyUntil - now())); return; }
     const wait = (ms, f) => { timer = setTimeout(f, Math.max(ms, busyUntil - now())); };
     if (st.trade && st.turn === ME) {   // réponses des ordis à ma proposition
       const q = st.players.findIndex((pl, i) => i !== ME && st.trade.replies[i] === undefined);
@@ -4999,8 +5033,24 @@ function vallee(stage, hud) {
     return "";
   }
   function endHtml() {
-    const order = st.players.map((pl, i) => [V.points(st, i, true), i]).sort((a, b) => b[0] - a[0]);
-    return `<div class="vd-end"><h3>${st.winner === ME ? "Victoire !" : "Partie terminée"}</h3><ol>${order.map(([pt, i]) => `<li>${escH(pname(i))} : ${pt} points</li>`).join("")}</ol></div>`;
+    return `<div class="vd-end"><h3>${st.winner === ME ? "Victoire !" : "Partie terminée"}</h3><button type="button" class="btn ghost" id="vd-recap">Voir le récapitulatif</button></div>`;
+  }
+  // Récapitulatif : les points de chacun, poste par poste
+  function recapHtml() {
+    const rows = st.players.map((pl, i) => ({ i, b: V.breakdown(st, i) })).sort((a, b) => b.b.total - a.b.total || (a.i === st.winner ? -1 : 1));
+    const cell = (pts, sub) => `<td>${pts ? `<b>${pts}</b>` : '<span class="nil">–</span>'}${sub ? `<small>${sub}</small>` : ""}</td>`;
+    const pl = (n, one, many) => n ? `${n} ${n > 1 ? many : one}` : "";
+    return `<table class="vd-recap"><thead><tr><th></th><th>Maisons</th><th>Hôtels</th><th>Route</th><th>Ours</th><th>Secrets</th><th>Total</th></tr></thead><tbody>${rows.map(({ i, b }) => `<tr${i === st.winner ? ' class="win"' : ""}>
+      <th><i class="dot" style="background:${col(i)[0]}"></i>${escH(pname(i))}</th>
+      ${cell(b.maisons, "")}${cell(b.hotels * 2, pl(b.hotels, "hôtel", "hôtels"))}${cell(b.route, b.route ? st.longest.len + " tronçons" : "")}${cell(b.ours, pl(b.oursJoues, "jouée", "jouées"))}${cell(b.secrets, "")}
+      <td class="tot"><b>${b.total}</b></td></tr>`).join("")}</tbody></table>`;
+  }
+  function endSheet() {
+    if (dead || !st || st.phase !== "over") return;
+    openSheet(`<h3>${st.winner === ME ? "Tu as gagné !" : escH(st.players[st.winner].name) + " a gagné !"}</h3>${recapHtml()}<p class="vd-tl" style="font-weight:500;font-size:.8rem">Maison 1 point, hôtel 2 points, route la plus longue 2 points, plus grande famille d'ours 2 points, carte Point bonus 1 point.</p><button type="button" class="btn primary" id="vd-again2">Rejouer</button><button type="button" class="btn ghost" data-close="1">Voir le plateau</button>`, (sh) => {
+      sh.querySelector("[data-close]").addEventListener("click", closeSheet);
+      $("vd-again2").addEventListener("click", () => { closeSheet(); setupScreen(); });
+    });
   }
 
   /* ---------- plateau ---------- */
@@ -5078,10 +5128,11 @@ function vallee(stage, hud) {
       const el = p === ME ? document.querySelector(`.vd-res[data-r="${r}"]`) : document.querySelector(`.vd-pl[data-p="${p}"]`);
       if (!el) return null; const b = el.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
     };
+    const tileAt = (i) => { const h = G.hexes[i]; return svgScreen(h.x, h.y); };
     let k = 0;
     list.forEach((f) => {
-      const a = at(f.from, f.r), b = at(f.to, f.r); if (!a || !b) return;
-      const seen = f.from === ME || f.to === ME;
+      const a = f.tile != null ? tileAt(f.tile) : at(f.from, f.r), b = at(f.to, f.r); if (!a || !b) return;
+      const seen = f.open || f.from === ME || f.to === ME;
       for (let i = 0; i < Math.min(f.n, 5); i++) {
         const c = document.createElement("div"); c.className = "vd-fly";
         c.style.background = seen ? VDO_TCOL[f.r] : "#0b4a4d";
@@ -5093,6 +5144,13 @@ function vallee(stage, hud) {
         setTimeout(() => c.remove(), 900 + delay);
       }
     });
+  }
+
+  // Position à l'écran d'un point du plateau
+  function svgScreen(x, y) {
+    const svg = $("vd-svg"); if (!svg) return null;
+    const m = svg.getScreenCTM(), r = { x: x * cam.s + cam.x, y: y * cam.s + cam.y };
+    return { x: m.a * r.x + m.c * r.y + m.e, y: m.b * r.x + m.d * r.y + m.f };
   }
 
   // Mode de pose : ce que le joueur peut toucher sur le plateau
@@ -5168,6 +5226,7 @@ function vallee(stage, hud) {
     on("vd-build", buildSheet);
     on("vd-trade", () => tradeSheet());
     on("vd-again", () => { closeSheet(); setupScreen(); });
+    on("vd-recap", endSheet);
     // toucher une de ses cartes ressources : ouvre l'échange avec cette carte déjà proposée
     document.querySelectorAll(".vd-hand .vd-res").forEach((b) => b.addEventListener("click", () => {
       if (st.phase !== "main" || st.turn !== ME || rolling) return;
@@ -5349,7 +5408,28 @@ function vallee(stage, hud) {
 
   // Pour les tests automatiques seulement (adresse avec ?vdodebug)
   if (/vdodebug/.test(location.search)) window.__vdo = { V: VDO, B: VDOBot, get st() { return st; }, get busy() { return !!rolling || busyUntil > now(); }, act: (a) => doAct(a), get mode() { return mode; }, fast: () => { Object.keys(SPEED).forEach((k) => { SPEED[k] = 60; }); }, svgOf: (x, y) => { const svg = $("vd-svg"), m = svg.getScreenCTM(), r = { x: x * cam.s + cam.x, y: y * cam.s + cam.y }; return { x: m.a * r.x + m.c * r.y + m.e, y: m.b * r.x + m.d * r.y + m.f }; } };
-  return () => { dead = true; clearTimeout(timer); closeSheet(); };
+  return () => { dead = true; clearTimeout(timer); closeSheet(); noZoom(); };
+}
+
+// Bloque le zoom de la page (double tape, pincement) ; le plateau garde son propre zoom
+function lockZoom() {
+  let meta = document.querySelector('meta[name="viewport"]'), made = false;
+  if (!meta) { meta = document.createElement("meta"); meta.name = "viewport"; document.head.appendChild(meta); made = true; }
+  const before = meta.getAttribute("content") || "width=device-width,initial-scale=1";
+  meta.setAttribute("content", before.replace(/,?\s*(maximum-scale|user-scalable)=[^,]*/g, "") + ",maximum-scale=1,user-scalable=no");
+  const stop = (e) => e.preventDefault();
+  const multi = (e) => { if (e.touches && e.touches.length > 1 && !(e.target.closest && e.target.closest("#vd-board"))) e.preventDefault(); };
+  document.documentElement.classList.add("vd-nozoom");
+  document.addEventListener("gesturestart", stop, { passive: false });
+  document.addEventListener("gesturechange", stop, { passive: false });
+  document.addEventListener("dblclick", stop, { passive: false });
+  document.addEventListener("touchmove", multi, { passive: false });
+  return () => {
+    if (made) meta.remove(); else meta.setAttribute("content", before);
+    document.documentElement.classList.remove("vd-nozoom");
+    document.removeEventListener("gesturestart", stop); document.removeEventListener("gesturechange", stop);
+    document.removeEventListener("dblclick", stop); document.removeEventListener("touchmove", multi);
+  };
 }
 
 /* VDO-JS-END */
