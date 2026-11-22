@@ -749,6 +749,18 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .vd-clock b { font-family: var(--num); font-size: 1.1rem; color: var(--ink); }
 .vd-clock.low b { color: #ff6b6b; }
 .vd-offer p { line-height: 1.5; }
+/* v117 : ta main visible dans les fenêtres, ours joués, minuteur dans la case du joueur */
+.vd-mine { display: flex; align-items: center; gap: 4px; margin: -4px 0 4px; padding-bottom: 10px; border-bottom: 1px solid var(--bg-3); }
+.vd-mine > span:first-child { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-right: 2px; }
+.vd-mc { flex: 1; display: flex; align-items: center; justify-content: center; gap: 2px; height: 34px; border-radius: 8px; color: #1d1d1d; box-shadow: 0 0 0 1px rgba(0,0,0,.25) inset; }
+.vd-mc svg { width: 22px; height: 18px; }
+.vd-mc b { font-family: var(--num); font-size: 1.05rem; }
+.vd-mc.zero { opacity: .4; }
+.vd-pl .ours { display: flex; align-items: center; gap: 3px; }
+.vd-pl .ours img { width: 13px; height: 13px; }
+.vd-tm { font-family: var(--num); font-size: .9rem; color: #fff; }
+.vd-tm.low { color: #ff6b6b; }
+.vd-clock { font-size: 1rem; }
 
 /* VDO-CSS-END */
 </style>
@@ -818,7 +830,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <button class="hn" id="go-livre" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6h9a3 3 0 0 1 3 3v17a2.5 2.5 0 0 0-2.5-2.5H6zM26 6h-5a3 3 0 0 0-3 3v17a2.5 2.5 0 0 1 2.5-2.5H26z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Livre d'or</b><small>Laisse un mot au Comité</small></span><span class="hn-go" aria-hidden="true">›</span></button>
       <button class="hn" id="go-membres" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="14" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 14v-4a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="21" r="2" fill="currentColor"/></svg><span class="hn-t"><b>Espace membres</b></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
-    <p class="app-ver" id="app-ver">v116</p>
+    <p class="app-ver" id="app-ver">v117</p>
   </section>
   <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
     <div class="modal-box inst-box">
@@ -5041,10 +5053,11 @@ function vallee(stage, hud) {
     return null;
   }
   function hostChanged(p, a, bonus) {
-    if (a) net.busyUntil = Math.max(net.busyUntil, now() + (a.t === "roll" ? 2600 : 1000));
+    if (a) net.busyUntil = Math.max(net.busyUntil, now() + (a.t === "roll" ? 3400 : 1000));
     hostClock(bonus);
     hostPublish();
-    applyView(V.view(F, ME));
+    const mv = V.view(F, ME); mv.ids = net.ids; mv.dl = hostDl(); mv.skew = 0;
+    applyView(mv);
     hostSchedule();
   }
   // Minuteur : un temps par tour (et par pose de la mise en place), mis en pause pendant la défausse ou la fête des autres
@@ -5066,6 +5079,7 @@ function vallee(stage, hud) {
     if (bonus) c.end += 10000;
   }
   const humansWaiting = () => V.waitingFor(F).filter((q) => !F.players[q].bot);
+  const hostDl = () => (net.set.timer && F.phase !== "over" && humansWaiting().length ? net.clk.end : null);
   function hostClockTick() {
     if (!F || F.phase === "over" || !net.set.timer) return;
     if (!humansWaiting().length || Date.now() < net.clk.end) return;
@@ -5127,7 +5141,7 @@ function vallee(stage, hud) {
     net.pubBusy = true; net.pubDirty = false;
     const pubView = V.view(F, -1);
     pubView.ids = net.ids; pubView.hostNow = Date.now();
-    pubView.dl = net.set.timer && humansWaiting().length ? net.clk.end : null;
+    pubView.dl = hostDl();
     const secrets = {};
     net.ids.forEach((uid, i) => {
       if (!uid) return;
@@ -5205,7 +5219,7 @@ function vallee(stage, hud) {
         const err = V.act(st, p, a);
         if (!err && st.lastProd && st.lastProd.length) {
           st.lastProd.forEach((f) => fly.push({ tile: f.tile, to: f.p, r: f.r, n: f.n, open: true }));
-          busyUntil = Math.max(busyUntil, now() + 1300);
+          busyUntil = Math.max(busyUntil, now() + 1900 + 220 * st.lastProd.length);
         }
         after && after(err);
       }, SPEED.dice);
@@ -5291,6 +5305,8 @@ function vallee(stage, hud) {
         <span class="nm"><i class="dot" style="background:${col(i)[0]}"></i>${escH(pname(i))}</span>
         <span><b class="pts">${vis}</b> pts${i === ME && real > vis ? ` <b class="hid">(${real})</b>` : ""}</span>
         <span class="meta">${nRes(i)} carte${nRes(i) > 1 ? "s" : ""} · ${nCards(i)} spé.</span>
+        <span class="meta ours"><img src="${VDO_OURS}" alt="">${pl.ours || 0} ours joué${(pl.ours || 0) > 1 ? "s" : ""}</span>
+        ${net && st.dl && V.waitingFor(st).includes(i) ? `<span class="vd-tm" data-p="${i}"></span>` : ""}
         ${st.longest.p === i ? '<span class="bdg">Route</span>' : ""}${st.army.p === i ? '<span class="bdg">Ours</span>' : ""}</div>`; }).join("")}</div>
       <div class="vd-board" id="vd-board">${boardSvg()}
         ${dice ? `<div class="vd-dice">${dice.map((d) => `<span class="vd-die${rolling ? " rolling" : ""}${seven ? " seven" : ""}">${d}</span>`).join("")}</div>` : ""}
@@ -5320,8 +5336,10 @@ function vallee(stage, hud) {
       const c = $("vd-clock"); if (!c) { clearInterval(clockIv); return; }
       const left = Math.max(0, Math.ceil((st.dl + (st.skew || 0) - Date.now()) / 1000));
       const w = V.waitingFor(st), who = w.includes(ME) ? "Il te reste" : `${w.length > 1 ? "Temps restant" : "Temps de " + escH(st.players[w[0]].name)}`;
-      c.innerHTML = `${who} <b>${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}</b>`;
+      const txt = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+      c.innerHTML = `${who} <b>${txt}</b>`;
       c.classList.toggle("low", left <= 10);
+      document.querySelectorAll(".vd-tm").forEach((t) => { t.textContent = "⏱ " + txt; t.classList.toggle("low", left <= 10); });
     };
     upd(); clockIv = setInterval(upd, 250);
   }
@@ -5479,9 +5497,22 @@ function vallee(stage, hud) {
         c.innerHTML = seen ? vdIcon(f.r) : "";
         c.style.left = a.x - 18 + "px"; c.style.top = a.y - 24 + "px";
         document.body.appendChild(c);
-        const delay = (k++) * 90;
-        setTimeout(() => { c.style.transform = `translate(${b.x - a.x}px, ${b.y - a.y}px) rotate(8deg)`; }, 30 + delay);
-        setTimeout(() => c.remove(), 900 + delay);
+        const dx = b.x - a.x, dy = b.y - a.y, delay = (k++) * (f.tile != null ? 220 : 90);
+        if (f.tile != null && c.animate) {   // sortie de la case bien visible, puis glissade
+          c.style.opacity = "0";
+          const an = c.animate([
+            { transform: "translate(0, 0) scale(.3)", opacity: 0 },
+            { transform: "translate(0, -14px) scale(1.25)", opacity: 1, offset: .2 },
+            { transform: "translate(0, -14px) scale(1.15)", opacity: 1, offset: .42 },
+            { transform: `translate(${dx}px, ${dy}px) scale(.85) rotate(8deg)`, opacity: 1, offset: .95 },
+            { transform: `translate(${dx}px, ${dy}px) scale(.6) rotate(8deg)`, opacity: 0 }
+          ], { duration: 1700, delay, easing: "ease-in-out", fill: "both" });
+          an.onfinish = () => c.remove();
+          setTimeout(() => c.remove(), 2600 + delay);
+        } else {
+          setTimeout(() => { c.style.transform = `translate(${dx}px, ${dy}px) rotate(8deg)`; }, 30 + delay);
+          setTimeout(() => c.remove(), 900 + delay);
+        }
       }
     });
   }
@@ -5579,10 +5610,14 @@ function vallee(stage, hud) {
   }
 
   /* ---------- fenêtres du bas ---------- */
+  function handStrip() {
+    const P = st && st.phase !== "over" && st.players[ME]; if (!P || !P.res) return "";
+    return `<div class="vd-mine" aria-label="Tes cartes"><span>Ta main</span>${RES.map((r) => `<span class="vd-mc${P.res[r] ? "" : " zero"}" style="background:${VDO_TCOL[r]}" aria-label="${P.res[r]} ${V.RES_NOM[r]}">${vdIcon(r)}<b>${P.res[r]}</b></span>`).join("")}</div>`;
+  }
   function openSheet(html, onBind, onClose) {
     if (sheet) { sheet._onClose = null; sheet.remove(); sheet = null; }
     sheet = document.createElement("div"); sheet.className = "vd-sheet";
-    sheet.innerHTML = `<div class="vd-sheet-box" role="dialog" aria-modal="true">${html}</div>`;
+    sheet.innerHTML = `<div class="vd-sheet-box" role="dialog" aria-modal="true">${handStrip()}${html}</div>`;
     sheet._onClose = onClose;
     document.body.appendChild(sheet);
     sheet.addEventListener("click", (e) => { if (e.target === sheet && sheet.dataset.close !== "no") closeSheet(); });
