@@ -787,6 +787,83 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 @keyframes vdToast { 0% { opacity: 0; transform: translate(-50%, -8px); } 8%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
 
 /* VDO-CSS-END */
+/* DRAC-CSS-START */
+/* Le Drac : plateau incliné, pions en relief, fiche de case agrandie */
+.dr-setup .dr-roster { display: flex; flex-direction: column; gap: 8px; }
+.dr-row { display: flex; align-items: center; gap: 8px; }
+.dr-row .mo-input { flex: 1; min-width: 0; }
+.dr-pick { flex: none; width: 54px; height: 58px; border-radius: 14px; border: 2px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); display: grid; place-items: center; padding: 0; cursor: pointer; }
+.dr-pick:active { transform: scale(.96); }
+.dr-del { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(0,0,0,.25); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+.dr-del-ph { flex: none; width: 34px; }
+.dr-sheet { position: fixed; inset: 0; z-index: 60; background: rgba(4,20,22,.72); display: flex; align-items: flex-end; justify-content: center; animation: drFade .2s ease; }
+.dr-sheet.card { align-items: center; padding: 14px; }
+.dr-sheet-box { width: min(520px, 100%); max-height: 92vh; overflow: auto; background: var(--bg-2); color: var(--ink); border-radius: 22px 22px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -10px 40px rgba(0,0,0,.4); }
+.dr-sheet.card .dr-sheet-box { border-radius: 22px; width: min(420px, 100%); }
+.dr-sheet-box h3 { margin: 0; font-family: var(--display); color: var(--gold); font-weight: 400; font-size: 24px; }
+.dr-sheet-box p { margin: 0; }
+@keyframes drFade { from { opacity: 0; } }
+.dr-pions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.dr-pion { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; border-radius: 14px; border: 2px solid transparent; background: rgba(255,255,255,.06); color: var(--ink); cursor: pointer; font: inherit; }
+.dr-pion small { font-size: 11px; line-height: 1.1; text-align: center; color: var(--muted); }
+.dr-pion.on { border-color: var(--gold); }
+.dr-pion:disabled { opacity: .28; cursor: default; }
+
+/* plateau */
+.dr-game { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.dr-view { position: relative; width: 100%; height: 60vh; overflow: hidden; border-radius: 18px; background: radial-gradient(ellipse at 50% 35%, rgba(255,214,140,.18) 0%, rgba(0,0,0,0) 60%), repeating-linear-gradient(92deg, #5b3a22 0 18px, #553620 18px 34px, #603d24 34px 52px); perspective: 900px; perspective-origin: 50% 20%; touch-action: none; }
+.dr-cam { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform-style: preserve-3d; will-change: transform; }
+.dr-board { position: relative; transform-style: preserve-3d; background: #f3e6c4; border-radius: 20px; box-shadow: 0 0 0 10px #7a4a24, 0 0 0 16px #5a3418, 0 40px 60px rgba(0,0,0,.45); }
+.dr-case { position: absolute; box-sizing: border-box; padding: 4px; }
+.dr-case img { width: 100%; height: 100%; display: block; object-fit: cover; border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(0,0,0,.15), 0 2px 0 rgba(0,0,0,.25); pointer-events: none; user-select: none; }
+.dr-case .dr-ct { position: absolute; left: 6px; right: 6px; top: 6px; padding: 3px 3px 2px; border-radius: 8px 8px 4px 4px; background: rgba(255,255,255,.88); color: #23170c; font: 800 12.5px/1.05 var(--body); text-align: center; text-transform: uppercase; letter-spacing: .01em; }
+.dr-case .dr-cn { position: absolute; right: 8px; bottom: 7px; min-width: 20px; height: 20px; border-radius: 10px; background: rgba(35,23,12,.78); color: #fff; font: 700 12px/20px var(--num); text-align: center; padding: 0 4px; }
+.dr-case.big .dr-ct { font-size: 15px; }
+.dr-case.hit img { box-shadow: 0 0 0 4px var(--gold), 0 0 18px var(--gold); }
+.dr-center { position: absolute; box-sizing: border-box; padding: 10px; display: grid; place-items: center; }
+.dr-center span { width: 100%; height: 100%; display: grid; place-items: center; text-align: center; border-radius: 18px; background: repeating-linear-gradient(45deg, #e9d6a6 0 14px, #e2cc96 14px 28px); color: #7a2a1c; font: 400 92px/0.95 var(--display); box-shadow: inset 0 0 0 4px rgba(122,42,28,.3); }
+.dr-pawn { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; z-index: 5; pointer-events: none; }
+.dr-stand { position: absolute; left: -27px; bottom: -6px; transform-origin: 50% 100%; filter: drop-shadow(0 4px 2px rgba(0,0,0,.25)); }
+.dr-pawn.done .dr-stand { opacity: .8; }
+.dr-ov { position: absolute; right: 8px; top: 8px; border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(0,0,0,.35); color: var(--ink); font: 600 13px var(--body); cursor: pointer; }
+.dr-join { border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(255,255,255,.14); color: var(--ink); font: 600 14px var(--body); cursor: pointer; }
+
+/* barre du bas */
+.dr-bar { display: flex; flex-direction: column; gap: 8px; min-height: 104px; }
+.dr-who { display: flex; align-items: center; gap: 8px; font-size: 18px; }
+.dr-who svg { flex: none; }
+.dr-roll { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.dr-die { display: inline-block; }
+.dr-face { width: 38px; height: 38px; border-radius: 9px; background: #fff; box-shadow: inset 0 -3px 0 #d9d2c2; display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px; box-sizing: border-box; gap: 1px; }
+.dr-face i { display: block; border-radius: 50%; margin: 1px; }
+.dr-face i.on { background: #23170c; }
+.dr-die.rolling .dr-face { animation: drShake .12s linear infinite; }
+.dr-die.land .dr-face { animation: drLand .35s ease; }
+@keyframes drShake { 0% { transform: rotate(-14deg); } 50% { transform: rotate(14deg) translateY(-3px); } 100% { transform: rotate(-14deg); } }
+@keyframes drLand { 0% { transform: scale(1.5); } 100% { transform: scale(1); } }
+
+/* fiche de case */
+.dr-card { display: flex; flex-direction: column; gap: 10px; }
+.dr-img { position: relative; width: 100%; aspect-ratio: 1; border-radius: 18px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.35); transform-origin: 50% 50%; }
+.dr-img img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.dr-img .dr-ct { position: absolute; left: 4%; right: 4%; top: 4%; padding: 8px 6px 6px; border-radius: 14px 14px 8px 8px; background: rgba(255,255,255,.9); color: #23170c; font: 400 clamp(22px, 7vw, 32px)/1 var(--display); text-align: center; text-transform: uppercase; }
+.dr-who-small { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; }
+.dr-rule { font-size: 19px; line-height: 1.3; }
+.dr-choose { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dr-pl { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 14px; border: 2px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: var(--ink); font: 600 15px var(--body); cursor: pointer; text-align: left; }
+.dr-pl span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dr-pl small { color: var(--muted); font-weight: 400; }
+
+/* fin */
+.dr-podium { display: flex; justify-content: center; align-items: flex-end; gap: 10px; margin: 8px 0; }
+.dr-step { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.dr-step b { font-size: 16px; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dr-step span { width: 86px; display: grid; place-items: center; background: var(--bg-3); border-radius: 10px 10px 0 0; font: 400 32px var(--num); color: var(--gold); }
+.dr-step.s1 span { height: 96px; } .dr-step.s2 span { height: 66px; } .dr-step.s3 span { height: 46px; }
+@media (prefers-reduced-motion: reduce) { .dr-die.rolling .dr-face, .dr-die.land .dr-face { animation: none; } }
+.dr-card .btn, .dr-bar .btn, .dr-sheet-box .btn { flex: none; min-height: 54px; height: auto; }
+
+/* DRAC-CSS-END */
 </style>
 
 <div id="app">
@@ -854,7 +931,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <button class="hn" id="go-livre" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6h9a3 3 0 0 1 3 3v17a2.5 2.5 0 0 0-2.5-2.5H6zM26 6h-5a3 3 0 0 0-3 3v17a2.5 2.5 0 0 1 2.5-2.5H26z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Livre d'or</b><small>Laisse un mot au Comité</small></span><span class="hn-go" aria-hidden="true">›</span></button>
       <button class="hn" id="go-membres" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="14" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 14v-4a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="21" r="2" fill="currentColor"/></svg><span class="hn-t"><b>Espace membres</b></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
-    <p class="app-ver" id="app-ver">v121</p>
+    <p class="app-ver" id="app-ver">v122</p>
   </section>
   <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
     <div class="modal-box inst-box">
@@ -6789,10 +6866,443 @@ function justeDes(stage, hud) {
   return () => { timers.forEach(clearInterval); };
 }
 /* Jeux à boire : leur propre menu, et le message de prévention avant chaque partie */
+/* DRAC-JS-START */
+/* =========================================================
+   Jeux à boire : Le Drac
+   Un jeu de l'oie à boire : 40 cases en escargot, un dé, des pions qui sautillent de case en case.
+   Un seul téléphone pour tous. Le plateau est légèrement incliné et la caméra suit le joueur.
+   ========================================================= */
+const DRAC = (() => {
+  // Textes des cases : premier jet à corriger par Hugo. « n » : le nom n'est pas affiché sur la case.
+  const T = {
+    depart: { t: "Départ", r: "C'est parti ! Chacun lance le dé à son tour." },
+    "plus-jeune": { t: "Le plus jeune boit", r: "Le plus jeune de la table boit 2 gorgées." },
+    "donne-2": { t: "Donne 2 gorgées", r: "Distribue 2 gorgées à qui tu veux." },
+    invente: { t: "Invente une règle", r: "Invente une règle que tout le monde devra respecter jusqu'à la fin de la partie." },
+    rejoue: { t: "Rejoue", r: "Relance le dé et avance encore !" },
+    "gorgee-peuple": { t: "Gorgée du peuple", r: "Tout le monde lève son verre et boit une gorgée." },
+    kmk: { t: "Kiss / marry / kill", n: true, r: "Kiss, marry, kill ! Le joueur à ta gauche te donne trois noms : tu choisis qui tu embrasses, qui tu épouses et qui tu tues." },
+    "jai-deja": { t: "J'ai déjà", r: "Dis une chose que tu as déjà faite. Ceux qui ne l'ont jamais faite boivent une gorgée." },
+    "donne-3": { t: "Donne 3 gorgées", r: "Distribue 3 gorgées à qui tu veux." },
+    rime: { t: "Jeu de la rime", r: "Dis un mot. Chacun son tour, trouvez un mot qui rime. Le premier qui sèche ou qui répète un mot boit 2 gorgées." },
+    filles: { t: "Les filles boivent", r: "Toutes les filles boivent une gorgée." },
+    douane: { t: "Arrivée en cours de jeu", n: true, r: "Douane ! Si tu viens de rejoindre la partie, paie ton entrée : bois 3 gorgées. Si tu tombes ici en jouant, distribue 3 gorgées." },
+    shifumi: { t: "Shi-fu-mi", r: "Défie le joueur de ton choix au shi-fu-mi, en une manche. Le perdant boit 2 gorgées." },
+    "bois-2": { t: "Bois 2 gorgées", r: "Bois 2 gorgées." },
+    miroir: { t: "Miroir", r: "Choisis un joueur : vous devenez le reflet l'un de l'autre. Jusqu'à ce que quelqu'un tombe sur « Fin du miroir », quand l'un boit, l'autre boit aussi." },
+    "bois-3": { t: "Bois 3 gorgées", r: "Bois 3 gorgées." },
+    recule: { t: "Recule de 3 cases", r: "Recule de 3 cases." },
+    "echange-verre": { t: "Échange ton verre", r: "Échange ton verre avec le joueur de ton choix." },
+    "le-21": { t: "Le 21", r: "Comptez jusqu'à 21 à tour de rôle, en commençant par toi. Celui qui se trompe boit 2 gorgées et on recommence. Celui qui dit 21 remplace un nombre par un geste ou un mot de son choix, et on recommence." },
+    "sauf-toi": { t: "Tout le monde boit sauf toi", r: "Tout le monde boit une gorgée, sauf toi." },
+    garcons: { t: "Les garçons boivent", r: "Tous les garçons boivent une gorgée." },
+    interdit: { t: "Interdit de dire « boire »", r: "Jusqu'à la fin de la partie, interdit de dire le verbe « boire ». Celui qui le dit boit une gorgée." },
+    jamais: { t: "Je n'ai jamais", r: "Dis une chose que tu n'as jamais faite. Ceux qui l'ont déjà faite boivent une gorgée." },
+    retour: { t: "Retour à la case départ", r: "Pas de chance : retour à la case départ !" },
+    "tu-preferes": { t: "Tu préfères ?", r: "Pose une question « Tu préfères… ? » à la table. Ceux qui sont dans la minorité boivent une gorgée." },
+    "fin-miroir": { t: "Fin du miroir", r: "Le miroir est cassé : la règle du miroir s'arrête." },
+    "echange-pion": { t: "Échange ton pion", r: "Choisis un joueur : vous échangez vos places sur le plateau." },
+    theme: { t: "Jeu du thème", r: "Choisis un thème (marques de bière, pays, chanteurs…). Chacun son tour, citez un mot du thème. Le premier qui sèche ou qui répète boit 2 gorgées." },
+    pouce: { t: "Bataille de pouce", r: "Défie le joueur de ton choix en bataille de pouce. Le perdant boit 2 gorgées." },
+    "plus-vieux": { t: "Le plus vieux boit", r: "Le plus âgé de la table boit 2 gorgées." },
+    "cul-sec": { t: "Cul sec", r: "Cul sec ! Termine ton verre." },
+    arrivee: { t: "Arrivée", r: "Bravo, tu as terminé la course !" }
+  };
+  // Ordre des cases validé par Hugo (0 = Départ, 39 = Arrivée)
+  const ORDER = ["depart", "plus-jeune", "donne-2", "invente", "rejoue", "gorgee-peuple", "kmk", "jai-deja", "donne-3", "rime",
+    "filles", "douane", "shifumi", "bois-2", "miroir", "bois-3", "recule", "donne-2", "echange-verre", "le-21",
+    "sauf-toi", "rejoue", "garcons", "donne-3", "interdit", "jamais", "retour", "gorgee-peuple", "tu-preferes", "fin-miroir",
+    "bois-3", "echange-pion", "invente", "recule", "theme", "pouce", "donne-3", "plus-vieux", "cul-sec", "arrivee"];
+  const CASES = ORDER.map((k, i) => ({ i, k, img: `images/drac/${k}.webp`, ...T[k] }));
+  const LAST = CASES.length - 1, DOUANE = ORDER.indexOf("douane"), FINISH_AT = 3;
+  // Escargot de 7 × 7 cases : le tour extérieur (24 cases) puis le tour intérieur (16 cases), le centre reste libre
+  const COLS = 7, ROWS = 7;
+  const SPIRAL = (() => {
+    const seen = new Set(), out = [];
+    let c = 0, r = ROWS - 1, dirs = [[1, 0], [0, -1], [-1, 0], [0, 1]], d = 0;
+    while (out.length < CASES.length) {
+      out.push({ c, r }); seen.add(c + "," + r);
+      for (let k = 0; k < 4; k++) {
+        const nc = c + dirs[d][0], nr = r + dirs[d][1];
+        if (nc >= 0 && nc < COLS && nr >= 0 && nr < ROWS && !seen.has(nc + "," + nr)) { c = nc; r = nr; break; }
+        d = (d + 1) % 4;
+      }
+    }
+    return out;
+  })();
+  // Chemin case par case pour un lancer : il faut tomber pile sur l'Arrivée, sinon on recule de l'excédent
+  function path(from, n) {
+    const steps = []; let p = from, dir = 1;
+    for (let k = 0; k < n; k++) { if (p === LAST) dir = -1; p += dir; steps.push(p); }
+    return steps;
+  }
+  const PIONS = [{"id": "ours", "name": "L'ours", "c": "#e01e37", "d": "#7d0f1f", "fig": "<path d=\"M28 100 C24 82 28 68 40 62 C48 57 62 57 69 63 C78 71 78 88 73 100 Z\" fill=\"#5a3a22\" stroke=\"#241408\" stroke-width=\"2\"/><circle cx=\"32\" cy=\"32\" r=\"6.5\" fill=\"#4a2f1a\" stroke=\"#241408\" stroke-width=\"1.8\"/><circle cx=\"68\" cy=\"32\" r=\"6.5\" fill=\"#4a2f1a\" stroke=\"#241408\" stroke-width=\"1.8\"/><circle cx=\"32\" cy=\"32\" r=\"2.8\" fill=\"#8a5a3a\"/><circle cx=\"68\" cy=\"32\" r=\"2.8\" fill=\"#8a5a3a\"/><path d=\"M50 27 C66 27 74 38 72 50 C71 58 64 63 60 66 C56 70 44 70 40 66 C36 63 29 58 28 50 C26 38 34 27 50 27 Z\" fill=\"#6b4428\" stroke=\"#241408\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M37 41 C40 38 45 38 47 40.5 M63 41 C60 38 55 38 53 40.5\" stroke=\"#4a2f1a\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/><ellipse cx=\"50\" cy=\"58\" rx=\"10\" ry=\"7.5\" fill=\"#b08458\"/><path d=\"M45.5 55 C45.5 52.5 54.5 52.5 54.5 55 C54.5 57.5 52 58.5 50 58.5 C48 58.5 45.5 57.5 45.5 55 Z\" fill=\"#1d1d1d\"/><path d=\"M50 58.5 V61 M47 62 Q50 63.5 53 62\" stroke=\"#1d1d1d\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"41.5\" cy=\"46\" r=\"2.2\" fill=\"#1d1d1d\"/><circle cx=\"58.5\" cy=\"46\" r=\"2.2\" fill=\"#1d1d1d\"/><circle cx=\"42.1\" cy=\"45.4\" r=\".6\" fill=\"#ffffff\"/><circle cx=\"59.1\" cy=\"45.4\" r=\".6\" fill=\"#ffffff\"/>"}, {"id": "mouton", "name": "Le mouton", "c": "#2b6cb0", "d": "#153a62", "fig": "<circle cx=\"34\" cy=\"84\" r=\"13\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"2\"/><circle cx=\"66\" cy=\"84\" r=\"13\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"2\"/><circle cx=\"42\" cy=\"94\" r=\"12\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"2\"/><circle cx=\"58\" cy=\"94\" r=\"12\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"2\"/><circle cx=\"50\" cy=\"80\" r=\"15\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"2\"/><ellipse cx=\"33\" cy=\"54\" rx=\"9\" ry=\"4\" transform=\"rotate(-20 33 54)\" fill=\"#3b3127\"/><ellipse cx=\"67\" cy=\"54\" rx=\"9\" ry=\"4\" transform=\"rotate(20 67 54)\" fill=\"#3b3127\"/><ellipse cx=\"50\" cy=\"56\" rx=\"12\" ry=\"15\" fill=\"#3b3127\"/><circle cx=\"45\" cy=\"52\" r=\"2.6\" fill=\"#fff\"/><circle cx=\"55\" cy=\"52\" r=\"2.6\" fill=\"#fff\"/><path d=\"M46 64 Q50 67 54 64\" stroke=\"#fff\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"43\" cy=\"40\" r=\"7\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"1.6\"/><circle cx=\"57\" cy=\"40\" r=\"7\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"1.6\"/><circle cx=\"50\" cy=\"36\" r=\"8\" fill=\"#fbf7ee\" stroke=\"#8a7a5e\" stroke-width=\"1.6\"/>"}, {"id": "drac", "name": "Le drac", "c": "#f2c418", "d": "#8a6d06", "fig": "<path d=\"M33 72 L14 58 L20 76 L12 80 L32 86 Z\" fill=\"#2f7d3b\" stroke=\"#173d1f\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M67 72 L86 58 L80 76 L88 80 L68 86 Z\" fill=\"#2f7d3b\" stroke=\"#173d1f\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M50 62 C70 62 72 98 50 100 C28 98 30 62 50 62 Z\" fill=\"#3fa34d\" stroke=\"#173d1f\" stroke-width=\"2\"/><ellipse cx=\"50\" cy=\"86\" rx=\"9\" ry=\"11\" fill=\"#b8e07a\"/><path d=\"M37 36 L30 15 L45 31 Z\" fill=\"#f5ecd7\" stroke=\"#173d1f\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M63 36 L70 15 L55 31 Z\" fill=\"#f5ecd7\" stroke=\"#173d1f\" stroke-width=\"2\" stroke-linejoin=\"round\"/><circle cx=\"50\" cy=\"45\" r=\"20\" fill=\"#49b85a\" stroke=\"#173d1f\" stroke-width=\"2\"/><ellipse cx=\"50\" cy=\"56\" rx=\"12\" ry=\"8\" fill=\"#5cc96b\" stroke=\"#173d1f\" stroke-width=\"1.5\"/><circle cx=\"46\" cy=\"55\" r=\"1.6\" fill=\"#173d1f\"/><circle cx=\"54\" cy=\"55\" r=\"1.6\" fill=\"#173d1f\"/><ellipse cx=\"42\" cy=\"41\" rx=\"4.5\" ry=\"5\" fill=\"#ffd23f\" stroke=\"#173d1f\" stroke-width=\"1.2\"/><ellipse cx=\"58\" cy=\"41\" rx=\"4.5\" ry=\"5\" fill=\"#ffd23f\" stroke=\"#173d1f\" stroke-width=\"1.2\"/><rect x=\"41.2\" y=\"37.5\" width=\"1.6\" height=\"7\" rx=\".8\" fill=\"#1d1d1d\"/><rect x=\"57.2\" y=\"37.5\" width=\"1.6\" height=\"7\" rx=\".8\" fill=\"#1d1d1d\"/>"}, {"id": "cerf", "name": "Le cerf", "c": "#1fb5ad", "d": "#0e5f5b", "fig": "<ellipse cx=\"50\" cy=\"88\" rx=\"18\" ry=\"15\" fill=\"#9a6a3e\" stroke=\"#3a2414\" stroke-width=\"2\"/><path d=\"M42 32 C38 22 32 17 27 9 M35 23 L23 22 M30 15 L35 7\" stroke=\"#8a6a4a\" stroke-width=\"4.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M58 32 C62 22 68 17 73 9 M65 23 L77 22 M70 15 L65 7\" stroke=\"#8a6a4a\" stroke-width=\"4.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><ellipse cx=\"33\" cy=\"42\" rx=\"9\" ry=\"4.2\" transform=\"rotate(-25 33 42)\" fill=\"#a8743f\" stroke=\"#3a2414\" stroke-width=\"1.5\"/><ellipse cx=\"67\" cy=\"42\" rx=\"9\" ry=\"4.2\" transform=\"rotate(25 67 42)\" fill=\"#a8743f\" stroke=\"#3a2414\" stroke-width=\"1.5\"/><path d=\"M50 30 C64 30 66 46 60 62 C57 70 43 70 40 62 C34 46 36 30 50 30 Z\" fill=\"#b07a44\" stroke=\"#3a2414\" stroke-width=\"2\"/><ellipse cx=\"50\" cy=\"63\" rx=\"8\" ry=\"6\" fill=\"#e3c8a4\"/><ellipse cx=\"50\" cy=\"61\" rx=\"4\" ry=\"2.8\" fill=\"#1d1d1d\"/><circle cx=\"43\" cy=\"46\" r=\"2.8\" fill=\"#1d1d1d\"/><circle cx=\"57\" cy=\"46\" r=\"2.8\" fill=\"#1d1d1d\"/><circle cx=\"43.8\" cy=\"45.2\" r=\".9\" fill=\"#fff\"/><circle cx=\"57.8\" cy=\"45.2\" r=\".9\" fill=\"#fff\"/><path d=\"M42 76 Q50 82 58 76 L56 86 Q50 89 44 86 Z\" fill=\"#f1e4cf\"/>"}, {"id": "bouteille", "name": "La bouteille de vin", "c": "#f4f4f4", "d": "#8f8f8f", "fig": "<path d=\"M44 14 H56 V30 C56 36 66 40 66 50 V94 C66 97 34 97 34 94 V50 C34 40 44 36 44 30 Z\" fill=\"#1f4d2b\" stroke=\"#0d2414\" stroke-width=\"2\" stroke-linejoin=\"round\"/><rect x=\"43\" y=\"10\" width=\"14\" height=\"13\" rx=\"2\" fill=\"#8e1b2d\" stroke=\"#4a0d16\" stroke-width=\"1.5\"/><rect x=\"37\" y=\"58\" width=\"26\" height=\"24\" rx=\"2\" fill=\"#f5ecd7\" stroke=\"#8a7a5e\" stroke-width=\"1.5\"/><path d=\"M41 65 H59 M43 71 H57 M45 76 H55\" stroke=\"#8e1b2d\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M39 48 C38 60 38 80 39 90\" stroke=\"#6fae7d\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".8\"/>"}, {"id": "verre", "name": "Le verre de vin", "c": "#8bd450", "d": "#4a7f22", "fig": "<path d=\"M32 22 L68 22 C68 48 62 58 50 60 C38 58 32 48 32 22 Z\" fill=\"#eef6fa\" stroke=\"#5a2a2a\" stroke-width=\"2\"/><path d=\"M33.4 36 L66.6 36 C65 50 60 57 50 58 C40 57 35 50 33.4 36 Z\" fill=\"#8e1b2d\"/><path d=\"M38 26 C37 36 39 44 42 48\" stroke=\"#fff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" opacity=\".9\"/><rect x=\"47.5\" y=\"60\" width=\"5\" height=\"32\" fill=\"#e8eef2\" stroke=\"#5a2a2a\" stroke-width=\"1.5\"/><ellipse cx=\"50\" cy=\"94\" rx=\"15\" ry=\"4.5\" fill=\"#e8eef2\" stroke=\"#5a2a2a\" stroke-width=\"1.5\"/>"}, {"id": "pinte", "name": "La pinte", "c": "#7b4bb3", "d": "#3f2560", "fig": "<path d=\"M66 46 C82 46 82 78 66 78\" stroke=\"#c8d3d9\" stroke-width=\"7\" fill=\"none\"/><rect x=\"32\" y=\"36\" width=\"36\" height=\"60\" rx=\"5\" fill=\"#f2b51d\" stroke=\"#7a5408\" stroke-width=\"2\"/><path d=\"M41 46 V88 M50 46 V88 M59 46 V88\" stroke=\"#ffd65a\" stroke-width=\"2.5\" stroke-linecap=\"round\"/><circle cx=\"40\" cy=\"58\" r=\"1.6\" fill=\"#fff6c8\"/><circle cx=\"55\" cy=\"70\" r=\"1.4\" fill=\"#fff6c8\"/><circle cx=\"46\" cy=\"80\" r=\"1.8\" fill=\"#fff6c8\"/><circle cx=\"36\" cy=\"34\" r=\"8\" fill=\"#fff\" stroke=\"#cfcfcf\" stroke-width=\"1.5\"/><circle cx=\"62\" cy=\"33\" r=\"9\" fill=\"#fff\" stroke=\"#cfcfcf\" stroke-width=\"1.5\"/><circle cx=\"49\" cy=\"29\" r=\"10\" fill=\"#fff\" stroke=\"#cfcfcf\" stroke-width=\"1.5\"/><circle cx=\"70\" cy=\"39\" r=\"5\" fill=\"#fff\" stroke=\"#cfcfcf\" stroke-width=\"1.5\"/>"}, {"id": "fromage", "name": "Le fromage", "c": "#1b1b1b", "d": "#000000", "fig": "<path d=\"M20 62 L80 49 L80 86 L20 97 Z\" fill=\"#f6c945\" stroke=\"#8a6a12\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M20 62 L48 34 L80 49 Z\" fill=\"#fde38a\" stroke=\"#8a6a12\" stroke-width=\"2\" stroke-linejoin=\"round\"/><circle cx=\"36\" cy=\"79\" r=\"5\" fill=\"#d9a521\"/><circle cx=\"58\" cy=\"70\" r=\"6\" fill=\"#d9a521\"/><circle cx=\"68\" cy=\"84\" r=\"4\" fill=\"#d9a521\"/><circle cx=\"28\" cy=\"89\" r=\"3\" fill=\"#d9a521\"/><ellipse cx=\"52\" cy=\"47\" rx=\"4\" ry=\"2.4\" fill=\"#e8bf3a\"/>"}, {"id": "sapin", "name": "Le sapin", "c": "#e8862a", "d": "#7c430f", "fig": "<rect x=\"46\" y=\"82\" width=\"8\" height=\"16\" fill=\"#6b4226\" stroke=\"#2a1608\" stroke-width=\"1.5\"/><path d=\"M50 14 L66 40 H58 L72 60 H62 L78 84 H22 L38 60 H28 L42 40 H34 Z\" fill=\"#2f8f4e\" stroke=\"#123d20\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M50 22 L44 38 M50 46 L40 58 M52 66 L38 80\" stroke=\"#5cc06e\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>"}, {"id": "cepe", "name": "Le cèpe", "c": "#e66aa8", "d": "#8a2f5c", "fig": "<path d=\"M40 98 C38 82 40 66 44 58 L56 58 C60 66 62 82 60 98 Z\" fill=\"#efe3c8\" stroke=\"#7a6346\" stroke-width=\"2\"/><path d=\"M16 60 C16 26 84 26 84 60 C70 67 30 67 16 60 Z\" fill=\"#8b4a22\" stroke=\"#4a2412\" stroke-width=\"2\"/><ellipse cx=\"38\" cy=\"40\" rx=\"11\" ry=\"5\" fill=\"#b56a3a\" opacity=\".8\"/>"}, {"id": "loup", "name": "Le loup", "c": "#2f8f4e", "d": "#174a28", "fig": "<ellipse cx=\"50\" cy=\"88\" rx=\"20\" ry=\"15\" fill=\"#6b7280\" stroke=\"#2b2f36\" stroke-width=\"2\"/><path d=\"M33 44 L29 18 L47 33 Z\" fill=\"#5b616b\" stroke=\"#2b2f36\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M67 44 L71 18 L53 33 Z\" fill=\"#5b616b\" stroke=\"#2b2f36\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M34 38 L32 25 L41 33 Z\" fill=\"#d8c8b4\"/><path d=\"M66 38 L68 25 L59 33 Z\" fill=\"#d8c8b4\"/><path d=\"M50 30 C66 30 73 44 68 56 L58 73 C54 77 46 77 42 73 L32 56 C27 44 34 30 50 30 Z\" fill=\"#8a919c\" stroke=\"#2b2f36\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M38 57 L50 76 L62 57 C57 62 43 62 38 57 Z\" fill=\"#e5e7eb\"/><path d=\"M36.5 46 C40 42.5 45 43 47 47 C44 50 39.5 50 36.5 46 Z\" fill=\"#f0a830\" stroke=\"#2b2f36\" stroke-width=\"1.3\" stroke-linejoin=\"round\"/><path d=\"M63.5 46 C60 42.5 55 43 53 47 C56 50 60.5 50 63.5 46 Z\" fill=\"#f0a830\" stroke=\"#2b2f36\" stroke-width=\"1.3\" stroke-linejoin=\"round\"/><ellipse cx=\"42.2\" cy=\"46.4\" rx=\"1.7\" ry=\"2.3\" fill=\"#1d1d1d\"/><ellipse cx=\"57.8\" cy=\"46.4\" rx=\"1.7\" ry=\"2.3\" fill=\"#1d1d1d\"/><circle cx=\"42.8\" cy=\"45.6\" r=\".6\" fill=\"#ffffff\"/><circle cx=\"58.4\" cy=\"45.6\" r=\".6\" fill=\"#ffffff\"/><path d=\"M35.5 42 L46 44 M64.5 42 L54 44\" stroke=\"#2b2f36\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><ellipse cx=\"50\" cy=\"71\" rx=\"4.5\" ry=\"3.2\" fill=\"#1d1d1d\"/>"}, {"id": "fusee", "name": "La fusée", "c": "#8b5a2b", "d": "#4a2c12", "fig": "<path d=\"M42 82 Q50 104 58 82 Z\" fill=\"#ffb238\"/><path d=\"M46 82 Q50 95 54 82 Z\" fill=\"#fff3b0\"/><path d=\"M38 62 L25 84 H39 Z\" fill=\"#e01e37\" stroke=\"#1d2a36\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M62 62 L75 84 H61 Z\" fill=\"#e01e37\" stroke=\"#1d2a36\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M50 12 C62 24 64 46 62 84 H38 C36 46 38 24 50 12 Z\" fill=\"#f4f4f4\" stroke=\"#1d2a36\" stroke-width=\"2\"/><path d=\"M50 12 C57 19 60 28 61 36 H39 C40 28 43 19 50 12 Z\" fill=\"#e01e37\" stroke=\"#1d2a36\" stroke-width=\"2\"/><circle cx=\"50\" cy=\"52\" r=\"6.5\" fill=\"#2b6cb0\" stroke=\"#1d2a36\" stroke-width=\"2\"/>"}];
+  return { CASES, ORDER, LAST, DOUANE, FINISH_AT, COLS, ROWS, SPIRAL, path, PIONS };
+})();
+
+function drac(stage, hud) {
+  const D = DRAC, C = 120;                       // côté d'une case, en pixels du plateau
+  const W = D.COLS * C, H = D.ROWS * C;
+  const saved = store.get("arbas-drac") || {};
+  let roster = Array.isArray(saved.roster) ? saved.roster.slice(0, 12) : [];
+  let G = null, busy = false, dead = false, timers = [], cam = { x: W / 2, y: H / 2, z: 1, tilt: 32 };
+  let SP = { hop: 330, pause: 650, zoom: 700 };
+  let uid = 0;
+  Music.stop();
+  const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const wait = (ms) => new Promise((res) => { const t = setTimeout(res, ms); timers.push(t); });
+  const pionOf = (id) => D.PIONS.find((p) => p.id === id) || D.PIONS[0];
+
+  // Pion en relief : socle cylindrique, ombre, éclairage de la figurine (planche validée)
+  function pionSvg(id, size) {
+    const p = pionOf(id), k = "dp" + (++uid);
+    return `<svg viewBox="0 0 100 118" width="${size}" height="${Math.round(size * 1.18)}" aria-hidden="true">`
+      + `<defs><filter id="bv${k}" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="b"/>`
+      + `<feDiffuseLighting in="b" surfaceScale="5" diffuseConstant="1.3" lighting-color="#ffffff" result="d"><feDistantLight azimuth="235" elevation="48"/></feDiffuseLighting>`
+      + `<feComposite in="d" in2="SourceAlpha" operator="in" result="dd"/><feBlend in="SourceGraphic" in2="dd" mode="multiply" result="m"/>`
+      + `<feSpecularLighting in="b" surfaceScale="5" specularConstant=".75" specularExponent="22" lighting-color="#ffffff" result="s"><fePointLight x="22" y="-20" z="80"/></feSpecularLighting>`
+      + `<feComposite in="s" in2="SourceAlpha" operator="in" result="sp"/><feComposite in="m" in2="sp" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/></filter>`
+      + `<linearGradient id="sd${k}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${p.d}"/><stop offset=".35" stop-color="${p.c}"/><stop offset=".6" stop-color="${p.c}"/><stop offset="1" stop-color="${p.d}"/></linearGradient></defs>`
+      + `<ellipse cx="54" cy="110" rx="40" ry="7" fill="#000" opacity=".3"/><path d="M16 98 V104 A34 9 0 0 0 84 104 V98 Z" fill="url(#sd${k})"/>`
+      + `<ellipse cx="50" cy="98" rx="34" ry="9" fill="${p.c}" stroke="${p.d}" stroke-width="1.2"/><g filter="url(#bv${k})">${p.fig}</g></svg>`;
+  }
+
+  /* ---------- réglages : prénoms et pions ---------- */
+  function setup(msg) {
+    hud.textContent = "";
+    if (!roster.length) roster = [{ name: "", pion: "ours" }, { name: "", pion: "mouton" }];
+    roster.forEach((r, i) => { if (!D.PIONS.some((p) => p.id === r.pion) || roster.findIndex((x) => x.pion === r.pion) !== i) r.pion = D.PIONS.find((p) => !roster.some((x) => x.pion === p.id)).id; });
+    const d = document.createElement("div"); d.className = "mo dr-setup";
+    d.innerHTML = `
+      <ul class="bo-rules">
+        <li>Chacun son tour, lance le dé et avance ton pion. La case où tu t'arrêtes dit qui boit, ou lance un petit jeu.</li>
+        <li>Il faut tomber <b>pile</b> sur l'Arrivée, sinon on recule de ce qui dépasse.</li>
+        <li>La partie s'arrête quand <b>${D.FINISH_AT} joueurs</b> sont arrivés.</li>
+      </ul>
+      <span class="pq-label">Les joueurs, dans l'ordre de la table</span>
+      <div class="dr-roster">${roster.map((r, i) => `<div class="dr-row" data-i="${i}">
+        <button type="button" class="dr-pick" data-i="${i}" aria-label="Changer le pion de ${esc(r.name || "Joueur " + (i + 1))} (${esc(pionOf(r.pion).name)})">${pionSvg(r.pion, 40)}</button>
+        <input class="mo-input" type="text" maxlength="16" autocomplete="off" autocapitalize="words" placeholder="Joueur ${i + 1}" value="${esc(r.name)}" data-i="${i}">
+        ${roster.length > 2 ? `<button type="button" class="dr-del" data-i="${i}" aria-label="Retirer ce joueur">×</button>` : '<span class="dr-del-ph"></span>'}
+      </div>`).join("")}</div>
+      ${roster.length < D.PIONS.length ? '<button type="button" class="btn ghost dr-add">+ Ajouter un joueur</button>' : ""}
+      <p class="mo-err" ${msg ? "" : "hidden"}>${esc(msg || "")}</p>
+      <button type="button" class="btn primary dr-go">Commencer</button>`;
+    stage.replaceChildren(d);
+    const keep = () => d.querySelectorAll(".dr-row input").forEach((el) => { roster[+el.dataset.i].name = el.value; });
+    d.querySelectorAll(".dr-pick").forEach((b) => b.addEventListener("click", () => { keep(); pickPion(+b.dataset.i); }));
+    d.querySelectorAll(".dr-del").forEach((b) => b.addEventListener("click", () => { keep(); roster.splice(+b.dataset.i, 1); setup(); }));
+    const add = d.querySelector(".dr-add");
+    if (add) add.addEventListener("click", () => { keep(); roster.push({ name: "", pion: D.PIONS.find((p) => !roster.some((x) => x.pion === p.id)).id }); setup(); });
+    d.querySelector(".dr-go").addEventListener("click", () => {
+      keep();
+      const list = roster.map((r, i) => ({ name: (r.name || "").trim() || `Joueur ${i + 1}`, pion: r.pion }));
+      const dup = list.find((p, i) => list.findIndex((q) => q.name.toLowerCase() === p.name.toLowerCase()) !== i);
+      if (dup) { setup(`Deux joueurs s'appellent « ${dup.name} ». Ajoutez une initiale pour les distinguer.`); return; }
+      roster = list.map((p) => ({ ...p })); store.set("arbas-drac", { roster });
+      start(list);
+    });
+  }
+  // Choix du pion : les pions déjà pris sont grisés
+  function pickPion(i, onPick) {
+    const taken = (G ? G.players.map((p) => p.pion) : roster.map((r) => r.pion));
+    const mine = onPick ? null : roster[i].pion;
+    sheet(`<h3>Choisis ton pion</h3><div class="dr-pions">${D.PIONS.map((p) => {
+      const off = taken.includes(p.id) && p.id !== mine;
+      return `<button type="button" class="dr-pion${p.id === mine ? " on" : ""}" data-id="${p.id}"${off ? " disabled" : ""}>${pionSvg(p.id, 54)}<small>${esc(p.name)}</small></button>`;
+    }).join("")}</div><button type="button" class="btn ghost" data-close>Fermer</button>`, (s) => {
+      s.querySelectorAll(".dr-pion").forEach((b) => b.addEventListener("click", () => {
+        closeSheet();
+        if (onPick) onPick(b.dataset.id); else { roster[i].pion = b.dataset.id; setup(); }
+      }));
+    });
+  }
+
+  /* ---------- fenêtres ---------- */
+  let sh = null;
+  function sheet(html, bind, opts = {}) {
+    closeSheet();
+    sh = document.createElement("div"); sh.className = "dr-sheet" + (opts.card ? " card" : "");
+    sh.innerHTML = `<div class="dr-sheet-box" role="dialog" aria-modal="true">${html}</div>`;
+    document.body.appendChild(sh);
+    sh.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", closeSheet));
+    if (!opts.locked) sh.addEventListener("click", (e) => { if (e.target === sh) closeSheet(); });
+    bind && bind(sh);
+    return sh;
+  }
+  function closeSheet() { if (sh) { sh.remove(); sh = null; } }
+
+  /* ---------- partie ---------- */
+  function start(list) {
+    G = { players: list.map((p) => ({ name: p.name, pion: p.pion, pos: 0, done: false })), turn: 0, ranks: [], over: false };
+    drawGame();
+    timers.push(setTimeout(() => turn(true), 300));
+  }
+  function drawGame() {
+    const d = document.createElement("div"); d.className = "dr-game";
+    d.innerHTML = `
+      <div class="dr-view" id="dr-view">
+        <div class="dr-cam" id="dr-cam">
+          <div class="dr-board" style="width:${W}px;height:${H}px">
+            ${D.CASES.map((c) => { const s = D.SPIRAL[c.i]; return `<div class="dr-case${c.i === 0 || c.i === D.LAST ? " big" : ""}" data-i="${c.i}" style="left:${s.c * C}px;top:${s.r * C}px;width:${C}px;height:${C}px">
+              <img src="${c.img}" alt="" loading="eager" draggable="false">${c.n ? "" : `<span class="dr-ct">${esc(c.t)}</span>`}<span class="dr-cn">${c.i}</span></div>`; }).join("")}
+            <div class="dr-center" style="left:${C * 2}px;top:${C * 2}px;width:${C * (D.COLS - 4)}px;height:${C * (D.ROWS - 4)}px"><span>Le<br>Drac</span></div>
+            ${G.players.map((p, i) => `<div class="dr-pawn" data-p="${i}"><div class="dr-stand">${pionSvg(p.pion, 54)}</div></div>`).join("")}
+          </div>
+        </div>
+        <button type="button" class="dr-ov" id="dr-ov" aria-label="Voir tout le plateau">Tout le plateau</button>
+      </div>
+      <div class="dr-bar" id="dr-bar"></div>`;
+    stage.replaceChildren(d);
+    hud.innerHTML = `<button type="button" class="dr-join" id="dr-join">+ Joueur</button>`;
+    $("dr-join").addEventListener("click", joinLate);
+    $("dr-ov").addEventListener("click", () => { if (!busy) overview(); });
+    fit();
+    G.players.forEach((p, i) => placePawn(i, false));
+    setCam(cam, false);
+  }
+  // Hauteur du plateau : tout l'espace libre de l'écran
+  function fit() {
+    const v = $("dr-view"); if (!v) return;
+    const top = v.getBoundingClientRect().top, bar = $("dr-bar");
+    v.style.height = Math.max(320, innerHeight - top - (bar ? bar.offsetHeight : 120) - 10) + "px";
+  }
+  // Position d'un pion dans sa case ; plusieurs pions sur la même case se rangent côte à côte
+  function spot(i) {
+    const p = G.players[i], s = D.SPIRAL[p.pos];
+    const here = G.players.map((q, j) => j).filter((j) => G.players[j].pos === p.pos);
+    const k = here.indexOf(i), m = here.length;
+    const cols = m <= 1 ? 1 : m <= 4 ? 2 : 3, rows = Math.ceil(m / cols);
+    const cx = (k % cols + .5) / cols, cy = (Math.floor(k / cols) + .5) / rows;
+    return { x: s.c * C + C * (m === 1 ? .5 : .18 + cx * .64), y: s.r * C + C * (m === 1 ? .62 : .3 + cy * .55) };
+  }
+  function placePawn(i, anim) {
+    const el = stage.querySelector(`.dr-pawn[data-p="${i}"]`); if (!el) return;
+    const q = spot(i);
+    el.style.transition = anim ? "transform .25s ease" : "none";
+    el.style.transform = `translate3d(${q.x}px, ${q.y}px, 0)`;
+    el.dataset.x = q.x; el.dataset.y = q.y;
+    el.classList.toggle("done", G.players[i].done);
+  }
+  const replaceAll = () => G.players.forEach((p, i) => placePawn(i, true));
+
+  /* ---------- caméra ---------- */
+  function setCam(c, smooth = true, ms) {
+    cam = { ...cam, ...c };
+    const v = $("dr-view"), el = $("dr-cam"); if (!v || !el) return;
+    el.style.transition = smooth ? `transform ${ms || SP.zoom}ms ease-in-out` : "none";
+    el.style.transform = `translate(${v.clientWidth / 2}px, ${v.clientHeight * .6}px) rotateX(${cam.tilt}deg) scale(${cam.z}) translate(${-cam.x}px, ${-cam.y}px)`;
+    stage.querySelectorAll(".dr-stand").forEach((s) => { s.style.transform = `rotateX(${-cam.tilt}deg)`; s.style.transition = el.style.transition; });
+  }
+  // En gros plan, la caméra ne sort pas du plateau : pas de grand vide de table sur les bords
+  function inBoard(x, y, z, tilt) {
+    const v = $("dr-view"), cos = Math.cos(tilt * Math.PI / 180);
+    const half = v.clientWidth / 2 / z;
+    x = half * 2 >= W ? W / 2 : clamp(x, half - 40, W - half + 40);
+    const below = v.clientHeight * .4 / (z * 1.35), above = v.clientHeight * .6 / (z * cos) * .75;
+    y = Math.max(Math.min(y, H - below + 16), Math.min(above, H / 2));
+    return { x, y };
+  }
+  function overviewZoom() { const v = $("dr-view"); return Math.min(v.clientWidth / W, v.clientHeight / (H * .86)) * .96; }
+  function overview(smooth = true) { setCam({ x: W / 2, y: H / 2 + 30, z: overviewZoom(), tilt: 30 }, smooth); }
+  // Zoom sur le joueur et le chemin devant lui (les 6 cases qu'un dé peut atteindre)
+  function focusPlayer(i, smooth = true) {
+    const p = G.players[i], ahead = D.path(p.pos, 3).pop() ?? p.pos;
+    const a = D.SPIRAL[p.pos], b = D.SPIRAL[ahead];
+    const v = $("dr-view"), z = Math.min(v.clientWidth / (C * 3.4), 1.6);
+    setCam({ ...inBoard(((a.c + b.c) / 2 + .5) * C, ((a.r + b.r) / 2 + .5) * C + 20, z, 42), z, tilt: 42 }, smooth);
+  }
+  const followCell = (pos, ms) => { const s = D.SPIRAL[pos]; setCam(inBoard((s.c + .5) * C, (s.r + .5) * C + 20, cam.z, cam.tilt), true, ms); };
+
+  /* ---------- tour de jeu ---------- */
+  const current = () => G.players[G.turn];
+  function bar(html) { const b = $("dr-bar"); if (b) { b.innerHTML = html; fit(); } }
+  async function turn(first) {
+    if (dead || G.over) return;
+    let guard = 0;
+    while (current().done && guard++ < 20) G.turn = (G.turn + 1) % G.players.length;
+    const p = current();
+    busy = true;
+    bar(`<div class="dr-who">${pionSvg(p.pion, 34)}<span>Au tour de <b>${esc(p.name)}</b></span></div>`);
+    if (!first) { overview(); await wait(SP.pause); }
+    focusPlayer(G.turn); await wait(SP.zoom);
+    busy = false;
+    bar(`<div class="dr-who">${pionSvg(p.pion, 34)}<span>Au tour de <b>${esc(p.name)}</b></span></div>
+      <button type="button" class="btn primary dr-roll" id="dr-roll"><span class="dr-die" id="dr-die">${dieFace(1 + Math.floor(Math.random() * 6))}</span>Lancer le dé</button>`);
+    $("dr-roll").addEventListener("click", () => roll());
+  }
+  function dieFace(v) {
+    const P = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] }[v];
+    return `<span class="dr-face" aria-label="${v}">${Array.from({ length: 9 }, (_, k) => `<i${P.includes(k) ? ' class="on"' : ""}></i>`).join("")}</span>`;
+  }
+  function fairDie() { const b = new Uint8Array(1); do { crypto.getRandomValues(b); } while (b[0] >= 252); return 1 + (b[0] % 6); }
+  let forced = [];   // tests : prochains résultats imposés
+  async function roll() {
+    if (busy || G.over) return;
+    busy = true;
+    const btn = $("dr-roll"), die = $("dr-die");
+    if (btn) btn.disabled = true;
+    for (let k = 0; k < 8; k++) { if (die) { die.innerHTML = dieFace(1 + Math.floor(Math.random() * 6)); die.classList.add("rolling"); } await wait(SP.hop / 4); }
+    const n = forced.length ? forced.shift() : fairDie();
+    if (die) { die.innerHTML = dieFace(n); die.classList.remove("rolling"); die.classList.add("land"); }
+    await wait(SP.pause * .6);
+    await hop(G.turn, D.path(current().pos, n));
+    land(G.turn);
+  }
+  // Le pion sautille de case en case ; la caméra le suit
+  async function hop(i, steps, ms = SP.hop) {
+    const el = stage.querySelector(`.dr-pawn[data-p="${i}"]`);
+    for (const pos of steps) {
+      if (dead) return;
+      const x0 = +el.dataset.x, y0 = +el.dataset.y;
+      G.players[i].pos = pos;
+      const q = spot(i);
+      followCell(pos, ms);
+      el.style.transition = "none";
+      const a = el.animate ? el.animate([
+        { transform: `translate3d(${x0}px, ${y0}px, 0)` },
+        { transform: `translate3d(${(x0 + q.x) / 2}px, ${(y0 + q.y) / 2}px, 46px)`, offset: .5 },
+        { transform: `translate3d(${q.x}px, ${q.y}px, 0)` }
+      ], { duration: ms, easing: "ease-in-out" }) : null;
+      await wait(ms);
+      if (a) a.cancel();
+      el.style.transform = `translate3d(${q.x}px, ${q.y}px, 0)`; el.dataset.x = q.x; el.dataset.y = q.y;
+    }
+    replaceAll();
+  }
+
+  /* ---------- arrivée sur une case ---------- */
+  function land(i, opts = {}) {
+    const p = G.players[i], c = D.CASES[p.pos];
+    if (c.i === 0) { next(); return; }
+    const k = c.k;
+    let actions = `<button type="button" class="btn primary" id="dr-ok">${k === "rejoue" ? "Relancer le dé" : k === "recule" ? "Reculer" : k === "retour" ? "Retour au départ" : "Suivant"}</button>`;
+    let text = c.r;
+    if (opts.newcomer) text = `Bienvenue ${esc(p.name)} ! Tu arrives en cours de partie : paie la douane, bois 3 gorgées.`;
+    if (k === "echange-pion") {
+      const others = G.players.map((q, j) => j).filter((j) => j !== i && !G.players[j].done);
+      actions = others.length ? `<div class="dr-choose">${others.map((j) => `<button type="button" class="dr-pl" data-j="${j}">${pionSvg(G.players[j].pion, 30)}<span>${esc(G.players[j].name)}</span><small>case ${G.players[j].pos}</small></button>`).join("")}</div>`
+        : `<button type="button" class="btn primary" id="dr-ok">Suivant</button>`;
+    }
+    if (k === "arrivee") {
+      G.ranks.push(i); p.done = true;
+      text = `${esc(p.name)} termine ${G.ranks.length === 1 ? "premier" : G.ranks.length === 2 ? "deuxième" : "troisième"} ! ${G.ranks.length === 1 ? "Bravo, distribue 5 gorgées pour fêter ça." : "Bien joué !"}`;
+    }
+    const s = sheet(`<div class="dr-card"><div class="dr-img"><img src="${c.img}" alt="">${c.n ? "" : `<span class="dr-ct">${esc(c.t)}</span>`}</div>
+      <p class="dr-who-small">${pionSvg(p.pion, 26)} ${esc(p.name)} · case ${c.i}</p>
+      <p class="dr-rule">${text}</p>${actions}</div>`, (s) => {
+      const ok = s.querySelector("#dr-ok");
+      if (ok) ok.addEventListener("click", () => { closeSheet(); after(i, k); });
+      s.querySelectorAll(".dr-pl").forEach((b) => b.addEventListener("click", async () => {
+        closeSheet(); const j = +b.dataset.j;
+        const a = G.players[i].pos; G.players[i].pos = G.players[j].pos; G.players[j].pos = a;
+        await swapAnim(i, j); next();
+      }));
+    }, { card: true, locked: true });
+    // la case s'agrandit depuis le plateau
+    const cell = stage.querySelector(`.dr-case[data-i="${c.i}"]`), img = s.querySelector(".dr-img");
+    if (cell && img && img.animate) {
+      const a = cell.getBoundingClientRect(), b = img.getBoundingClientRect();
+      img.animate([{ transform: `translate(${a.left + a.width / 2 - (b.left + b.width / 2)}px, ${a.top + a.height / 2 - (b.top + b.height / 2)}px) scale(${a.width / b.width})`, opacity: .6 }, { transform: "none", opacity: 1 }], { duration: 420, easing: "cubic-bezier(.2,.9,.3,1.1)" });
+    }
+  }
+  async function after(i, k) {
+    if (k === "rejoue") { await wait(150); turnAgain(); return; }
+    if (k === "recule") { await hop(i, [G.players[i].pos - 1, G.players[i].pos - 2, G.players[i].pos - 3]); land(i); return; }
+    if (k === "retour") { await slideHome(i); next(); return; }
+    if (k === "arrivee") { replaceAll(); if (G.ranks.length >= Math.min(D.FINISH_AT, G.players.length)) { end(); return; } }
+    next();
+  }
+  function turnAgain() {
+    const p = current();
+    focusPlayer(G.turn);
+    bar(`<div class="dr-who">${pionSvg(p.pion, 34)}<span><b>${esc(p.name)}</b> rejoue</span></div>
+      <button type="button" class="btn primary dr-roll" id="dr-roll"><span class="dr-die" id="dr-die">${dieFace(6)}</span>Lancer le dé</button>`);
+    busy = false;
+    $("dr-roll").addEventListener("click", () => roll());
+  }
+  async function slideHome(i) {
+    const steps = []; for (let p = G.players[i].pos - 1; p >= 0; p--) steps.push(p);
+    overview(); await wait(SP.zoom * .6);
+    await hop(i, steps, Math.max(60, SP.hop / 4));
+  }
+  async function swapAnim(i, j) {
+    overview(); await wait(SP.zoom * .6);
+    replaceAll(); await wait(400);
+  }
+  function next() {
+    if (G.over) return;
+    G.turn = (G.turn + 1) % G.players.length;
+    turn(false);
+  }
+
+  /* ---------- un joueur arrive en cours de partie ---------- */
+  function joinLate() {
+    if (!G || G.over || busy || G.players.length >= D.PIONS.length) return;
+    const free = D.PIONS.find((p) => !G.players.some((q) => q.pion === p.id));
+    let pion = free.id;
+    const draw = () => sheet(`<h3>Un nouveau joueur</h3><p>Il commence sur la case « Arrivée en cours de jeu » et paie la douane.</p>
+      <div class="dr-row"><button type="button" class="dr-pick" id="dr-jp" aria-label="Changer le pion">${pionSvg(pion, 40)}</button><input class="mo-input" id="dr-jn" maxlength="16" autocapitalize="words" placeholder="Prénom"></div>
+      <p class="mo-err" id="dr-je" hidden></p><button type="button" class="btn primary" id="dr-jok">Rejoindre la partie</button><button type="button" class="btn ghost" data-close>Annuler</button>`, (s) => {
+      s.querySelector("#dr-jp").addEventListener("click", () => { const nm = s.querySelector("#dr-jn").value; pickPion(0, (id) => { pion = id; draw(); const n = sh && sh.querySelector("#dr-jn"); if (n) n.value = nm; }); });
+      s.querySelector("#dr-jok").addEventListener("click", async () => {
+        const nm = s.querySelector("#dr-jn").value.trim(), err = s.querySelector("#dr-je");
+        if (!nm) { err.textContent = "Mets un prénom."; err.hidden = false; return; }
+        if (G.players.some((q) => q.name.toLowerCase() === nm.toLowerCase())) { err.textContent = "Ce prénom est déjà pris."; err.hidden = false; return; }
+        closeSheet();
+        // il s'assoit juste après le joueur dont c'est le tour
+        const at = G.turn + 1;
+        G.players.splice(at, 0, { name: nm, pion, pos: D.DOUANE, done: false });
+        G.ranks = G.ranks.map((r) => (r >= at ? r + 1 : r));
+        roster.push({ name: nm, pion }); store.set("arbas-drac", { roster });
+        const keepTurn = G.turn;
+        drawGame(); G.turn = keepTurn;
+        const s0 = D.SPIRAL[D.DOUANE]; setCam({ ...inBoard((s0.c + .5) * C, (s0.r + .5) * C, cam.z, 42), tilt: 42 });
+        await wait(SP.zoom);
+        const iNew = at;
+        landNewcomer(iNew);
+      });
+    });
+    draw();
+  }
+  function landNewcomer(i) {
+    const c = D.CASES[D.DOUANE], p = G.players[i];
+    sheet(`<div class="dr-card"><div class="dr-img"><img src="${c.img}" alt=""></div><p class="dr-who-small">${pionSvg(p.pion, 26)} ${esc(p.name)} · case ${c.i}</p>
+      <p class="dr-rule">Bienvenue ${esc(p.name)} ! Tu arrives en cours de partie : paie la douane, bois 3 gorgées.</p><button type="button" class="btn primary" id="dr-ok">On continue</button></div>`, (s) => {
+      s.querySelector("#dr-ok").addEventListener("click", () => { closeSheet(); turn(false); });
+    }, { card: true, locked: true });
+  }
+
+  /* ---------- fin de partie ---------- */
+  function end() {
+    G.over = true; hud.textContent = "";
+    const pod = G.ranks.slice(0, 3).map((i, k) => ({ p: G.players[i], k }));
+    const d = document.createElement("div"); d.className = "mo dr-end";
+    d.innerHTML = `<span class="pq-label">Fin de la partie</span><h2 class="mo-h">Le Drac est terminé !</h2>
+      <div class="dr-podium">${[1, 0, 2].filter((k) => pod[k]).map((k) => `<div class="dr-step s${k + 1}">${pionSvg(pod[k].p.pion, k === 0 ? 70 : 54)}<b>${esc(pod[k].p.name)}</b><span>${k + 1}</span></div>`).join("")}</div>
+      <p class="pc-care">Un verre d'eau entre deux verres, et on rentre à pied ou avec quelqu'un qui n'a pas bu.</p>
+      <button type="button" class="btn primary dr-again">Rejouer avec les mêmes</button>
+      <button type="button" class="btn ghost dr-setup-b">Changer les joueurs</button>
+      <button type="button" class="btn ghost dr-menu">Jeux à boire</button>`;
+    stage.replaceChildren(d);
+    d.querySelector(".dr-again").addEventListener("click", () => start(G.players.map((p) => ({ name: p.name, pion: p.pion }))));
+    d.querySelector(".dr-setup-b").addEventListener("click", () => { G = null; setup(); });
+    d.querySelector(".dr-menu").addEventListener("click", () => { stopGame(); renderDrinks(); });
+  }
+
+  const onResize = () => { if (G && !G.over && $("dr-view")) { fit(); setCam(cam, false); } };
+  addEventListener("resize", onResize);
+  setup();
+  if (/drdebug/.test(location.search)) window.__drac = { D, get G() { return G; }, get busy() { return busy; }, force: (...n) => { forced.push(...n); }, fast: () => { SP = { hop: 40, pause: 40, zoom: 40 }; }, roll: () => roll() };
+  return () => { dead = true; timers.forEach(clearTimeout); closeSheet(); removeEventListener("resize", onResize); };
+}
+
+/* DRAC-JS-END */
 const DRINK_GAMES = [
   { id: "picolons", name: "Picolons", desc: "Défis, questions et gorgées à distribuer, de 2 à 12 joueurs.", run: picolons },
   { id: "bombe", name: "La bombe", desc: "Un thème, un mot chacun, et on se passe le téléphone avant qu'il explose.", run: bombe },
   { id: "plusmoins", name: "Plus ou moins", desc: "Plus haut, plus bas ou égal ? Une gorgée par carte de la série ratée.", run: plusmoins },
+  { id: "drac", name: "Le Drac", desc: "Le jeu de l'oie à boire : un dé, 40 cases, et la course s'arrête quand 3 joueurs sont arrivés.", run: drac },
   { id: "des", name: "Juste des dés", desc: "De 1 à 4 dés justes, pour jouer au 421, au Yams ou à ce que vous voulez sans dés sur vous.", run: justeDes, free: true }
 ];
 let backMenu = renderMenu;
