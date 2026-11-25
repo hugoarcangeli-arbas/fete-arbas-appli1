@@ -931,7 +931,7 @@ button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
       <button class="hn" id="go-livre" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6h9a3 3 0 0 1 3 3v17a2.5 2.5 0 0 0-2.5-2.5H6zM26 6h-5a3 3 0 0 0-3 3v17a2.5 2.5 0 0 1 2.5-2.5H26z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg><span class="hn-t"><b>Livre d'or</b><small>Laisse un mot au Comité</small></span><span class="hn-go" aria-hidden="true">›</span></button>
       <button class="hn" id="go-membres" type="button"><svg class="hn-ic" viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="14" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11 14v-4a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16" cy="21" r="2" fill="currentColor"/></svg><span class="hn-t"><b>Espace membres</b></span><span class="hn-go" aria-hidden="true">›</span></button>
     </nav>
-    <p class="app-ver" id="app-ver">v122</p>
+    <p class="app-ver" id="app-ver">v123</p>
   </section>
   <div class="modal" id="inst-modal" role="dialog" aria-modal="true" aria-labelledby="inst-t" hidden>
     <div class="modal-box inst-box">
@@ -6875,32 +6875,32 @@ function justeDes(stage, hud) {
 const DRAC = (() => {
   // Textes des cases : premier jet à corriger par Hugo. « n » : le nom n'est pas affiché sur la case.
   const T = {
-    depart: { t: "Départ", r: "C'est parti ! Chacun lance le dé à son tour." },
-    "plus-jeune": { t: "Le plus jeune boit", r: "Le plus jeune de la table boit 2 gorgées." },
-    "donne-2": { t: "Donne 2 gorgées", r: "Distribue 2 gorgées à qui tu veux." },
+    depart: { t: "Départ", r: "C'est parti !" },
+    "plus-jeune": { t: "Le plus jeune boit", r: "Le plus jeune boit 2 gorgées." },
+    "donne-2": { t: "Donne 2 gorgées", r: "Distribue 2 gorgées." },
     invente: { t: "Invente une règle", r: "Invente une règle que tout le monde devra respecter jusqu'à la fin de la partie." },
-    rejoue: { t: "Rejoue", r: "Relance le dé et avance encore !" },
-    "gorgee-peuple": { t: "Gorgée du peuple", r: "Tout le monde lève son verre et boit une gorgée." },
-    kmk: { t: "Kiss / marry / kill", n: true, r: "Kiss, marry, kill ! Le joueur à ta gauche te donne trois noms : tu choisis qui tu embrasses, qui tu épouses et qui tu tues." },
+    rejoue: { t: "Rejoue", r: "Relance le dé et avance encore." },
+    "gorgee-peuple": { t: "Gorgée du peuple", r: "Tout le monde boit." },
+    kmk: { t: "Kiss / marry / kill", n: true, r: "Kiss, marry, kill ! Choisis parmi les joueurs.<br>3 gorgées en cas de refus." },
     "jai-deja": { t: "J'ai déjà", r: "Dis une chose que tu as déjà faite. Ceux qui ne l'ont jamais faite boivent une gorgée." },
-    "donne-3": { t: "Donne 3 gorgées", r: "Distribue 3 gorgées à qui tu veux." },
+    "donne-3": { t: "Donne 3 gorgées", r: "Distribue 3 gorgées." },
     rime: { t: "Jeu de la rime", r: "Dis un mot. Chacun son tour, trouvez un mot qui rime. Le premier qui sèche ou qui répète un mot boit 2 gorgées." },
-    filles: { t: "Les filles boivent", r: "Toutes les filles boivent une gorgée." },
+    filles: { t: "Les filles boivent", r: "Toutes les filles boivent." },
     douane: { t: "Arrivée en cours de jeu", n: true, r: "Douane ! Si tu viens de rejoindre la partie, paie ton entrée : bois 3 gorgées. Si tu tombes ici en jouant, distribue 3 gorgées." },
-    shifumi: { t: "Shi-fu-mi", r: "Défie le joueur de ton choix au shi-fu-mi, en une manche. Le perdant boit 2 gorgées." },
+    shifumi: { t: "Shi-fu-mi", r: "Shi-fu-mi contre tous les joueurs à tour de rôle. Une gorgée par manche perdue, joue jusqu'à ce que tu gagnes contre tout le monde." },
     "bois-2": { t: "Bois 2 gorgées", r: "Bois 2 gorgées." },
-    miroir: { t: "Miroir", r: "Choisis un joueur : vous devenez le reflet l'un de l'autre. Jusqu'à ce que quelqu'un tombe sur « Fin du miroir », quand l'un boit, l'autre boit aussi." },
+    miroir: { t: "Miroir", r: "Choisis un joueur : quand tu bois il boit, et réciproquement, jusqu'à « Fin du miroir »." },
     "bois-3": { t: "Bois 3 gorgées", r: "Bois 3 gorgées." },
     recule: { t: "Recule de 3 cases", r: "Recule de 3 cases." },
     "echange-verre": { t: "Échange ton verre", r: "Échange ton verre avec le joueur de ton choix." },
-    "le-21": { t: "Le 21", r: "Comptez jusqu'à 21 à tour de rôle, en commençant par toi. Celui qui se trompe boit 2 gorgées et on recommence. Celui qui dit 21 remplace un nombre par un geste ou un mot de son choix, et on recommence." },
-    "sauf-toi": { t: "Tout le monde boit sauf toi", r: "Tout le monde boit une gorgée, sauf toi." },
-    garcons: { t: "Les garçons boivent", r: "Tous les garçons boivent une gorgée." },
-    interdit: { t: "Interdit de dire « boire »", r: "Jusqu'à la fin de la partie, interdit de dire le verbe « boire ». Celui qui le dit boit une gorgée." },
-    jamais: { t: "Je n'ai jamais", r: "Dis une chose que tu n'as jamais faite. Ceux qui l'ont déjà faite boivent une gorgée." },
-    retour: { t: "Retour à la case départ", r: "Pas de chance : retour à la case départ !" },
-    "tu-preferes": { t: "Tu préfères ?", r: "Pose une question « Tu préfères… ? » à la table. Ceux qui sont dans la minorité boivent une gorgée." },
-    "fin-miroir": { t: "Fin du miroir", r: "Le miroir est cassé : la règle du miroir s'arrête." },
+    "le-21": { t: "Le 21", r: "Jeu du 21, enchérissez de +1, +2, +3. Celui qui dit 21 boit 2 gorgées et rajoute une règle." },
+    "sauf-toi": { t: "Tout le monde boit sauf toi", r: "Tout le monde boit, sauf toi." },
+    garcons: { t: "Les garçons boivent", r: "Tous les garçons boivent." },
+    interdit: { t: "Interdit de dire « boire »", r: "Jusqu'à la fin de la partie, tu n'as plus le droit d'utiliser le verbe « boire ». 1 gorgée par faute." },
+    jamais: { t: "Je n'ai jamais", r: "Dis une chose que tu n'as jamais faite. Ceux qui l'ont déjà faite boivent." },
+    retour: { t: "Retour à la case départ", r: "Allez hop, retour à la case départ ! T'es deg." },
+    "tu-preferes": { t: "Tu préfères ?", r: "Pose un « Tu préfères… ? ». Ceux qui sont dans la minorité boivent. En cas d'égalité tout le monde boit." },
+    "fin-miroir": { t: "Fin du miroir", r: "Le miroir est cassé : la règle du miroir s'arrête pour ton binôme." },
     "echange-pion": { t: "Échange ton pion", r: "Choisis un joueur : vous échangez vos places sur le plateau." },
     theme: { t: "Jeu du thème", r: "Choisis un thème (marques de bière, pays, chanteurs…). Chacun son tour, citez un mot du thème. Le premier qui sèche ou qui répète boit 2 gorgées." },
     pouce: { t: "Bataille de pouce", r: "Défie le joueur de ton choix en bataille de pouce. Le perdant boit 2 gorgées." },
@@ -7174,10 +7174,11 @@ function drac(stage, hud) {
   /* ---------- arrivée sur une case ---------- */
   function land(i, opts = {}) {
     const p = G.players[i], c = D.CASES[p.pos];
-    if (c.i === 0) { next(); return; }
+    if (c.i === 0 && !opts.remotive) { next(); return; }
     const k = c.k;
     let actions = `<button type="button" class="btn primary" id="dr-ok">${k === "rejoue" ? "Relancer le dé" : k === "recule" ? "Reculer" : k === "retour" ? "Retour au départ" : "Suivant"}</button>`;
     let text = c.r;
+    if (opts.remotive) text = "Bois une gorgée pour te remotiver !";
     if (opts.newcomer) text = `Bienvenue ${esc(p.name)} ! Tu arrives en cours de partie : paie la douane, bois 3 gorgées.`;
     if (k === "echange-pion") {
       const others = G.players.map((q, j) => j).filter((j) => j !== i && !G.players[j].done);
@@ -7209,7 +7210,7 @@ function drac(stage, hud) {
   async function after(i, k) {
     if (k === "rejoue") { await wait(150); turnAgain(); return; }
     if (k === "recule") { await hop(i, [G.players[i].pos - 1, G.players[i].pos - 2, G.players[i].pos - 3]); land(i); return; }
-    if (k === "retour") { await slideHome(i); next(); return; }
+    if (k === "retour") { await slideHome(i); land(i, { remotive: true }); return; }
     if (k === "arrivee") { replaceAll(); if (G.ranks.length >= Math.min(D.FINISH_AT, G.players.length)) { end(); return; } }
     next();
   }
